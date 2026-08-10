@@ -1,0 +1,189 @@
+
+.page {
+    min-height: 100vh;
+    background: #f5f6f8;
+    padding-bottom: 160rpx;
+    box-sizing: border-box;
+}
+.loading {
+    text-align: center;
+    padding-top: 200rpx;
+    color: #999;
+}
+
+/* 头部卡片 */
+.header-card {
+    background: linear-gradient(135deg, #1a5c3a, #2d8a5e);
+    padding: 50rpx 40rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #fff;
+}
+.avatar {
+    width: 160rpx;
+    height: 160rpx;
+    border-radius: 50%;
+    border: 6rpx solid rgba(255, 255, 255, 0.3);
+    margin-bottom: 24rpx;
+    background: #fff;
+}
+.name {
+    font-size: 40rpx;
+    font-weight: 700;
+    margin-bottom: 10rpx;
+}
+.title {
+    font-size: 26rpx;
+    opacity: 0.9;
+    margin-bottom: 20rpx;
+}
+.tags {
+    display: flex;
+    gap: 12rpx;
+}
+.tag {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 6rpx 18rpx;
+    border-radius: 20rpx;
+    font-size: 22rpx;
+}
+
+/* 通用区块 */
+.section {
+    margin: 24rpx;
+    background: #fff;
+    border-radius: 20rpx;
+    padding: 32rpx;
+}
+.section-title {
+    font-size: 30rpx;
+    font-weight: 700;
+    color: #222;
+    margin-bottom: 24rpx;
+}
+.desc {
+    font-size: 28rpx;
+    color: #555;
+    line-height: 1.7;
+}
+
+/* 日期 */
+.date-list {
+    white-space: nowrap;
+    margin-bottom: 30rpx;
+}
+.date-item {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 110rpx;
+    height: 110rpx;
+    margin-right: 16rpx;
+    border-radius: 16rpx;
+    background: #f5f5f5;
+}
+.date-item.active {
+    background: #07c160;
+    color: #fff;
+}
+.week {
+    font-size: 22rpx;
+    margin-bottom: 6rpx;
+}
+.day {
+    font-size: 28rpx;
+    font-weight: 600;
+}
+
+/* 时间段 */
+.time-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16rpx;
+}
+.time-item {
+    width: 200rpx;
+    height: 76rpx;
+    line-height: 76rpx;
+    text-align: center;
+    background: #f5f5f5;
+    border-radius: 12rpx;
+    font-size: 26rpx;
+    position: relative;
+}
+.time-item.active {
+    background: #07c160;
+    color: #fff;
+}
+.time-item.full {
+    background: #eee;
+    color: #bbb;
+}
+.status-text {
+    position: absolute;
+    right: 8rpx;
+    top: 4rpx;
+    font-size: 18rpx;
+    color: #ff4d4f;
+    line-height: 1;
+}
+
+/* 底部按钮 */
+.bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    padding: 20rpx 30rpx;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 -4rpx 20rpx rgba(0, 0, 0, 0.05);
+    z-index: 100;
+}
+.selected-info {
+    font-size: 26rpx;
+    color: #333;
+}
+.book-btn {
+    background: #07c160 !important;
+    color: #fff !important;
+    border-radius: 40rpx;
+    font-size: 30rpx;
+    padding: 0 50rpx;
+    margin: 0;
+    line-height: 80rpx;
+}
+.book-btn[disabled] {
+    background: #ccc !important;
+}
+
+/* 场地选择 */
+.court-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16rpx;
+}
+.court-item {
+    width: 200rpx;
+    height: 76rpx;
+    line-height: 76rpx;
+    text-align: center;
+    background: #f5f5f5;
+    border-radius: 12rpx;
+    font-size: 28rpx;
+}
+.court-item.active {
+    background: #07c160;
+    color: #fff;
+}
+.no-court {
+    font-size: 26rpx;
+    color: #999;
+    text-align: center;
+    padding: 30rpx 0;
+}
+

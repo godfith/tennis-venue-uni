@@ -1,0 +1,89 @@
+{
+	"pages": [
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "网球场馆",
+				"usingComponents": {
+					"cloud-tip-modal": "/components/cloudTipModal/index"
+				}
+			}
+		},
+		{
+			"path": "pages/booking/booking",
+			"style": {
+				"usingComponents": {}
+			}
+		},
+		{
+			"path": "pages/my/my",
+			"style": {
+				"navigationBarTitleText": "我的",
+				"usingComponents": {}
+			}
+		},
+		{
+			"path": "pages/mybooking/mybooking",
+			"style": {
+				"usingComponents": {}
+			}
+		},
+		{
+			"path": "pages/coach/coach",
+			"style": {
+				"navigationBarTitleText": "教练指导",
+				"usingComponents": {}
+			}
+		},
+		{
+			"path": "pages/coach-detail/coach-detail",
+			"style": {
+				"navigationBarTitleText": "教练详情",
+				"usingComponents": {}
+			}
+		},
+		{
+			"path": "pages/coach-workbench/coach-workbench",
+			"style": {
+				"navigationBarTitleText": "教练工作台",
+				"usingComponents": {}
+			}
+		},
+		{
+			"path": "pages/coach-edit/coach-edit",
+			"style": {
+				"navigationBarTitleText": "编辑教练资料",
+				"usingComponents": {}
+			}
+		}
+	],
+	"tabBar": {
+		"color": "#999999",
+		"selectedColor": "#07c160",
+		"backgroundColor": "#ffffff",
+		"borderStyle": "black",
+		"list": [
+			{
+				"pagePath": "pages/index/index",
+				"text": "首页"
+			},
+			{
+				"pagePath": "pages/booking/booking",
+				"text": "预约"
+			},
+			{
+				"pagePath": "pages/my/my",
+				"text": "我的"
+			}
+		]
+	},
+	"sitemapLocation": "sitemap.json",
+	"lazyCodeLoading": "requiredComponents",
+	"globalStyle": {
+		"navigationBarTitleText": "网球场馆",
+		"navigationBarBackgroundColor": "#ffffff",
+		"navigationBarTextStyle": "black",
+		"backgroundColor": "#f7f8fa"
+	},
+	"subPackages": []
+}
