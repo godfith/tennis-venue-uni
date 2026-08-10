@@ -162,11 +162,6 @@ export default {
                     if (this.currentDate) {
                       this.loadCourtStatus(this.currentDate)
                     }
-
-                    // 场地加载完成后再加载状态
-                    if (this.currentDate) {
-                        this.loadCourtStatus(this.currentDate);
-                    }
                 })
                 .catch((err) => {
                     console.error('加载场地失败', err);
