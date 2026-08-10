@@ -158,9 +158,10 @@ export default {
                         name: item.name,
                         desc: item.type || ''
                     }));
-                    this.setData({
-                        courtConfig
-                    });
+                    this.courtConfig = courtConfig
+                    if (this.currentDate) {
+                      this.loadCourtStatus(this.currentDate)
+                    }
 
                     // 场地加载完成后再加载状态
                     if (this.currentDate) {
@@ -191,23 +192,19 @@ export default {
                     isToday: i === 0
                 });
             }
-            this.setData({
-                dateList: list,
-                currentDate: list[0].date
-            });
-            this.loadCourtStatus(list[0].date);
+            this.dateList = list
+            this.currentDate = list[0].date
+            this.loadCourtStatus(list[0].date)
         },
 
         // 选择日期
         onSelectDate(e) {
-            const date = e.currentTarget.dataset.date;
-            this.setData({
-                currentDate: date,
-                currentCourtId: '',
-                currentCourtName: '',
-                currentTime: ''
-            });
-            this.loadCourtStatus(date);
+          const date = e.currentTarget.dataset.date
+          this.currentDate = date
+          this.currentCourtId = ''
+          this.currentCourtName = ''
+          this.currentTime = ''
+          this.loadCourtStatus(date)
         },
 
         /**
@@ -249,9 +246,7 @@ export default {
 
             // 如果今天已经没有可预约时间了
             if (availableTimes.length === 0) {
-                this.setData({
-                    courtList: []
-                });
+                this.courtList = []
                 uni.showToast({
                     title: '今日已无剩余时段',
                     icon: 'none'
@@ -286,9 +281,7 @@ export default {
                             times
                         };
                     });
-                    this.setData({
-                        courtList
-                    });
+                    this.courtList = courtList;
                 })
                 .catch((err) => {
                     console.error('查询失败', err);
@@ -301,9 +294,7 @@ export default {
                             status: 'available'
                         }))
                     }));
-                    this.setData({
-                        courtList
-                    });
+                    this.courtList = courtList;
                 });
         },
 
@@ -317,11 +308,9 @@ export default {
                 });
                 return;
             }
-            this.setData({
-                currentCourtId: courtId,
-                currentCourtName: courtName,
-                currentTime: time
-            });
+            this.currentCourtId = courtId;
+            this.currentCourtName = courtName;
+            this.currentTime = time;
         },
 
         // 确认预约
@@ -356,11 +345,9 @@ export default {
                                     icon: 'success'
                                 });
                                 this.loadCourtStatus(currentDate);
-                                this.setData({
-                                    currentCourtId: '',
-                                    currentCourtName: '',
-                                    currentTime: ''
-                                });
+                                this.currentCourtId = '';
+                                this.currentCourtName = '';
+                                this.currentTime = '';
                             })
                             .catch((err) => {
                                 console.error(err);

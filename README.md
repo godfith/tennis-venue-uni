@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # miniprogram-to-uniapp 转换说明
 
 ## 0x00 转换模式
@@ -85,3 +86,7 @@ https://uniapp.dcloud.io/tutorial/miniprogram-subject.html#%E5%B0%8F%E7%A8%8B%E5
 ### 其他
 - 因各种原因，本工具并非100%完美转换！有问题实属正常！
 - 如遇运行报错，请在https://github.com/zhangdaren/miniprogram-to-uniapp，将详细情况提交Issue！
+=======
+# tennis-venue-uni
+山羊Goat网球馆 - uni-app跨平台项目（微信小程序 + 安卓）
+>>>>>>> 5e80553dd1de9a7099cb684b8dd5a23afdd35a48
