@@ -251,13 +251,10 @@ var _default = {
   },
   onLoad: function onLoad(options) {
     var id = options.id;
-    this.setData({
-      coachId: id
-    });
+    this.coachId = id;
     this.loadCoachDetail(id);
-    this.loadCourts(); // 先加载场地，场地加载完成后再初始化日期
+    this.loadCourts();
   },
-
   methods: {
     // 从数据库加载场地
     loadCourts: function loadCourts() {
@@ -266,14 +263,9 @@ var _default = {
       db.collection('courts').where({
         status: 'open'
       }).orderBy('sort', 'asc').get().then(function (res) {
-        var courtList = res.data.map(function (item) {
+        _this.courtList = res.data.map(function (item) {
           return item.name;
         });
-        _this.setData({
-          courtList: courtList
-        });
-
-        // 场地加载完成后再初始化日期和时间
         _this.initDateList();
       }).catch(function (err) {
         console.error('加载场地失败', err);
@@ -298,19 +290,15 @@ var _default = {
           day: "".concat(month, "/").concat(day)
         });
       }
-      this.setData({
-        dateList: list,
-        currentDate: list[0].date
-      });
+      this.dateList = list;
+      this.currentDate = list[0].date;
       this.loadTimeList(list[0].date);
     },
     loadCoachDetail: function loadCoachDetail(id) {
       var _this2 = this;
       var db = wx.cloud.database();
       db.collection('coaches').doc(id).get().then(function (res) {
-        _this2.setData({
-          coach: res.data
-        });
+        _this2.coach = res.data;
       }).catch(function (err) {
         console.error(err);
         uni.showToast({
@@ -333,12 +321,10 @@ var _default = {
       // 根据当前时间过滤（如果是今天，去掉已经过去的时间）
       var availableTimes = this.getAvailableTimes(date, allTimes);
       if (availableTimes.length === 0) {
-        this.setData({
-          timeList: [],
-          currentTime: '',
-          currentCourt: '',
-          availableCourts: []
-        });
+        this.timeList = [];
+        this.currentTime = '';
+        this.currentCourt = '';
+        this.availableCourts = [];
         return;
       }
       Promise.all([db.collection('coach_bookings').where({
@@ -372,12 +358,10 @@ var _default = {
             status: isCoachBooked || !hasAvailableCourt ? 'full' : 'available'
           };
         });
-        _this3.setData({
-          timeList: timeList,
-          currentTime: '',
-          currentCourt: '',
-          availableCourts: []
-        });
+        _this3.timeList = timeList;
+        _this3.currentTime = '';
+        _this3.currentCourt = '';
+        _this3.availableCourts = [];
       }).catch(function (err) {
         console.error(err);
       });
@@ -411,9 +395,7 @@ var _default = {
     },
     onSelectDate: function onSelectDate(e) {
       var date = e.currentTarget.dataset.date;
-      this.setData({
-        currentDate: date
-      });
+      this.currentDate = date;
       this.loadTimeList(date);
     },
     // 选择时间后，加载该时间的空闲场地
@@ -428,10 +410,8 @@ var _default = {
         });
         return;
       }
-      this.setData({
-        currentTime: time,
-        currentCourt: ''
-      });
+      this.currentTime = time;
+      this.currentCourt = '';
       this.loadAvailableCourts(this.currentDate, time);
     },
     // 查询某时间段的空闲场地
@@ -450,21 +430,15 @@ var _default = {
         var availableCourts = courtList.filter(function (c) {
           return !bookedCourts.includes(c);
         });
-        _this4.setData({
-          availableCourts: availableCourts
-        });
+        _this4.availableCourts = availableCourts;
       }).catch(function (err) {
         console.error(err);
-        _this4.setData({
-          availableCourts: courtList
-        });
+        _this4.availableCourts = courtList;
       });
     },
     onSelectCourt: function onSelectCourt(e) {
       var court = e.currentTarget.dataset.court;
-      this.setData({
-        currentCourt: court
-      });
+      this.currentCourt = court;
     },
     // 预约
     onBook: function onBook() {
@@ -562,11 +536,9 @@ var _default = {
               icon: 'success'
             });
             _this5.loadTimeList(currentDate);
-            _this5.setData({
-              currentTime: '',
-              currentCourt: '',
-              availableCourts: []
-            });
+            _this5.currentTime = '';
+            _this5.currentCourt = '';
+            _this5.availableCourts = [];
           }).catch(function (err) {
             uni.hideLoading();
             if (err !== '教练已约' && err !== '场地已约') {

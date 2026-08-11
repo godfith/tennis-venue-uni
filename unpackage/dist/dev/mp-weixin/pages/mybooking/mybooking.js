@@ -201,9 +201,7 @@ var _default = {
     };
   },
   onShow: function onShow() {
-    this.setData({
-      page: 1
-    });
+    this.page = 1;
     this.getOpenidAndLoad();
   },
   methods: {
@@ -218,9 +216,7 @@ var _default = {
       }).then(function (res) {
         var openid = res.result.openid;
         console.log('当前用户 openid：', openid);
-        _this.setData({
-          openid: openid
-        });
+        _this.openid = openid;
         _this.loadMyBookings(openid);
       }).catch(function (err) {
         console.error('获取 openid 失败', err);
@@ -236,30 +232,22 @@ var _default = {
       var page = this.page,
         pageSize = this.pageSize;
       var db = wx.cloud.database();
-      this.setData({
-        loading: true
-      });
+      this.loading = true;
       var whereCondition = {
         _openid: openid
       };
-
-      // 查总条数
       db.collection('bookings').where(whereCondition).count().then(function (countRes) {
         var total = countRes.total;
         var totalPage = Math.ceil(total / pageSize) || 1;
         return db.collection('bookings').where(whereCondition).orderBy('createTime', 'desc').skip((page - 1) * pageSize).limit(pageSize).get().then(function (res) {
-          _this2.setData({
-            list: res.data,
-            total: total,
-            totalPage: totalPage,
-            loading: false
-          });
+          _this2.list = res.data;
+          _this2.total = total;
+          _this2.totalPage = totalPage;
+          _this2.loading = false;
         });
       }).catch(function (err) {
         console.error('加载失败', err);
-        _this2.setData({
-          loading: false
-        });
+        _this2.loading = false;
         uni.showToast({
           title: '加载失败',
           icon: 'none'
@@ -268,27 +256,14 @@ var _default = {
     },
     // 上一页
     prevPage: function prevPage() {
-      var _this3 = this;
-      if (this.page <= 1) {
-        return;
-      }
-      this.setData({
-        page: this.page - 1
-      }, function () {
-        _this3.loadMyBookings(_this3.openid);
-      });
+      if (this.page <= 1) return;
+      this.page = this.page - 1;
+      this.loadMyBookings(this.openid);
     },
-    // 下一页
     nextPage: function nextPage() {
-      var _this4 = this;
-      if (this.page >= this.totalPage) {
-        return;
-      }
-      this.setData({
-        page: this.page + 1
-      }, function () {
-        _this4.loadMyBookings(_this4.openid);
-      });
+      if (this.page >= this.totalPage) return;
+      this.page = this.page + 1;
+      this.loadMyBookings(this.openid);
     },
     // 判断是否可以取消（提前6小时）
     canCancel: function canCancel(booking) {
@@ -302,7 +277,7 @@ var _default = {
     },
     // 取消预约
     onCancel: function onCancel(e) {
-      var _this5 = this;
+      var _this3 = this;
       var id = e.currentTarget.dataset.id;
       var booking = this.list.find(function (item) {
         return item._id === id;
@@ -333,7 +308,7 @@ var _default = {
                 title: '已取消',
                 icon: 'success'
               });
-              _this5.loadMyBookings(_this5.openid);
+              _this3.loadMyBookings(_this3.openid);
             }).catch(function (err) {
               console.error(err);
               uni.showToast({

@@ -200,11 +200,6 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 //
 //
 //
-//
-//
-//
-//
-//
 var _default = {
   data: function data() {
     return {
@@ -319,8 +314,7 @@ var _default = {
       this.loadCourtStatus(list[0].date);
     },
     // 选择日期
-    onSelectDate: function onSelectDate(e) {
-      var date = e.currentTarget.dataset.date;
+    onSelectDate: function onSelectDate(date) {
       this.currentDate = date;
       this.currentCourtId = '';
       this.currentCourtName = '';
@@ -416,12 +410,7 @@ var _default = {
       });
     },
     // 点击某个时间格子
-    onSelectSlot: function onSelectSlot(e) {
-      var _e$currentTarget$data = e.currentTarget.dataset,
-        courtId = _e$currentTarget$data.courtId,
-        courtName = _e$currentTarget$data.courtName,
-        time = _e$currentTarget$data.time,
-        status = _e$currentTarget$data.status;
+    onSelectSlot: function onSelectSlot(courtId, courtName, time, status) {
       if (status === 'full') {
         uni.showToast({
           title: '该时段已被预约',

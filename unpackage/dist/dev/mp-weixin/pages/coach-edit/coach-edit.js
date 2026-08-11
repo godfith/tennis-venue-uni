@@ -188,9 +188,7 @@ var _default = {
   },
   onLoad: function onLoad(options) {
     var id = options.id;
-    this.setData({
-      id: id
-    });
+    this.id = id;
     this.loadDetail(id);
   },
   methods: {
@@ -199,41 +197,28 @@ var _default = {
       var db = wx.cloud.database();
       db.collection('coaches').doc(id).get().then(function (res) {
         var data = res.data;
-        _this.setData({
-          name: data.name || '',
-          title: data.title || '',
-          desc: data.desc || '',
-          tagsStr: (data.tags || []).join(','),
-          avatar: data.avatar || ''
-        });
+        _this.name = data.name || '';
+        _this.title = data.title || '';
+        _this.desc = data.desc || '';
+        _this.tagsStr = (data.tags || []).join(',');
+        _this.avatar = data.avatar || '';
       });
     },
     // 选择头像
     onChooseAvatar: function onChooseAvatar(e) {
-      var avatar = e.detail.avatarUrl;
-      this.setData({
-        avatar: avatar
-      });
+      this.avatar = e.detail.avatarUrl;
     },
     onNameInput: function onNameInput(e) {
-      this.setData({
-        name: e.detail.value
-      });
+      this.name = e.detail.value;
     },
     onTitleInput: function onTitleInput(e) {
-      this.setData({
-        title: e.detail.value
-      });
+      this.title = e.detail.value;
     },
     onDescInput: function onDescInput(e) {
-      this.setData({
-        desc: e.detail.value
-      });
+      this.desc = e.detail.value;
     },
     onTagsInput: function onTagsInput(e) {
-      this.setData({
-        tagsStr: e.detail.value
-      });
+      this.tagsStr = e.detail.value;
     },
     onSave: function onSave() {
       var id = this.id,

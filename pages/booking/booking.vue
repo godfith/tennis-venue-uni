@@ -8,7 +8,7 @@
 
             <!-- 日期选择 -->
             <scroll-view class="date-scroll" :scroll-x="true" :enable-flex="true">
-                <view :class="'date-item ' + (currentDate === item.date ? 'active' : '')" @tap="onSelectDate" :data-date="item.date" v-for="(item, index) in dateList" :key="index">
+                <view :class="'date-item ' + (currentDate === item.date ? 'active' : '')" @tap="onSelectDate(item.date)" v-for="(item, index) in dateList" :key="index">
                     <view class="week">{{ item.week }}</view>
 
                     <view class="day">{{ item.day }}</view>
@@ -29,18 +29,13 @@
 
                     <view class="time-grid">
                         <view
-                            :class="'time-cell ' + (cell.status === 'full' ? 'full' : '') + ' ' + (currentCourtId === item.id && currentTime === cell.time ? 'selected' : '')"
-                            @tap="onSelectSlot"
-                            :data-court-id="item.id"
-                            :data-court-name="item.name"
-                            :data-time="cell.time"
-                            :data-status="cell.status"
-                            v-for="(cell, index1) in item.times"
-                            :key="index1"
+                          :class="'time-cell ' + (cell.status === 'full' ? 'full' : '') + ' ' + (currentCourtId === item.id && currentTime === cell.time ? 'selected' : '')"
+                          @tap="onSelectSlot(item.id, item.name, cell.time, cell.status)"
+                          v-for="(cell, index1) in item.times"
+                          :key="index1"
                         >
-                            <view class="time-text">{{ cell.short }}</view>
-
-                            <view class="status-text">{{ cell.status === 'full' ? '已租' : '可约' }}</view>
+                          <view class="time-text">{{ cell.short }}</view>
+                          <view class="status-text">{{ cell.status === 'full' ? '已租' : '可约' }}</view>
                         </view>
                     </view>
                 </view>
@@ -193,8 +188,7 @@ export default {
         },
 
         // 选择日期
-        onSelectDate(e) {
-          const date = e.currentTarget.dataset.date
+        onSelectDate(date) {
           this.currentDate = date
           this.currentCourtId = ''
           this.currentCourtName = ''
@@ -294,18 +288,17 @@ export default {
         },
 
         // 点击某个时间格子
-        onSelectSlot(e) {
-            const { courtId, courtName, time, status } = e.currentTarget.dataset;
-            if (status === 'full') {
-                uni.showToast({
-                    title: '该时段已被预约',
-                    icon: 'none'
-                });
-                return;
-            }
-            this.currentCourtId = courtId;
-            this.currentCourtName = courtName;
-            this.currentTime = time;
+        onSelectSlot(courtId, courtName, time, status) {
+          if (status === 'full') {
+            uni.showToast({
+              title: '该时段已被预约',
+              icon: 'none'
+            })
+            return
+          }
+          this.currentCourtId = courtId
+          this.currentCourtName = courtName
+          this.currentTime = time
         },
 
         // 确认预约

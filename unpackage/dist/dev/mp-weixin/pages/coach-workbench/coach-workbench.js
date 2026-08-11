@@ -191,21 +191,15 @@ var _default = {
       var _this = this;
       var db = wx.cloud.database();
       var openid = uni.getStorageSync('openid');
-      this.setData({
-        loading: true
-      });
+      this.loading = true;
       if (!openid) {
         uni.showToast({
           title: '请先登录',
           icon: 'none'
         });
-        this.setData({
-          loading: false
-        });
+        this.loading = false;
         return;
       }
-
-      // 1. 查当前用户
       db.collection('users').where({
         _openid: openid,
         role: 'coach'
@@ -215,49 +209,33 @@ var _default = {
             title: '您不是教练账号',
             icon: 'none'
           });
-          _this.setData({
-            loading: false
-          });
+          _this.loading = false;
           return Promise.reject('not coach');
         }
         var user = userRes.data[0];
         _this.userDocId = user._id;
         if (user.coachId) {
-          // 已关联，直接查教练资料
           return db.collection('coaches').doc(user.coachId).get().then(function (res) {
-            _this.setData({
-              coachInfo: res.data
-            });
+            _this.coachInfo = res.data;
             return user.coachId;
           });
         } else {
-          // 未关联
-          _this.setData({
-            coachInfo: null,
-            loading: false
-          });
+          _this.coachInfo = null;
+          _this.loading = false;
           return null;
         }
       }).then(function (coachId) {
-        if (!coachId) {
-          return;
-        }
-
-        // 2. 查预约记录
+        if (!coachId) return;
         return db.collection('coach_bookings').where({
           coachId: coachId,
           status: 'booked'
         }).orderBy('date', 'asc').get().then(function (res) {
-          _this.setData({
-            list: res.data,
-            loading: false
-          });
+          _this.list = res.data;
+          _this.loading = false;
         });
       }).catch(function (err) {
         console.error(err);
-        _this.setData({
-          loading: false
-        });
+        _this.loading = false;
       });
     },
     // 创建教练资料（首次关联）

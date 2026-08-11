@@ -198,19 +198,13 @@ var _default = {
     loadCoaches: function loadCoaches() {
       var _this = this;
       var db = wx.cloud.database();
-      this.setData({
-        loading: true
-      });
+      this.loading = true;
       db.collection('coaches').orderBy('sort', 'asc').get().then(function (res) {
-        _this.setData({
-          coachList: res.data,
-          loading: false
-        });
+        _this.coachList = res.data;
+        _this.loading = false;
       }).catch(function (err) {
         console.error('加载教练失败', err);
-        _this.setData({
-          loading: false
-        });
+        _this.loading = false;
         uni.showToast({
           title: '加载失败',
           icon: 'none'
