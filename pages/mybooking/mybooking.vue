@@ -10,19 +10,18 @@
 
         <!-- 列表 -->
         <view class="list" v-else>
-            <view class="item" v-for="(item, index) in list" :key="index">
-                <view class="item-left">
-                    <view class="court">{{ item.court }}</view>
-                    <view class="date-time">{{ item.date }}　{{ item.time }}</view>
-                    <view :class="'status ' + (item.status === 'booked' ? 'booked' : 'cancelled')">
-                        {{ item.status === 'booked' ? '已预约' : '已取消' }}
-                    </view>
-                </view>
-
-                <view class="item-right">
-                    <button v-if="item.status === 'booked'" class="cancel-btn" size="mini" @tap="onCancel(item._id)">取消</button>
-                </view>
+          <view class="item" v-for="(item, index) in list" :key="index" @tap="goDetail(item._id)">
+            <view class="item-left">
+              <view class="court">{{ item.court }}</view>
+              <view class="date-time">{{ item.date }}　{{ item.time }}</view>
+              <view :class="'status ' + (item.status === 'booked' ? 'booked' : 'cancelled')">
+                {{ item.status === 'booked' ? '已预约' : '已取消' }}
+              </view>
             </view>
+            <view class="item-right">
+              <text class="arrow">›</text>
+            </view>
+          </view>
         </view>
 
         <!-- 分页控制 -->
@@ -127,64 +126,75 @@ export default {
        },
         // 判断是否可以取消（提前6小时）
         canCancel(booking) {
-            const startTimeStr = booking.time.split('-')[0];
-            const bookingDateTimeStr = `${booking.date} ${startTimeStr}:00`;
-            const bookingTime = new Date(bookingDateTimeStr.replace(/-/g, '/'));
-            const now = new Date();
-            const diffMs = bookingTime.getTime() - now.getTime();
-            const diffHours = diffMs / 3600000;
-            return diffHours >= 6;
+          const startTimeStr = booking.time.split('-')[0] // "09:00"
+          const bookingDateTimeStr = `${booking.date} ${startTimeStr}:00`
+          const bookingTime = new Date(bookingDateTimeStr.replace(/-/g, '/'))
+          const now = new Date()
+          const diffMs = bookingTime.getTime() - now.getTime()
+          const diffHours = diffMs / 3600000
+        
+          // 已过期 或 不足6小时 → 不可取消
+          if (diffHours <= 0) return false
+          if (diffHours < 6) return false
+          return true
         },
 
         // 取消预约
         onCancel(id) {
           const booking = this.list.find((item) => item._id === id)
           if (!booking) return
-            if (!this.canCancel(booking)) {
-                uni.showModal({
-                    title: '无法取消',
-                    content: '预约开始前6小时内不可取消，请提前安排。',
-                    showCancel: false
-                });
-                return;
-            }
+        
+          if (!this.canCancel(booking)) {
             uni.showModal({
-                title: '确认取消',
-                content: '确定要取消这个预约吗？',
-                success: (res) => {
-                    if (res.confirm) {
-                        const db = wx.cloud.database();
-                        db.collection('bookings')
-                            .doc(id)
-                            .update({
-                                data: {
-                                    status: 'cancelled'
-                                }
-                            })
-                            .then(() => {
-                                uni.showToast({
-                                    title: '已取消',
-                                    icon: 'success'
-                                });
-                                this.loadMyBookings(this.openid);
-                            })
-                            .catch((err) => {
-                                console.error(err);
-                                uni.showToast({
-                                    title: '取消失败',
-                                    icon: 'none'
-                                });
-                            });
+              title: '无法取消',
+              content: '预约开始前6小时内不可取消，请提前安排。',
+              showCancel: false
+            })
+            return
+          }
+        
+          uni.showModal({
+            title: '确认取消',
+            content: '确定要取消这个预约吗？',
+            success: (res) => {
+              if (res.confirm) {
+                const db = wx.cloud.database()
+                db.collection('bookings')
+                  .doc(id)
+                  .update({
+                    data: {
+                      status: 'cancelled'
                     }
-                }
-            });
+                  })
+                  .then(() => {
+                    uni.showToast({
+                      title: '已取消',
+                      icon: 'success'
+                    })
+                    this.loadMyBookings(this.openid)
+                  })
+                  .catch((err) => {
+                    console.error(err)
+                    uni.showToast({
+                      title: '取消失败',
+                      icon: 'none'
+                    })
+                  })
+              }
+            }
+          })
         },
 
         goBooking() {
             uni.switchTab({
                 url: '/pages/booking/booking'
             });
-        }
+        },
+		goDetail(id) {
+		  uni.navigateTo({
+		    url: `/pages/booking-detail/booking-detail?id=${id}`
+		  })
+		},
     }
 };
 </script>

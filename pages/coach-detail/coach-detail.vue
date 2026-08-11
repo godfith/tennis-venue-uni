@@ -366,7 +366,8 @@ export default {
                                     type: 'coach',
                                     coachId: coachId,
                                     coachName: coach.name,
-                                    createTime: db.serverDate()
+                                    createTime: db.serverDate(),
+									orderNo: 'GT' + Date.now(),
                                 }
                             });
                         })
@@ -381,7 +382,8 @@ export default {
                                     court: currentCourt,
                                     status: 'booked',
                                     bookingId: bookRes._id,
-                                    createTime: db.serverDate()
+                                    createTime: db.serverDate(),
+									orderNo: 'GT' + Date.now(),
                                 }
                             });
                         })

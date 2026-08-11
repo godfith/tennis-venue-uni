@@ -443,6 +443,8 @@ var _default = {
             var db = wx.cloud.database();
             db.collection('bookings').add({
               data: {
+                orderNo: 'GT' + Date.now(),
+                // 简单订单号，例如 GT1723360000000
                 date: currentDate,
                 time: currentTime,
                 court: currentCourtName,

@@ -187,7 +187,6 @@ exports.default = void 0;
 //
 //
 //
-//
 var _default = {
   data: function data() {
     return {
@@ -267,13 +266,17 @@ var _default = {
     },
     // 判断是否可以取消（提前6小时）
     canCancel: function canCancel(booking) {
-      var startTimeStr = booking.time.split('-')[0];
+      var startTimeStr = booking.time.split('-')[0]; // "09:00"
       var bookingDateTimeStr = "".concat(booking.date, " ").concat(startTimeStr, ":00");
       var bookingTime = new Date(bookingDateTimeStr.replace(/-/g, '/'));
       var now = new Date();
       var diffMs = bookingTime.getTime() - now.getTime();
       var diffHours = diffMs / 3600000;
-      return diffHours >= 6;
+
+      // 已过期 或 不足6小时 → 不可取消
+      if (diffHours <= 0) return false;
+      if (diffHours < 6) return false;
+      return true;
     },
     // 取消预约
     onCancel: function onCancel(id) {
@@ -320,6 +323,11 @@ var _default = {
     goBooking: function goBooking() {
       uni.switchTab({
         url: '/pages/booking/booking'
+      });
+    },
+    goDetail: function goDetail(id) {
+      uni.navigateTo({
+        url: "/pages/booking-detail/booking-detail?id=".concat(id)
       });
     }
   }

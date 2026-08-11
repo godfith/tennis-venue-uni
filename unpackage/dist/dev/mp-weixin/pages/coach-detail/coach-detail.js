@@ -503,7 +503,8 @@ var _default = {
                 type: 'coach',
                 coachId: coachId,
                 coachName: coach.name,
-                createTime: db.serverDate()
+                createTime: db.serverDate(),
+                orderNo: 'GT' + Date.now()
               }
             });
           }).then(function (bookRes) {
@@ -517,7 +518,8 @@ var _default = {
                 court: currentCourt,
                 status: 'booked',
                 bookingId: bookRes._id,
-                createTime: db.serverDate()
+                createTime: db.serverDate(),
+                orderNo: 'GT' + Date.now()
               }
             });
           }).then(function () {

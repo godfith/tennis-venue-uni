@@ -55,6 +55,12 @@
 				"navigationBarTitleText": "编辑教练资料",
 				"usingComponents": {}
 			}
+		},
+		{
+		  "path": "pages/booking-detail/booking-detail",
+		  "style": {
+		    "navigationBarTitleText": "预约详情"
+		  }
 		}
 	],
 	"tabBar": {

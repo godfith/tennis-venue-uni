@@ -7,7 +7,8 @@
     "pages/coach/coach",
     "pages/coach-detail/coach-detail",
     "pages/coach-workbench/coach-workbench",
-    "pages/coach-edit/coach-edit"
+    "pages/coach-edit/coach-edit",
+    "pages/booking-detail/booking-detail"
   ],
   "subPackages": [],
   "window": {
