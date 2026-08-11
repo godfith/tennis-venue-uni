@@ -45,29 +45,20 @@ export default {
     methods: {
         // 从数据库加载教练列表
         loadCoaches() {
-            const db = wx.cloud.database();
-            this.setData({
-                loading: true
-            });
-            db.collection('coaches')
-                .orderBy('sort', 'asc')
-                .get()
-                .then((res) => {
-                    this.setData({
-                        coachList: res.data,
-                        loading: false
-                    });
-                })
-                .catch((err) => {
-                    console.error('加载教练失败', err);
-                    this.setData({
-                        loading: false
-                    });
-                    uni.showToast({
-                        title: '加载失败',
-                        icon: 'none'
-                    });
-                });
+          const db = wx.cloud.database()
+          this.loading = true
+          db.collection('coaches')
+            .orderBy('sort', 'asc')
+            .get()
+            .then((res) => {
+              this.coachList = res.data
+              this.loading = false
+            })
+            .catch((err) => {
+              console.error('加载教练失败', err)
+              this.loading = false
+              uni.showToast({ title: '加载失败', icon: 'none' })
+            })
         },
 
         goDetail(e) {

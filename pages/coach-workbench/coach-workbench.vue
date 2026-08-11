@@ -3,7 +3,7 @@
         <!-- 教练资料卡片 -->
         <view class="profile-card" v-if="coachInfo">
             <view class="profile-header">
-                <image class="avatar" :src="coachInfo.avatar || '/images/avatar.png'" mode="aspectFill"></image>
+                <image class="avatar" :src="coachInfo.avatar || '/static/images/avatar.png'" mode="aspectFill"></image>
                 <view class="info">
                     <view class="name">{{ coachInfo.name }}</view>
                     <view class="title">{{ coachInfo.title }}</view>
@@ -58,90 +58,54 @@ export default {
     methods: {
         // 加载教练资料 + 预约记录
         loadCoachInfo() {
-            const db = wx.cloud.database();
-            const openid = uni.getStorageSync('openid');
-            this.setData({
-                loading: true
-            });
-            if (!openid) {
-                uni.showToast({
-                    title: '请先登录',
-                    icon: 'none'
-                });
-                this.setData({
-                    loading: false
-                });
-                return;
-            }
-
-            // 1. 查当前用户
-            db.collection('users')
-                .where({
-                    _openid: openid,
-                    role: 'coach'
-                })
+          const db = wx.cloud.database()
+          const openid = uni.getStorageSync('openid')
+          this.loading = true
+        
+          if (!openid) {
+            uni.showToast({ title: '请先登录', icon: 'none' })
+            this.loading = false
+            return
+          }
+        
+          db.collection('users')
+            .where({ _openid: openid, role: 'coach' })
+            .get()
+            .then((userRes) => {
+              if (userRes.data.length === 0) {
+                uni.showToast({ title: '您不是教练账号', icon: 'none' })
+                this.loading = false
+                return Promise.reject('not coach')
+              }
+              const user = userRes.data[0]
+              this.userDocId = user._id
+              if (user.coachId) {
+                return db.collection('coaches').doc(user.coachId).get()
+                  .then((res) => {
+                    this.coachInfo = res.data
+                    return user.coachId
+                  })
+              } else {
+                this.coachInfo = null
+                this.loading = false
+                return null
+              }
+            })
+            .then((coachId) => {
+              if (!coachId) return
+              return db.collection('coach_bookings')
+                .where({ coachId: coachId, status: 'booked' })
+                .orderBy('date', 'asc')
                 .get()
-                .then((userRes) => {
-                    if (userRes.data.length === 0) {
-                        uni.showToast({
-                            title: '您不是教练账号',
-                            icon: 'none'
-                        });
-                        this.setData({
-                            loading: false
-                        });
-                        return Promise.reject('not coach');
-                    }
-                    const user = userRes.data[0];
-                    this.userDocId = user._id;
-                    if (user.coachId) {
-                        // 已关联，直接查教练资料
-                        return db
-                            .collection('coaches')
-                            .doc(user.coachId)
-                            .get()
-                            .then((res) => {
-                                this.setData({
-                                    coachInfo: res.data
-                                });
-                                return user.coachId;
-                            });
-                    } else {
-                        // 未关联
-                        this.setData({
-                            coachInfo: null,
-                            loading: false
-                        });
-                        return null;
-                    }
+                .then((res) => {
+                  this.list = res.data
+                  this.loading = false
                 })
-                .then((coachId) => {
-                    if (!coachId) {
-                        return;
-                    }
-
-                    // 2. 查预约记录
-                    return db
-                        .collection('coach_bookings')
-                        .where({
-                            coachId: coachId,
-                            status: 'booked'
-                        })
-                        .orderBy('date', 'asc')
-                        .get()
-                        .then((res) => {
-                            this.setData({
-                                list: res.data,
-                                loading: false
-                            });
-                        });
-                })
-                .catch((err) => {
-                    console.error(err);
-                    this.setData({
-                        loading: false
-                    });
-                });
+            })
+            .catch((err) => {
+              console.error(err)
+              this.loading = false
+            })
         },
 
         // 创建教练资料（首次关联）

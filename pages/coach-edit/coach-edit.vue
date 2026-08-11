@@ -3,7 +3,7 @@
         <!-- 头像 -->
         <view class="avatar-section">
             <button class="avatar-btn" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
-                <image class="avatar" :src="avatar || '/images/avatar.png'" mode="aspectFill"></image>
+                <image class="avatar" :src="avatar || '/static/images/avatar.png'" mode="aspectFill"></image>
                 <view class="avatar-tip">点击更换头像</view>
             </button>
         </view>
@@ -45,61 +45,40 @@ export default {
         };
     },
     onLoad(options) {
-        const id = options.id;
-        this.setData({
-            id
-        });
-        this.loadDetail(id);
+      const id = options.id
+      this.id = id
+      this.loadDetail(id)
     },
     methods: {
         loadDetail(id) {
-            const db = wx.cloud.database();
-            db.collection('coaches')
-                .doc(id)
-                .get()
-                .then((res) => {
-                    const data = res.data;
-                    this.setData({
-                        name: data.name || '',
-                        title: data.title || '',
-                        desc: data.desc || '',
-                        tagsStr: (data.tags || []).join(','),
-                        avatar: data.avatar || ''
-                    });
-                });
+          const db = wx.cloud.database()
+          db.collection('coaches').doc(id).get().then((res) => {
+            const data = res.data
+            this.name = data.name || ''
+            this.title = data.title || ''
+            this.desc = data.desc || ''
+            this.tagsStr = (data.tags || []).join(',')
+            this.avatar = data.avatar || ''
+          })
         },
 
         // 选择头像
-        onChooseAvatar(e) {
-            const avatar = e.detail.avatarUrl;
-            this.setData({
-                avatar
-            });
-        },
+onChooseAvatar(e) {
+  this.avatar = e.detail.avatarUrl
+},
 
-        onNameInput(e) {
-            this.setData({
-                name: e.detail.value
-            });
-        },
-
-        onTitleInput(e) {
-            this.setData({
-                title: e.detail.value
-            });
-        },
-
-        onDescInput(e) {
-            this.setData({
-                desc: e.detail.value
-            });
-        },
-
-        onTagsInput(e) {
-            this.setData({
-                tagsStr: e.detail.value
-            });
-        },
+onNameInput(e) {
+  this.name = e.detail.value
+},
+onTitleInput(e) {
+  this.title = e.detail.value
+},
+onDescInput(e) {
+  this.desc = e.detail.value
+},
+onTagsInput(e) {
+  this.tagsStr = e.detail.value
+},
 
         onSave() {
             const { id, name, title, desc, tagsStr, avatar } = this;
