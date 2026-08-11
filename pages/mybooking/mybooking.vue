@@ -50,10 +50,8 @@ export default {
         };
     },
     onShow() {
-        this.setData({
-            page: 1
-        });
-        this.getOpenidAndLoad();
+      this.page = 1
+      this.getOpenidAndLoad()
     },
     methods: {
         // 先获取 openid，再加载数据
@@ -68,9 +66,7 @@ export default {
                 .then((res) => {
                     const openid = res.result.openid;
                     console.log('当前用户 openid：', openid);
-                    this.setData({
-                        openid
-                    });
+                    this.openid = openid;
                     this.loadMyBookings(openid);
                 })
                 .catch((err) => {
@@ -84,80 +80,51 @@ export default {
 
         // 加载当前用户的预约
         loadMyBookings(openid) {
-            const { page, pageSize } = this;
-            const db = wx.cloud.database();
-            this.setData({
-                loading: true
-            });
-            const whereCondition = {
-                _openid: openid
-            };
-
-            // 查总条数
-            db.collection('bookings')
+          const { page, pageSize } = this
+          const db = wx.cloud.database()
+          this.loading = true
+        
+          const whereCondition = { _openid: openid }
+        
+          db.collection('bookings')
+            .where(whereCondition)
+            .count()
+            .then((countRes) => {
+              const total = countRes.total
+              const totalPage = Math.ceil(total / pageSize) || 1
+              return db
+                .collection('bookings')
                 .where(whereCondition)
-                .count()
-                .then((countRes) => {
-                    const total = countRes.total;
-                    const totalPage = Math.ceil(total / pageSize) || 1;
-                    return db
-                        .collection('bookings')
-                        .where(whereCondition)
-                        .orderBy('createTime', 'desc')
-                        .skip((page - 1) * pageSize)
-                        .limit(pageSize)
-                        .get()
-                        .then((res) => {
-                            this.setData({
-                                list: res.data,
-                                total,
-                                totalPage,
-                                loading: false
-                            });
-                        });
+                .orderBy('createTime', 'desc')
+                .skip((page - 1) * pageSize)
+                .limit(pageSize)
+                .get()
+                .then((res) => {
+                  this.list = res.data
+                  this.total = total
+                  this.totalPage = totalPage
+                  this.loading = false
                 })
-                .catch((err) => {
-                    console.error('加载失败', err);
-                    this.setData({
-                        loading: false
-                    });
-                    uni.showToast({
-                        title: '加载失败',
-                        icon: 'none'
-                    });
-                });
+            })
+            .catch((err) => {
+              console.error('加载失败', err)
+              this.loading = false
+              uni.showToast({ title: '加载失败', icon: 'none' })
+            })
         },
 
         // 上一页
-        prevPage() {
-            if (this.page <= 1) {
-                return;
-            }
-            this.setData(
-                {
-                    page: this.page - 1
-                },
-                () => {
-                    this.loadMyBookings(this.openid);
-                }
-            );
-        },
-
-        // 下一页
-        nextPage() {
-            if (this.page >= this.totalPage) {
-                return;
-            }
-            this.setData(
-                {
-                    page: this.page + 1
-                },
-                () => {
-                    this.loadMyBookings(this.openid);
-                }
-            );
-        },
-
+       prevPage() {
+         if (this.page <= 1) return
+         this.page = this.page - 1
+         this.loadMyBookings(this.openid)
+       },
+       
+       nextPage() {
+         if (this.page >= this.totalPage) return
+         this.page = this.page + 1
+         this.loadMyBookings(this.openid)
+       },
         // 判断是否可以取消（提前6小时）
         canCancel(booking) {
             const startTimeStr = booking.time.split('-')[0];
