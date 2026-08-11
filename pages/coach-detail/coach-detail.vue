@@ -97,12 +97,10 @@ export default {
         };
     },
     onLoad(options) {
-        const id = options.id;
-        this.setData({
-            coachId: id
-        });
-        this.loadCoachDetail(id);
-        this.loadCourts(); // 先加载场地，场地加载完成后再初始化日期
+      const id = options.id
+      this.coachId = id
+      this.loadCoachDetail(id)
+      this.loadCourts()
     },
     methods: {
         // 从数据库加载场地
@@ -115,13 +113,8 @@ export default {
                 .orderBy('sort', 'asc')
                 .get()
                 .then((res) => {
-                    const courtList = res.data.map((item) => item.name);
-                    this.setData({
-                        courtList
-                    });
-
-                    // 场地加载完成后再初始化日期和时间
-                    this.initDateList();
+                  this.courtList = res.data.map((item) => item.name)
+                  this.initDateList()
                 })
                 .catch((err) => {
                     console.error('加载场地失败', err);
@@ -147,10 +140,8 @@ export default {
                     day: `${month}/${day}`
                 });
             }
-            this.setData({
-                dateList: list,
-                currentDate: list[0].date
-            });
+            this.dateList = list;
+            this.currentDate = list[0].date;
             this.loadTimeList(list[0].date);
         },
 
@@ -160,9 +151,7 @@ export default {
                 .doc(id)
                 .get()
                 .then((res) => {
-                    this.setData({
-                        coach: res.data
-                    });
+                  this.coach = res.data
                 })
                 .catch((err) => {
                     console.error(err);
@@ -185,12 +174,10 @@ export default {
             // 根据当前时间过滤（如果是今天，去掉已经过去的时间）
             const availableTimes = this.getAvailableTimes(date, allTimes);
             if (availableTimes.length === 0) {
-                this.setData({
-                    timeList: [],
-                    currentTime: '',
-                    currentCourt: '',
-                    availableCourts: []
-                });
+                this.timeList = []
+                this.currentTime = ''
+                this.currentCourt = ''
+                this.availableCourts = []
                 return;
             }
             Promise.all([
@@ -229,12 +216,10 @@ export default {
                             status: isCoachBooked || !hasAvailableCourt ? 'full' : 'available'
                         };
                     });
-                    this.setData({
-                        timeList,
-                        currentTime: '',
-                        currentCourt: '',
-                        availableCourts: []
-                    });
+                    this.timeList = timeList
+                    this.currentTime = ''
+                    this.currentCourt = ''
+                    this.availableCourts = []
                 })
                 .catch((err) => {
                     console.error(err);
@@ -269,13 +254,11 @@ export default {
             });
         },
 
-        onSelectDate(e) {
-            const date = e.currentTarget.dataset.date;
-            this.setData({
-                currentDate: date
-            });
-            this.loadTimeList(date);
-        },
+       onSelectDate(e) {
+         const date = e.currentTarget.dataset.date
+         this.currentDate = date
+         this.loadTimeList(date)
+       },
 
         // 选择时间后，加载该时间的空闲场地
         onSelectTime(e) {
@@ -287,11 +270,9 @@ export default {
                 });
                 return;
             }
-            this.setData({
-                currentTime: time,
-                currentCourt: ''
-            });
-            this.loadAvailableCourts(this.currentDate, time);
+            this.currentTime = time
+            this.currentCourt = ''
+            this.loadAvailableCourts(this.currentDate, time)
         },
 
         // 查询某时间段的空闲场地
@@ -308,23 +289,17 @@ export default {
                 .then((res) => {
                     const bookedCourts = res.data.map((item) => item.court);
                     const availableCourts = courtList.filter((c) => !bookedCourts.includes(c));
-                    this.setData({
-                        availableCourts
-                    });
+                    this.availableCourts = availableCourts
                 })
                 .catch((err) => {
                     console.error(err);
-                    this.setData({
-                        availableCourts: courtList
-                    });
+                    this.availableCourts = courtList
                 });
         },
 
         onSelectCourt(e) {
             const court = e.currentTarget.dataset.court;
-            this.setData({
-                currentCourt: court
-            });
+            this.currentCourt = court
         },
 
         // 预约
@@ -427,11 +402,9 @@ export default {
                                 icon: 'success'
                             });
                             this.loadTimeList(currentDate);
-                            this.setData({
-                                currentTime: '',
-                                currentCourt: '',
-                                availableCourts: []
-                            });
+                            this.currentTime = ''
+                            this.currentCourt = ''
+                            this.availableCourts = []
                         })
                         .catch((err) => {
                             uni.hideLoading();
