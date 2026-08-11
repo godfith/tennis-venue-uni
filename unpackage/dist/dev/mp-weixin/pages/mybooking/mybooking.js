@@ -276,7 +276,7 @@ var _default = {
       return diffHours >= 6;
     },
     // 取消预约
-    onCancel: function onCancel(e) {
+    onCancel: function onCancel(id) {
       var _this3 = this;
       var booking = this.list.find(function (item) {
         return item._id === id;

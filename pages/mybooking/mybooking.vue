@@ -137,9 +137,9 @@ export default {
         },
 
         // 取消预约
-        onCancel(e) {
-            const booking = this.list.find((item) => item._id === id)
-            if (!booking) return
+        onCancel(id) {
+          const booking = this.list.find((item) => item._id === id)
+          if (!booking) return
             if (!this.canCancel(booking)) {
                 uni.showModal({
                     title: '无法取消',
