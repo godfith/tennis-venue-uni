@@ -278,13 +278,10 @@ var _default = {
     // 取消预约
     onCancel: function onCancel(e) {
       var _this3 = this;
-      var id = e.currentTarget.dataset.id;
       var booking = this.list.find(function (item) {
         return item._id === id;
       });
-      if (!booking) {
-        return;
-      }
+      if (!booking) return;
       if (!this.canCancel(booking)) {
         uni.showModal({
           title: '无法取消',

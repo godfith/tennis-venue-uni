@@ -211,8 +211,7 @@ var _default = {
         });
       });
     },
-    goDetail: function goDetail(e) {
-      var id = e.currentTarget.dataset.id;
+    goDetail: function goDetail(id) {
       uni.navigateTo({
         url: "/pages/coach-detail/coach-detail?id=".concat(id)
       });

@@ -20,7 +20,7 @@
                 </view>
 
                 <view class="item-right">
-                    <button v-if="item.status === 'booked'" class="cancel-btn" size="mini" @tap="onCancel" :data-id="item._id">取消</button>
+                    <button v-if="item.status === 'booked'" class="cancel-btn" size="mini" @tap="onCancel(item._id)">取消</button>
                 </view>
             </view>
         </view>
@@ -138,11 +138,8 @@ export default {
 
         // 取消预约
         onCancel(e) {
-            const id = e.currentTarget.dataset.id;
-            const booking = this.list.find((item) => item._id === id);
-            if (!booking) {
-                return;
-            }
+            const booking = this.list.find((item) => item._id === id)
+            if (!booking) return
             if (!this.canCancel(booking)) {
                 uni.showModal({
                     title: '无法取消',

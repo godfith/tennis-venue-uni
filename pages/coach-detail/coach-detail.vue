@@ -24,8 +24,7 @@
                 <scroll-view scroll-x class="date-list" enable-flex>
                     <view
                         :class="'date-item ' + (currentDate === item.date ? 'active' : '')"
-                        @tap="onSelectDate"
-                        :data-date="item.date"
+                        @tap="onSelectDate(item.date)"
                         v-for="(item, index) in dateList"
                         :key="index"
                     >
@@ -38,9 +37,7 @@
                 <view class="time-list">
                     <view
                         :class="'time-item ' + (item.status === 'full' ? 'full' : '') + ' ' + (currentTime === item.time ? 'active' : '')"
-                        @tap="onSelectTime"
-                        :data-time="item.time"
-                        :data-status="item.status"
+                        @tap="onSelectTime(item.time, item.status)"
                         v-for="(item, index) in timeList"
                         :key="index"
                     >
@@ -58,8 +55,7 @@
                 <view class="court-list" v-if="availableCourts.length > 0">
                     <view
                         :class="'court-item ' + (currentCourt === item ? 'active' : '')"
-                        @tap="onSelectCourt"
-                        :data-court="item"
+                        @tap="onSelectCourt(item)"
                         v-for="(item, index) in availableCourts"
                         :key="index"
                     >
@@ -254,25 +250,20 @@ export default {
             });
         },
 
-       onSelectDate(e) {
-         const date = e.currentTarget.dataset.date
+       onSelectDate(date) {
          this.currentDate = date
          this.loadTimeList(date)
        },
 
         // 选择时间后，加载该时间的空闲场地
-        onSelectTime(e) {
-            const { time, status } = e.currentTarget.dataset;
-            if (status === 'full') {
-                uni.showToast({
-                    title: '该时间不可预约',
-                    icon: 'none'
-                });
-                return;
-            }
-            this.currentTime = time
-            this.currentCourt = ''
-            this.loadAvailableCourts(this.currentDate, time)
+        onSelectTime(time, status) {
+          if (status === 'full') {
+            uni.showToast({ title: '该时间不可预约', icon: 'none' })
+            return
+          }
+          this.currentTime = time
+          this.currentCourt = ''
+          this.loadAvailableCourts(this.currentDate, time)
         },
 
         // 查询某时间段的空闲场地
@@ -297,9 +288,8 @@ export default {
                 });
         },
 
-        onSelectCourt(e) {
-            const court = e.currentTarget.dataset.court;
-            this.currentCourt = court
+        onSelectCourt(court) {
+          this.currentCourt = court
         },
 
         // 预约

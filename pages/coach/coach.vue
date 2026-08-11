@@ -12,7 +12,7 @@
 
         <!-- 教练列表 -->
         <view class="coach-list" v-else>
-            <view class="coach-card" @tap="goDetail" :data-id="item._id" v-for="(item, index) in coachList" :key="index">
+            <view class="coach-card" @tap="goDetail(item._id)" v-for="(item, index) in coachList" :key="index">
                 <image class="avatar" :src="item.avatar" mode="aspectFill"></image>
 
                 <view class="info">
@@ -61,11 +61,10 @@ export default {
             })
         },
 
-        goDetail(e) {
-            const id = e.currentTarget.dataset.id;
-            uni.navigateTo({
-                url: `/pages/coach-detail/coach-detail?id=${id}`
-            });
+        goDetail(id) {
+          uni.navigateTo({
+            url: `/pages/coach-detail/coach-detail?id=${id}`
+          })
         }
     }
 };

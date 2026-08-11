@@ -231,10 +231,6 @@ var _slicedToArray2 = _interopRequireDefault(__webpack_require__(/*! @babel/runt
 //
 //
 //
-//
-//
-//
-//
 var _default = {
   data: function data() {
     return {
@@ -393,16 +389,12 @@ var _default = {
         return true;
       });
     },
-    onSelectDate: function onSelectDate(e) {
-      var date = e.currentTarget.dataset.date;
+    onSelectDate: function onSelectDate(date) {
       this.currentDate = date;
       this.loadTimeList(date);
     },
     // 选择时间后，加载该时间的空闲场地
-    onSelectTime: function onSelectTime(e) {
-      var _e$currentTarget$data = e.currentTarget.dataset,
-        time = _e$currentTarget$data.time,
-        status = _e$currentTarget$data.status;
+    onSelectTime: function onSelectTime(time, status) {
       if (status === 'full') {
         uni.showToast({
           title: '该时间不可预约',
@@ -436,8 +428,7 @@ var _default = {
         _this4.availableCourts = courtList;
       });
     },
-    onSelectCourt: function onSelectCourt(e) {
-      var court = e.currentTarget.dataset.court;
+    onSelectCourt: function onSelectCourt(court) {
       this.currentCourt = court;
     },
     // 预约
