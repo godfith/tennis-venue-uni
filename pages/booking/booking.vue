@@ -137,6 +137,9 @@ export default {
         this.loadCourts();
         this.initDateList();
     },
+	onShow() {
+	  this.loadCourts()
+	},
     methods: {
         // 从数据库加载场地
         loadCourts() {
@@ -252,10 +255,11 @@ export default {
                 return;
             }
             db.collection('bookings')
-                .where({
-                    date: date,
-                    status: 'booked'
-                })
+              .where({
+                date: date,
+                status: 'booked',
+                venueId: uni.getStorageSync('venue_id') || ''
+              })
                 .get()
                 .then((res) => {
                     // 用「场地名_时间」做已预约标记
@@ -367,9 +371,7 @@ export default {
                 url: '/pages/mybooking/mybooking'
             });
         },
-		onShow() {
-		  this.loadCourts()
-		},
+
     }
 };
 </script>

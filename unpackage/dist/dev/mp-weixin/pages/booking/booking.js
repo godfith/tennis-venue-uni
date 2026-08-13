@@ -267,6 +267,9 @@ var _default = {
     this.loadCourts();
     this.initDateList();
   },
+  onShow: function onShow() {
+    this.loadCourts();
+  },
   methods: {
     // 从数据库加载场地
     loadCourts: function loadCourts() {
@@ -380,7 +383,8 @@ var _default = {
       }
       db.collection('bookings').where({
         date: date,
-        status: 'booked'
+        status: 'booked',
+        venueId: uni.getStorageSync('venue_id') || ''
       }).get().then(function (res) {
         // 用「场地名_时间」做已预约标记
         var bookedMap = {};
@@ -488,9 +492,6 @@ var _default = {
       uni.navigateTo({
         url: '/pages/mybooking/mybooking'
       });
-    },
-    onShow: function onShow() {
-      this.loadCourts();
     }
   }
 };
