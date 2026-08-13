@@ -332,17 +332,18 @@ export default {
                     if (res.confirm) {
                         const db = wx.cloud.database();
                         db.collection('bookings')
-                            .add({
-                                data: {
-                                  orderNo: 'GT' + Date.now(),  // 简单订单号，例如 GT1723360000000
-                                  date: currentDate,
-                                  time: currentTime,
-                                  court: currentCourtName,
-                                  status: 'booked',
-								  venueId: uni.getStorageSync('venue_id') || '',
-                                  createTime: db.serverDate()
-                                }
-                            })
+                          .add({
+                            data: {
+                              orderNo: 'GT' + Date.now(),
+                              date: currentDate,
+                              time: currentTime,
+                              court: currentCourtName,
+                              status: 'booked',
+                              venueId: uni.getStorageSync('venue_id') || '',
+                              venueName: uni.getStorageSync('venue_name') || '',  // 新增
+                              createTime: db.serverDate()
+                            }
+                          })
                             .then(() => {
                                 uni.showToast({
                                     title: '预约成功',
