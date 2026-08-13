@@ -91,42 +91,62 @@ export default {
 	onShow() {
 	  this.loadVenues()
 	},
-    methods: {
-		loadVenues() {
-		    const db = wx.cloud.database()
-		    db.collection('venues')
-		      .where({ status: 'active' })
-		      .get()
-		      .then((res) => {
-		        const list = (res.data || []).sort((a, b) => (a.sort || 0) - (b.sort || 0))
-		        this.venueList = list
-		
-		        let id = uni.getStorageSync('venue_id')
-		        let name = uni.getStorageSync('venue_name')
-		
-		        // 没有选过：默认第一家
-		        if (!id && list.length) {
-		          id = list[0].venueId
-		          name = list[0].name
-		          uni.setStorageSync('venue_id', id)
-		          uni.setStorageSync('venue_name', name)
-		        }
-		
-		        // 校验是否还在列表里
-		        const found = list.find((v) => v.venueId === id)
-		        if (found) {
-		          this.venueId = found.venueId
-		          this.venueName = found.name
-		        } else if (list.length) {
-		          this.venueId = list[0].venueId
-		          this.venueName = list[0].name
-		          uni.setStorageSync('venue_id', this.venueId)
-		          uni.setStorageSync('venue_name', this.venueName)
-		        }
-		      })
-		      .catch((err) => {
-		        console.error('加载场馆失败', err)
-		      })
+methods: {
+  loadVenues() {
+    const db = wx.cloud.database()
+    db.collection('venues')
+      .where({ status: 'active' })
+      .get()
+      .then((res) => {
+        const list = (res.data || []).sort((a, b) => (a.sort || 0) - (b.sort || 0))
+        this.venueList = list
+
+        let id = uni.getStorageSync('venue_id')
+        let name = uni.getStorageSync('venue_name')
+
+        // 没有选过：默认第一家
+        if (!id && list.length) {
+          id = list[0].venueId
+          name = list[0].name
+          uni.setStorageSync('venue_id', id)
+          uni.setStorageSync('venue_name', name)
+        }
+
+        // 校验是否还在列表里
+        const found = list.find((v) => v.venueId === id)
+        if (found) {
+          this.venueId = found.venueId
+          this.venueName = found.name
+        } else if (list.length) {
+          this.venueId = list[0].venueId
+          this.venueName = list[0].name
+          uni.setStorageSync('venue_id', this.venueId)
+          uni.setStorageSync('venue_name', this.venueName)
+        }
+      })
+      .catch((err) => {
+        console.error('加载场馆失败', err)
+      })
+  },
+
+  showVenuePicker() {
+    if (!this.venueList.length) {
+      uni.showToast({ title: '暂无场馆', icon: 'none' })
+      return
+    }
+    const names = this.venueList.map((v) => v.name)
+    uni.showActionSheet({
+      itemList: names,
+      success: (res) => {
+        const v = this.venueList[res.tapIndex]
+        this.venueId = v.venueId
+        this.venueName = v.name
+        uni.setStorageSync('venue_id', v.venueId)
+        uni.setStorageSync('venue_name', v.name)
+        uni.showToast({ title: '已切换', icon: 'success' })
+      }
+    })
+  },
         goBooking() {
             uni.switchTab({
                 url: '/pages/booking/booking'

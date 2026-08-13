@@ -1,0 +1,152 @@
+
+.container {
+    padding-bottom: 160rpx;
+    background: #f7f8fa;
+    min-height: 100vh;
+}
+.header {
+    padding: 30rpx 30rpx 10rpx;
+    background: #fff;
+}
+.title {
+    font-size: 40rpx;
+    font-weight: bold;
+    color: #222;
+}
+
+/* 日期横向滚动 */
+.date-scroll {
+    background: #fff;
+    padding: 20rpx 20rpx 30rpx;
+    white-space: nowrap;
+}
+.date-item {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 110rpx;
+    height: 110rpx;
+    margin-right: 16rpx;
+    border-radius: 16rpx;
+    background: #f5f5f5;
+}
+.date-item.active {
+    background: #07c160;
+    color: #fff;
+}
+.week {
+    font-size: 22rpx;
+    margin-bottom: 6rpx;
+}
+.day {
+    font-size: 30rpx;
+    font-weight: bold;
+}
+
+/* 场地卡片 */
+.court-area {
+    padding: 20rpx;
+}
+.court-card {
+    background: #fff;
+    border-radius: 20rpx;
+    padding: 28rpx;
+    margin-bottom: 24rpx;
+    box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.03);
+}
+.court-header {
+    margin-bottom: 24rpx;
+}
+.court-name {
+    font-size: 32rpx;
+    font-weight: bold;
+    color: #222;
+    margin-right: 16rpx;
+}
+.court-desc {
+    font-size: 24rpx;
+    color: #999;
+}
+
+/* 时间格子 */
+.time-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16rpx;
+}
+.time-cell {
+    width: 140rpx;
+    height: 90rpx;
+    background: #f0f9f4;
+    border-radius: 12rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border: 2rpx solid transparent;
+}
+.time-cell.full {
+    background: #f0f0f0;
+    color: #bbb;
+}
+.time-cell.selected {
+    background: #07c160;
+    color: #fff;
+    border-color: #07c160;
+}
+.time-text {
+    font-size: 24rpx;
+    font-weight: 500;
+}
+.status-text {
+    font-size: 20rpx;
+    margin-top: 4rpx;
+}
+.time-cell.full .status-text {
+    color: #ff4d4f;
+}
+
+/* 底部栏 */
+.bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    padding: 20rpx 30rpx;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 -6rpx 20rpx rgba(0, 0, 0, 0.06);
+    z-index: 100;
+}
+.selected-info {
+    font-size: 28rpx;
+    color: #333;
+}
+.selected-time {
+    font-size: 24rpx;
+    color: #07c160;
+    margin-top: 4rpx;
+}
+.book-btn {
+    background: #07c160 !important;
+    color: #fff;
+    font-size: 30rpx;
+    border-radius: 50rpx;
+    padding: 0 50rpx;
+    margin: 0;
+}
+.header {
+    padding: 30rpx 30rpx 10rpx;
+    background: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.my-link {
+    font-size: 28rpx;
+    color: #07c160;
+}
+

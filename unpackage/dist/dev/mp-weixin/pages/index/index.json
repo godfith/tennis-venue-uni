@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "网球场馆",
+  "usingComponents": {
+    "cloud-tip-modal": "/components/cloudTipModal/index"
+  }
+}
