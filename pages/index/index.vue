@@ -1,10 +1,15 @@
 <template>
     <view class="page">
         <!-- 顶部英雄区 -->
-        <!-- 顶部英雄区 -->
         <view class="hero">
             <image class="hero-image" src="/static/images/index/title.jpg" mode="aspectFill"></image>
         </view>
+		<!-- 场馆切换 -->
+		<view class="venue-bar" @tap="showVenuePicker">
+		  <text class="venue-label">当前场馆</text>
+		  <text class="venue-name">{{ venueName }}</text>
+		  <text class="venue-arrow">切换 ›</text>
+		</view>
 
         <!-- 赛事与活动 -->
         <view class="block">
@@ -77,9 +82,51 @@ export default {
         cloudTipModal
     },
     data() {
-        return {};
+      return {
+        venueList: [],
+        venueId: '',
+        venueName: '请选择场馆'
+      }
     },
+	onShow() {
+	  this.loadVenues()
+	},
     methods: {
+		loadVenues() {
+		    const db = wx.cloud.database()
+		    db.collection('venues')
+		      .where({ status: 'active' })
+		      .get()
+		      .then((res) => {
+		        const list = (res.data || []).sort((a, b) => (a.sort || 0) - (b.sort || 0))
+		        this.venueList = list
+		
+		        let id = uni.getStorageSync('venue_id')
+		        let name = uni.getStorageSync('venue_name')
+		
+		        // 没有选过：默认第一家
+		        if (!id && list.length) {
+		          id = list[0].venueId
+		          name = list[0].name
+		          uni.setStorageSync('venue_id', id)
+		          uni.setStorageSync('venue_name', name)
+		        }
+		
+		        // 校验是否还在列表里
+		        const found = list.find((v) => v.venueId === id)
+		        if (found) {
+		          this.venueId = found.venueId
+		          this.venueName = found.name
+		        } else if (list.length) {
+		          this.venueId = list[0].venueId
+		          this.venueName = list[0].name
+		          uni.setStorageSync('venue_id', this.venueId)
+		          uni.setStorageSync('venue_name', this.venueName)
+		        }
+		      })
+		      .catch((err) => {
+		        console.error('加载场馆失败', err)
+		      })
         goBooking() {
             uni.switchTab({
                 url: '/pages/booking/booking'
@@ -262,5 +309,29 @@ export default {
 
 .safe-bottom {
     height: 30rpx;
+}
+.venue-bar {
+  margin: 24rpx 30rpx 0;
+  padding: 24rpx 28rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+}
+.venue-label {
+  font-size: 24rpx;
+  color: #999;
+  margin-right: 16rpx;
+}
+.venue-name {
+  flex: 1;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1a5c3a;
+}
+.venue-arrow {
+  font-size: 26rpx;
+  color: #07c160;
 }
 </style>

@@ -140,27 +140,36 @@ export default {
     methods: {
         // 从数据库加载场地
         loadCourts() {
-            const db = wx.cloud.database();
-            db.collection('courts')
-                .where({
-                    status: 'open'
-                })
-                .orderBy('sort', 'asc')
-                .get()
-                .then((res) => {
-                    const courtConfig = res.data.map((item) => ({
-                        id: item._id,
-                        name: item.name,
-                        desc: item.type || ''
-                    }));
-                    this.courtConfig = courtConfig
-                    if (this.currentDate) {
-                      this.loadCourtStatus(this.currentDate)
-                    }
-                })
-                .catch((err) => {
-                    console.error('加载场地失败', err);
-                });
+          const venueId = uni.getStorageSync('venue_id')
+          if (!venueId) {
+            uni.showToast({ title: '请先在首页选择场馆', icon: 'none' })
+            this.courtConfig = []
+            this.courtList = []
+            return
+          }
+        
+          const db = wx.cloud.database()
+          db.collection('courts')
+            .where({
+              status: 'open',
+              venueId: venueId
+            })
+            .orderBy('sort', 'asc')
+            .get()
+            .then((res) => {
+              const courtConfig = res.data.map((item) => ({
+                id: item._id,
+                name: item.name,
+                desc: item.type || ''
+              }))
+              this.courtConfig = courtConfig
+              if (this.currentDate) {
+                this.loadCourtStatus(this.currentDate)
+              }
+            })
+            .catch((err) => {
+              console.error('加载场地失败', err)
+            })
         },
 
         // 初始化日期列表
@@ -300,6 +309,7 @@ export default {
           this.currentCourtName = courtName
           this.currentTime = time
         },
+		
 
         // 确认预约
         onBook() {
@@ -325,6 +335,7 @@ export default {
                                   time: currentTime,
                                   court: currentCourtName,
                                   status: 'booked',
+								  venueId: uni.getStorageSync('venue_id') || '',
                                   createTime: db.serverDate()
                                 }
                             })
@@ -355,7 +366,10 @@ export default {
             uni.navigateTo({
                 url: '/pages/mybooking/mybooking'
             });
-        }
+        },
+		onShow() {
+		  this.loadCourts()
+		},
     }
 };
 </script>
