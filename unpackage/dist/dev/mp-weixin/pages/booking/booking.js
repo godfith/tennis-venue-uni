@@ -200,12 +200,14 @@ function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { va
 //
 //
 //
+//
 var _default = {
   data: function data() {
     return {
       courtConfig: [],
       // 改成空数组
       dateList: [],
+      venueName: '',
       courtList: [],
       currentDate: '',
       currentCourtId: '',
@@ -268,12 +270,14 @@ var _default = {
     this.initDateList();
   },
   onShow: function onShow() {
+    this.venueName = uni.getStorageSync('venue_name') || '';
     this.loadCourts();
   },
   methods: {
     // 从数据库加载场地
     loadCourts: function loadCourts() {
       var _this = this;
+      this.venueName = uni.getStorageSync('venue_name') || '';
       var venueId = uni.getStorageSync('venue_id');
       if (!venueId) {
         uni.showToast({

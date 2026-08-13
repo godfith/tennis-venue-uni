@@ -3,7 +3,8 @@
         <view class="container">
             <!-- 标题 -->
             <view class="header">
-                <view class="title">网球场馆预约</view>
+                <view class="title">{{ venueName || '网球场馆预约' }}</view>
+                <view class="sub-title" v-if="venueName">场地预约</view>
             </view>
 
             <!-- 日期选择 -->
@@ -61,7 +62,7 @@ export default {
 
             // 改成空数组
             dateList: [],
-
+			venueName: '',
             courtList: [],
             currentDate: '',
             currentCourtId: '',
@@ -138,11 +139,13 @@ export default {
         this.initDateList();
     },
 	onShow() {
+	  this.venueName = uni.getStorageSync('venue_name') || ''
 	  this.loadCourts()
 	},
     methods: {
         // 从数据库加载场地
         loadCourts() {
+		this.venueName = uni.getStorageSync('venue_name') || ''
           const venueId = uni.getStorageSync('venue_id')
           if (!venueId) {
             uni.showToast({ title: '请先在首页选择场馆', icon: 'none' })
@@ -378,6 +381,11 @@ export default {
 };
 </script>
 <style>
+	.sub-title {
+	  font-size: 26rpx;
+	  color: #888;
+	  margin-top: 8rpx;
+	}
 .container {
     padding-bottom: 160rpx;
     background: #f7f8fa;

@@ -1,4 +1,9 @@
 
+.sub-title {
+	  font-size: 26rpx;
+	  color: #888;
+	  margin-top: 8rpx;
+}
 .container {
     padding-bottom: 160rpx;
     background: #f7f8fa;
@@ -13,7 +18,6 @@
     font-weight: bold;
     color: #222;
 }
-
 /* 日期横向滚动 */
 .date-scroll {
     background: #fff;
@@ -43,7 +47,6 @@
     font-size: 30rpx;
     font-weight: bold;
 }
-
 /* 场地卡片 */
 .court-area {
     padding: 20rpx;
@@ -68,7 +71,6 @@
     font-size: 24rpx;
     color: #999;
 }
-
 /* 时间格子 */
 .time-grid {
     display: flex;
@@ -106,7 +108,6 @@
 .time-cell.full .status-text {
     color: #ff4d4f;
 }
-
 /* 底部栏 */
 .bottom-bar {
     position: fixed;
