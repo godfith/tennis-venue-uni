@@ -103,11 +103,25 @@ var render = function () {
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
   var g0 = _vm.list.length === 0 && !_vm.loading
+  var l0 = !g0
+    ? _vm.__map(_vm.list, function (item, index) {
+        var $orig = _vm.__get_orig(item)
+        var m0 =
+          item.venueName || item.venueId
+            ? item.venueName || _vm.venueText(item.venueId)
+            : null
+        return {
+          $orig: $orig,
+          m0: m0,
+        }
+      })
+    : null
   _vm.$mp.data = Object.assign(
     {},
     {
       $root: {
         g0: g0,
+        l0: l0,
       },
     }
   )
@@ -187,6 +201,9 @@ exports.default = void 0;
 //
 //
 //
+//
+//
+//
 var _default = {
   data: function data() {
     return {
@@ -196,7 +213,8 @@ var _default = {
       total: 0,
       totalPage: 1,
       loading: false,
-      openid: ''
+      openid: '',
+      venueMap: {}
     };
   },
   onShow: function onShow() {
@@ -210,13 +228,15 @@ var _default = {
       wx.cloud.callFunction({
         name: 'login',
         config: {
-          env: 'cloud1-d0gmljq45868f5766' // 强制指定环境
+          env: 'cloud1-d0gmljq45868f5766'
         }
       }).then(function (res) {
         var openid = res.result.openid;
-        console.log('当前用户 openid：', openid);
         _this.openid = openid;
-        _this.loadMyBookings(openid);
+        // 先映射场馆，再加载预约
+        return _this.loadVenueMap().then(function () {
+          _this.loadMyBookings(openid);
+        });
       }).catch(function (err) {
         console.error('获取 openid 失败', err);
         uni.showToast({
@@ -253,6 +273,26 @@ var _default = {
         });
       });
     },
+    // 加载场馆名称映射
+    loadVenueMap: function loadVenueMap() {
+      var _this3 = this;
+      var db = wx.cloud.database();
+      return db.collection('venues').get().then(function (res) {
+        var map = {};
+        (res.data || []).forEach(function (v) {
+          if (v.venueId) {
+            map[v.venueId] = v.name;
+          }
+        });
+        _this3.venueMap = map;
+      }).catch(function (err) {
+        console.error('加载场馆失败', err);
+      });
+    },
+    venueText: function venueText(id) {
+      if (!id) return '';
+      return this.venueMap[id] || id;
+    },
     // 上一页
     prevPage: function prevPage() {
       if (this.page <= 1) return;
@@ -280,7 +320,7 @@ var _default = {
     },
     // 取消预约
     onCancel: function onCancel(id) {
-      var _this3 = this;
+      var _this4 = this;
       var booking = this.list.find(function (item) {
         return item._id === id;
       });
@@ -308,7 +348,7 @@ var _default = {
                 title: '已取消',
                 icon: 'success'
               });
-              _this3.loadMyBookings(_this3.openid);
+              _this4.loadMyBookings(_this4.openid);
             }).catch(function (err) {
               console.error(err);
               uni.showToast({

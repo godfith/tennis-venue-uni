@@ -144,7 +144,7 @@ __webpack_require__.r(__webpack_exports__);
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(wx, uni) {
+/* WEBPACK VAR INJECTION */(function(uni, wx) {
 
 Object.defineProperty(exports, "__esModule", {
   value: true
@@ -187,20 +187,33 @@ var _default = {
     return {
       coachList: [],
       loading: true,
-      tag: ''
+      venueName: uni.getStorageSync('venue_name') || ''
     };
   },
   onShow: function onShow() {
+    this.venueName = uni.getStorageSync('venue_name') || '';
     this.loadCoaches();
   },
   methods: {
     // 从数据库加载教练列表
     loadCoaches: function loadCoaches() {
       var _this = this;
+      var venueId = uni.getStorageSync('venue_id');
+      if (!venueId) {
+        uni.showToast({
+          title: '请先在首页选择场馆',
+          icon: 'none'
+        });
+        this.coachList = [];
+        this.loading = false;
+        return;
+      }
       var db = wx.cloud.database();
       this.loading = true;
-      db.collection('coaches').orderBy('sort', 'asc').get().then(function (res) {
-        _this.coachList = res.data;
+      db.collection('coaches').where({
+        venueId: venueId
+      }).orderBy('sort', 'asc').get().then(function (res) {
+        _this.coachList = res.data || [];
         _this.loading = false;
       }).catch(function (err) {
         console.error('加载教练失败', err);
@@ -219,7 +232,7 @@ var _default = {
   }
 };
 exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/wx.js */ 1)["default"], __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"], __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/wx.js */ 1)["default"]))
 
 /***/ }),
 

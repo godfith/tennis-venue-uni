@@ -13,6 +13,9 @@
           <view class="item" v-for="(item, index) in list" :key="index" @tap="goDetail(item._id)">
             <view class="item-left">
               <view class="court">{{ item.court }}</view>
+              <view class="venue" v-if="item.venueName || item.venueId">
+                {{ item.venueName || venueText(item.venueId) }}
+              </view>
               <view class="date-time">{{ item.date }}　{{ item.time }}</view>
               <view :class="'status ' + (item.status === 'booked' ? 'booked' : 'cancelled')">
                 {{ item.status === 'booked' ? '已预约' : '已取消' }}
@@ -45,7 +48,8 @@ export default {
             total: 0,
             totalPage: 1,
             loading: false,
-            openid: ''
+            openid: '',
+			venueMap: {}
         };
     },
     onShow() {
@@ -55,26 +59,25 @@ export default {
     methods: {
         // 先获取 openid，再加载数据
         getOpenidAndLoad() {
-            wx.cloud
-                .callFunction({
-                    name: 'login',
-                    config: {
-                        env: 'cloud1-d0gmljq45868f5766' // 强制指定环境
-                    }
-                })
-                .then((res) => {
-                    const openid = res.result.openid;
-                    console.log('当前用户 openid：', openid);
-                    this.openid = openid;
-                    this.loadMyBookings(openid);
-                })
-                .catch((err) => {
-                    console.error('获取 openid 失败', err);
-                    uni.showToast({
-                        title: '登录失败',
-                        icon: 'none'
-                    });
-                });
+          wx.cloud
+            .callFunction({
+              name: 'login',
+              config: {
+                env: 'cloud1-d0gmljq45868f5766'
+              }
+            })
+            .then((res) => {
+              const openid = res.result.openid
+              this.openid = openid
+              // 先映射场馆，再加载预约
+              return this.loadVenueMap().then(() => {
+                this.loadMyBookings(openid)
+              })
+            })
+            .catch((err) => {
+              console.error('获取 openid 失败', err)
+              uni.showToast({ title: '登录失败', icon: 'none' })
+            })
         },
 
         // 加载当前用户的预约
@@ -111,6 +114,30 @@ export default {
               uni.showToast({ title: '加载失败', icon: 'none' })
             })
         },
+// 加载场馆名称映射
+loadVenueMap() {
+  const db = wx.cloud.database()
+  return db
+    .collection('venues')
+    .get()
+    .then((res) => {
+      const map = {}
+      ;(res.data || []).forEach((v) => {
+        if (v.venueId) {
+          map[v.venueId] = v.name
+        }
+      })
+      this.venueMap = map
+    })
+    .catch((err) => {
+      console.error('加载场馆失败', err)
+    })
+},
+
+venueText(id) {
+  if (!id) return ''
+  return this.venueMap[id] || id
+},
 
         // 上一页
        prevPage() {
@@ -199,6 +226,11 @@ export default {
 };
 </script>
 <style>
+.venue {
+  font-size: 24rpx;
+  color: #1a5c3a;
+  margin-bottom: 8rpx;
+}	
 .container {
     padding: 30rpx;
     background: #f5f6f8;

@@ -1,6 +1,6 @@
 <template>
     <view class="page">
-        <view class="header">选择教练</view>
+        <view class="header">选择教练 · {{ venueName }}</view>
 
         <!-- 加载中 -->
         <view class="loading" v-if="loading">加载中...</view>
@@ -33,25 +33,37 @@
 <script>
 export default {
     data() {
-        return {
-            coachList: [],
-            loading: true,
-            tag: ''
-        };
+      return {
+        coachList: [],
+        loading: true,
+        venueName: uni.getStorageSync('venue_name') || ''
+      }
     },
     onShow() {
-        this.loadCoaches();
+      this.venueName = uni.getStorageSync('venue_name') || ''
+      this.loadCoaches()
     },
     methods: {
         // 从数据库加载教练列表
         loadCoaches() {
+          const venueId = uni.getStorageSync('venue_id')
+          if (!venueId) {
+            uni.showToast({ title: '请先在首页选择场馆', icon: 'none' })
+            this.coachList = []
+            this.loading = false
+            return
+          }
+        
           const db = wx.cloud.database()
           this.loading = true
           db.collection('coaches')
+            .where({
+              venueId: venueId
+            })
             .orderBy('sort', 'asc')
             .get()
             .then((res) => {
-              this.coachList = res.data
+              this.coachList = res.data || []
               this.loading = false
             })
             .catch((err) => {
@@ -60,7 +72,6 @@ export default {
               uni.showToast({ title: '加载失败', icon: 'none' })
             })
         },
-
         goDetail(id) {
           uni.navigateTo({
             url: `/pages/coach-detail/coach-detail?id=${id}`
