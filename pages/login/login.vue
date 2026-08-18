@@ -27,16 +27,27 @@
         />
       </view>
 
-      <!-- 手机号：必须用 button getPhoneNumber -->
-      <view class="field phone-row">
-        <view class="phone-text">{{ phone || '未授权手机号' }}</view>
-        <button
-          class="phone-btn"
-          open-type="getPhoneNumber"
-          @getphonenumber="onGetPhone"
-        >
-          {{ phone ? '重新授权' : '授权手机号' }}
-        </button>
+      <!-- 手机号：优先授权，可手动填写 -->
+      <view class="field">
+        <view class="phone-label">手机号</view>
+        <view class="phone-row">
+          <input
+            class="phone-input"
+            type="number"
+            maxlength="11"
+            placeholder="授权或手动输入"
+            :value="phone"
+            @input="onPhoneInput"
+          />
+          <button
+            class="phone-btn"
+            open-type="getPhoneNumber"
+            @getphonenumber="onGetPhone"
+          >
+            微信授权
+          </button>
+        </view>
+        <view class="phone-tip">优先点「微信授权」；若不可用可直接输入</view>
       </view>
 
       <button class="submit-btn" :loading="loading" @tap="submit">确认登录</button>
@@ -57,7 +68,6 @@ export default {
     }
   },
   onLoad() {
-    // 已登录则回首页
     const nick = uni.getStorageSync('nickName')
     const phone = uni.getStorageSync('phone')
     if (nick && phone) {
@@ -107,16 +117,26 @@ export default {
       this.nickName = (e.detail.value || '').trim()
     },
 
+    onPhoneInput(e) {
+      // 只保留数字
+      this.phone = String(e.detail.value || '').replace(/\D/g, '').slice(0, 11)
+    },
+
     onGetPhone(e) {
       const detail = e.detail || {}
       if (detail.errMsg && detail.errMsg.indexOf('ok') === -1) {
-        uni.showToast({ title: '需要授权手机号', icon: 'none' })
+        uni.showToast({
+          title: '授权失败，请手动输入手机号',
+          icon: 'none'
+        })
         return
       }
-      // 新版返回 code
       const code = detail.code
       if (!code) {
-        uni.showToast({ title: '获取手机号失败，请更新微信', icon: 'none' })
+        uni.showToast({
+          title: '授权不可用，请手动输入',
+          icon: 'none'
+        })
         return
       }
       uni.showLoading({ title: '解析中' })
@@ -129,16 +149,19 @@ export default {
           uni.hideLoading()
           const phone = res.result && res.result.phone
           if (!phone) {
-            uni.showToast({ title: res.result?.msg || '解析手机号失败', icon: 'none' })
+            uni.showToast({
+              title: res.result?.msg || '解析失败，请手动输入',
+              icon: 'none'
+            })
             return
           }
-          this.phone = phone
+          this.phone = String(phone).replace(/\D/g, '').slice(0, 11)
           uni.showToast({ title: '已获取手机号', icon: 'success' })
         })
         .catch((err) => {
           uni.hideLoading()
           console.error(err)
-          uni.showToast({ title: '获取失败', icon: 'none' })
+          uni.showToast({ title: '授权失败，请手动输入', icon: 'none' })
         })
     },
 
@@ -151,8 +174,8 @@ export default {
         uni.showToast({ title: '请填写昵称', icon: 'none' })
         return
       }
-      if (!this.phone) {
-        uni.showToast({ title: '请授权手机号', icon: 'none' })
+      if (!this.phone || this.phone.length !== 11) {
+        uni.showToast({ title: '请填写11位手机号', icon: 'none' })
         return
       }
 
@@ -287,31 +310,43 @@ export default {
   font-size: 30rpx;
   text-align: center;
 }
+.phone-label {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 12rpx;
+}
 .phone-row {
   display: flex;
   align-items: center;
   background: #f5f6f8;
   border-radius: 16rpx;
-  padding: 12rpx 16rpx 12rpx 28rpx;
+  padding: 8rpx 8rpx 8rpx 20rpx;
   box-sizing: border-box;
 }
-.phone-text {
+.phone-input {
   flex: 1;
+  height: 72rpx;
   font-size: 28rpx;
-  color: #333;
+  background: transparent;
 }
 .phone-btn {
   margin: 0;
-  padding: 0 24rpx;
+  padding: 0 20rpx;
   height: 64rpx;
   line-height: 64rpx;
   font-size: 24rpx;
   background: #1a5c3a !important;
   color: #fff !important;
   border-radius: 12rpx;
+  flex-shrink: 0;
 }
 .phone-btn::after {
   border: none;
+}
+.phone-tip {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: #bbb;
 }
 .submit-btn {
   width: 100%;
