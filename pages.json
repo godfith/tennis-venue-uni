@@ -10,16 +10,13 @@
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "网球场馆",
-				"usingComponents": {
-					"cloud-tip-modal": "/components/cloudTipModal/index"
-				}
+				"navigationBarTitleText": "网球场馆"
 			}
 		},
 		{
 			"path": "pages/booking/booking",
 			"style": {
-				"usingComponents": {}
+				"navigationBarTitleText": "预约"
 			}
 		},
 		{
@@ -31,57 +28,50 @@
 		{
 			"path": "pages/my/my",
 			"style": {
-				"navigationBarTitleText": "我的",
-				"usingComponents": {}
+				"navigationBarTitleText": "我的"
 			}
 		},
 		{
 			"path": "pages/mybooking/mybooking",
 			"style": {
-				"navigationBarTitleText": "我的预约",
-				"usingComponents": {}
+				"navigationBarTitleText": "我的预约"
 			}
 		},
 		{
 			"path": "pages/mycards/mycards",
 			"style": {
-				"navigationBarTitleText": "我的会员卡",
-				"usingComponents": {}
+				"navigationBarTitleText": "我的会员卡"
 			}
 		},
 		{
 			"path": "pages/coach/coach",
 			"style": {
-				"navigationBarTitleText": "教练指导",
-				"usingComponents": {}
+				"navigationBarTitleText": "教练指导"
 			}
 		},
 		{
 			"path": "pages/coach-detail/coach-detail",
 			"style": {
-				"navigationBarTitleText": "教练详情",
-				"usingComponents": {}
+				"navigationBarTitleText": "教练详情"
 			}
 		},
 		{
 			"path": "pages/coach-workbench/coach-workbench",
 			"style": {
-				"navigationBarTitleText": "教练工作台",
-				"usingComponents": {}
+				"navigationBarTitleText": "教练工作台"
 			}
 		},
 		{
 			"path": "pages/coach-edit/coach-edit",
 			"style": {
-				"navigationBarTitleText": "编辑教练资料",
-				"usingComponents": {}
+				"navigationBarTitleText": "编辑教练资料"
 			}
 		},
 		{
-		  "path": "pages/booking-detail/booking-detail",
-		  "style": {
-		    "navigationBarTitleText": "预约详情"
-		  }
+			"path": "pages/booking-detail/booking-detail",
+			"style": {
+				"navigationBarTitleText": "预约详情"
+			}
 		}
 	],
 	"tabBar": {
