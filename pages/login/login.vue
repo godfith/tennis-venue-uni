@@ -27,27 +27,17 @@
         />
       </view>
 
-      <!-- 手机号：优先授权，可手动填写 -->
+      <!-- 手机号：仅手动输入 -->
       <view class="field">
         <view class="phone-label">手机号</view>
-        <view class="phone-row">
-          <input
-            class="phone-input"
-            type="number"
-            maxlength="11"
-            placeholder="授权或手动输入"
-            :value="phone"
-            @input="onPhoneInput"
-          />
-          <button
-            class="phone-btn"
-            open-type="getPhoneNumber"
-            @getphonenumber="onGetPhone"
-          >
-            微信授权
-          </button>
-        </view>
-        <view class="phone-tip">优先点「微信授权」；若不可用可直接输入</view>
+        <input
+          class="input"
+          type="number"
+          maxlength="11"
+          placeholder="请输入11位手机号"
+          :value="phone"
+          @input="onPhoneInput"
+        />
       </view>
 
       <button class="submit-btn" :loading="loading" @tap="submit">确认登录</button>
@@ -118,51 +108,7 @@ export default {
     },
 
     onPhoneInput(e) {
-      // 只保留数字
       this.phone = String(e.detail.value || '').replace(/\D/g, '').slice(0, 11)
-    },
-
-    onGetPhone(e) {
-      const detail = e.detail || {}
-      if (detail.errMsg && detail.errMsg.indexOf('ok') === -1) {
-        uni.showToast({
-          title: '授权失败，请手动输入手机号',
-          icon: 'none'
-        })
-        return
-      }
-      const code = detail.code
-      if (!code) {
-        uni.showToast({
-          title: '授权不可用，请手动输入',
-          icon: 'none'
-        })
-        return
-      }
-      uni.showLoading({ title: '解析中' })
-      wx.cloud
-        .callFunction({
-          name: 'login',
-          data: { action: 'getPhone', phoneCode: code }
-        })
-        .then((res) => {
-          uni.hideLoading()
-          const phone = res.result && res.result.phone
-          if (!phone) {
-            uni.showToast({
-              title: res.result?.msg || '解析失败，请手动输入',
-              icon: 'none'
-            })
-            return
-          }
-          this.phone = String(phone).replace(/\D/g, '').slice(0, 11)
-          uni.showToast({ title: '已获取手机号', icon: 'success' })
-        })
-        .catch((err) => {
-          uni.hideLoading()
-          console.error(err)
-          uni.showToast({ title: '授权失败，请手动输入', icon: 'none' })
-        })
     },
 
     async submit() {
@@ -300,6 +246,11 @@ export default {
   width: 100%;
   margin-top: 28rpx;
 }
+.phone-label {
+  font-size: 26rpx;
+  color: #666;
+  margin-bottom: 12rpx;
+}
 .input {
   width: 100%;
   height: 88rpx;
@@ -309,44 +260,6 @@ export default {
   box-sizing: border-box;
   font-size: 30rpx;
   text-align: center;
-}
-.phone-label {
-  font-size: 26rpx;
-  color: #666;
-  margin-bottom: 12rpx;
-}
-.phone-row {
-  display: flex;
-  align-items: center;
-  background: #f5f6f8;
-  border-radius: 16rpx;
-  padding: 8rpx 8rpx 8rpx 20rpx;
-  box-sizing: border-box;
-}
-.phone-input {
-  flex: 1;
-  height: 72rpx;
-  font-size: 28rpx;
-  background: transparent;
-}
-.phone-btn {
-  margin: 0;
-  padding: 0 20rpx;
-  height: 64rpx;
-  line-height: 64rpx;
-  font-size: 24rpx;
-  background: #1a5c3a !important;
-  color: #fff !important;
-  border-radius: 12rpx;
-  flex-shrink: 0;
-}
-.phone-btn::after {
-  border: none;
-}
-.phone-tip {
-  margin-top: 10rpx;
-  font-size: 22rpx;
-  color: #bbb;
 }
 .submit-btn {
   width: 100%;
