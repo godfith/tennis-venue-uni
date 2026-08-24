@@ -27,18 +27,22 @@
         <text class="label">教练</text>
         <text class="value">{{ booking.coachName }}</text>
       </view>
-      <view class="row" v-if="booking.createTime">
+      <view class="row" v-if="booking.venueName">
+        <text class="label">场馆</text>
+        <text class="value">{{ booking.venueName }}</text>
+      </view>
+      <view class="row" v-if="booking.createdAt">
         <text class="label">下单时间</text>
-        <text class="value">{{ formatTime(booking.createTime) }}</text>
+        <text class="value">{{ formatTime(booking.createdAt) }}</text>
       </view>
     </view>
 
     <view class="loading" v-else>加载中...</view>
 
-    <!-- 只有可取消时才显示按钮 -->
     <button
       v-if="booking && booking.status === 'booked' && canCancel"
       class="cancel-btn"
+      :loading="cancelling"
       @tap="onCancel"
     >
       取消预约
@@ -57,7 +61,8 @@ export default {
       id: '',
       booking: null,
       canCancel: false,
-      tipText: ''
+      tipText: '',
+      cancelling: false
     }
   },
   computed: {
@@ -68,42 +73,50 @@ export default {
       return '已预约'
     },
     isPast() {
-      if (!this.booking) return false
-      const start = this.booking.time.split('-')[0]
-      const t = new Date(`${this.booking.date} ${start}:00`.replace(/-/g, '/'))
+      if (!this.booking || !this.booking.time) return false
+      var start = this.booking.time.split('-')[0]
+      var t = new Date((this.booking.date + ' ' + start + ':00').replace(/-/g, '/'))
       return t.getTime() <= Date.now()
     }
   },
   onLoad(options) {
-    this.id = options.id
+    this.id = options.id || ''
     this.loadDetail()
   },
   methods: {
     loadDetail() {
-      const db = wx.cloud.database()
-      db.collection('bookings')
-        .doc(this.id)
-        .get()
-        .then((res) => {
-          this.booking = res.data
-          this.checkCanCancel(res.data)
-        })
-        .catch((err) => {
+      var that = this
+      if (!that.id) {
+        uni.showToast({ title: '缺少订单', icon: 'none' })
+        return
+      }
+      wx.cloud.callFunction({
+        name: 'userApi',
+        data: { action: 'getBookingDetail', id: that.id },
+        success: function (res) {
+          var result = res.result || {}
+          if (!result.ok || !result.booking) {
+            uni.showToast({ title: result.msg || '加载失败', icon: 'none' })
+            return
+          }
+          that.booking = result.booking
+          that.checkCanCancel(result.booking)
+        },
+        fail: function (err) {
           console.error(err)
           uni.showToast({ title: '加载失败', icon: 'none' })
-        })
+        }
+      })
     },
-
     checkCanCancel(booking) {
       if (booking.status !== 'booked') {
         this.canCancel = false
         this.tipText = '该预约已取消'
         return
       }
-      const startTimeStr = booking.time.split('-')[0]
-      const bookingTime = new Date(`${booking.date} ${startTimeStr}:00`.replace(/-/g, '/'))
-      const diffHours = (bookingTime.getTime() - Date.now()) / 3600000
-
+      var startTimeStr = (booking.time || '').split('-')[0]
+      var bookingTime = new Date((booking.date + ' ' + startTimeStr + ':00').replace(/-/g, '/'))
+      var diffHours = (bookingTime.getTime() - Date.now()) / 3600000
       if (diffHours <= 0) {
         this.canCancel = false
         this.tipText = '场次已开始或已结束，无法取消'
@@ -115,49 +128,45 @@ export default {
         this.tipText = ''
       }
     },
-
     formatTime(t) {
       if (!t) return ''
-      // 云开发返回的可能是对象 { seconds, ... } 或 Date
-      const d = t instanceof Date ? t : (t.seconds ? new Date(t.seconds * 1000) : new Date(t))
-      if (isNaN(d.getTime())) return ''
-      const y = d.getFullYear()
-      const m = String(d.getMonth() + 1).padStart(2, '0')
-      const day = String(d.getDate()).padStart(2, '0')
-      const h = String(d.getHours()).padStart(2, '0')
-      const min = String(d.getMinutes()).padStart(2, '0')
-      return `${y}-${m}-${day} ${h}:${min}`
+      var d = t instanceof Date ? t : new Date(t)
+      if (isNaN(d.getTime())) return String(t).slice(0, 16)
+      var y = d.getFullYear()
+      var m = String(d.getMonth() + 1).padStart(2, '0')
+      var day = String(d.getDate()).padStart(2, '0')
+      var h = String(d.getHours()).padStart(2, '0')
+      var min = String(d.getMinutes()).padStart(2, '0')
+      return y + '-' + m + '-' + day + ' ' + h + ':' + min
     },
-
     onCancel() {
+      var that = this
       uni.showModal({
         title: '确认取消',
         content: '确定要取消这个预约吗？',
-        success: (res) => {
+        success: function (res) {
           if (!res.confirm) return
-          const db = wx.cloud.database()
-          db.collection('bookings')
-            .doc(this.id)
-            .update({
-              data: { status: 'cancelled' }
-            })
-            .then(() => {
-              // 如果是教练课，同步取消 coach_bookings
-              if (this.booking.coachId) {
-                return db
-                  .collection('coach_bookings')
-                  .where({ bookingId: this.id })
-                  .update({ data: { status: 'cancelled' } })
+          that.cancelling = true
+          wx.cloud.callFunction({
+            name: 'userApi',
+            data: { action: 'cancelBooking', id: that.id },
+            success: function (r) {
+              var result = r.result || {}
+              if (!result.ok) {
+                uni.showToast({ title: result.msg || '取消失败', icon: 'none' })
+                return
               }
-            })
-            .then(() => {
               uni.showToast({ title: '已取消', icon: 'success' })
-              this.loadDetail()
-            })
-            .catch((err) => {
+              that.loadDetail()
+            },
+            fail: function (err) {
               console.error(err)
               uni.showToast({ title: '取消失败', icon: 'none' })
-            })
+            },
+            complete: function () {
+              that.cancelling = false
+            }
+          })
         }
       })
     }
