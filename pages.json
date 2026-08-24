@@ -23,6 +23,12 @@
 			}
 		},
 		{
+			"path": "pages/group/group",
+			"style": {
+				"navigationBarTitleText": "团课报名"
+			}
+		},
+		{
 			"path": "pages/my/my",
 			"style": {
 				"navigationBarTitleText": "我的",
