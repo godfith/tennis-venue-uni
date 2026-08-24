@@ -1,5 +1,12 @@
 <template>
   <view class="page">
+    <view class="avatar-section">
+      <button class="avatar-btn" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
+        <image class="avatar" :src="avatar || '/static/images/avatar.png'" mode="aspectFill"></image>
+        <view class="avatar-tip">点击更换头像</view>
+      </button>
+    </view>
+
     <view class="form-item">
       <view class="label">姓名</view>
       <input class="input" :value="name" @input="onNameInput" placeholder="请输入姓名" />
@@ -27,6 +34,7 @@ export default {
       name: '',
       title: '',
       desc: '',
+      avatar: '',
       saving: false
     }
   },
@@ -51,12 +59,16 @@ export default {
           that.name = c.name || ''
           that.title = c.title || ''
           that.desc = c.desc || c.remark || ''
+          that.avatar = c.avatar || ''
         },
         fail: function (err) {
           console.error(err)
           uni.showToast({ title: '加载失败', icon: 'none' })
         }
       })
+    },
+    onChooseAvatar(e) {
+      this.avatar = (e.detail && e.detail.avatarUrl) || ''
     },
     onNameInput(e) {
       this.name = e.detail.value
@@ -74,7 +86,6 @@ export default {
         return
       }
       that.saving = true
-      // remark 里拼接头衔+介绍（表无 title/desc 列）
       var remark = ''
       if (that.title.trim()) remark += that.title.trim()
       if (that.desc.trim()) {
@@ -86,7 +97,8 @@ export default {
           action: 'updateCoachProfile',
           id: that.id,
           name: that.name.trim(),
-          remark: remark
+          remark: remark,
+          avatar: that.avatar || ''
         },
         success: function (res) {
           var result = res.result || {}
@@ -117,6 +129,42 @@ export default {
   padding: 30rpx;
   background: #f5f6f8;
   min-height: 100vh;
+}
+.avatar-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 40rpx;
+}
+.avatar-btn {
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 50%;
+  overflow: hidden;
+  position: relative;
+}
+.avatar-btn::after {
+  border: none;
+}
+.avatar {
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 50%;
+  display: block;
+  background: #f0f0f0;
+}
+.avatar-tip {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  font-size: 22rpx;
+  text-align: center;
+  padding: 8rpx 0;
 }
 .form-item {
   background: #fff;
