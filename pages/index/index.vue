@@ -39,13 +39,13 @@
                     <view class="icon-wrap">📅</view>
                     <text>场地预订</text>
                 </view>
+                <view class="service-item" @tap="goGroup">
+                    <view class="icon-wrap">👥</view>
+                    <text>团课报名</text>
+                </view>
                 <view class="service-item" @tap="goCoach">
                     <view class="icon-wrap">🎾</view>
                     <text>教练指导</text>
-                </view>
-                <view class="service-item" @tap="comingSoon">
-                    <view class="icon-wrap">🏋️</view>
-                    <text>配套设施</text>
                 </view>
                 <view class="service-item" @tap="goMy">
                     <view class="icon-wrap">👤</view>
@@ -140,28 +140,19 @@ methods: {
     })
   },
         goBooking() {
-            uni.switchTab({
-                url: '/pages/booking/booking'
-            });
+            uni.switchTab({ url: '/pages/booking/booking' });
         },
-
+        goGroup() {
+            uni.navigateTo({ url: '/pages/group/group' });
+        },
         goMy() {
-            uni.switchTab({
-                url: '/pages/my/my'
-            });
+            uni.switchTab({ url: '/pages/my/my' });
         },
-
         goCoach() {
-            uni.navigateTo({
-                url: '/pages/coach/coach'
-            });
+            uni.navigateTo({ url: '/pages/coach/coach' });
         },
-
         comingSoon() {
-            uni.showToast({
-                title: '功能即将上线',
-                icon: 'none'
-            });
+            uni.showToast({ title: '功能即将上线', icon: 'none' });
         }
     }
 };
@@ -284,18 +275,10 @@ methods: {
     border-radius: 16rpx;
     margin-right: 20rpx;
 }
-.g1 {
-    background: linear-gradient(135deg, #1a5276, #2980b9);
-}
-.g2 {
-    background: linear-gradient(135deg, #1a3a5c, #2c3e50);
-}
-.g3 {
-    background: linear-gradient(135deg, #0e6655, #148f77);
-}
-.safe-bottom {
-    height: 30rpx;
-}
+.g1 { background: linear-gradient(135deg, #1a5276, #2980b9); }
+.g2 { background: linear-gradient(135deg, #1a3a5c, #2c3e50); }
+.g3 { background: linear-gradient(135deg, #0e6655, #148f77); }
+.safe-bottom { height: 30rpx; }
 .venue-bar {
   margin: 24rpx 30rpx 0;
   padding: 24rpx 28rpx;
@@ -305,19 +288,7 @@ methods: {
   align-items: center;
   box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
 }
-.venue-label {
-  font-size: 24rpx;
-  color: #999;
-  margin-right: 16rpx;
-}
-.venue-name {
-  flex: 1;
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #1a5c3a;
-}
-.venue-arrow {
-  font-size: 26rpx;
-  color: #07c160;
-}
+.venue-label { font-size: 24rpx; color: #999; margin-right: 16rpx; }
+.venue-name { flex: 1; font-size: 28rpx; font-weight: 600; color: #1a5c3a; }
+.venue-arrow { font-size: 26rpx; color: #07c160; }
 </style>
