@@ -1,17 +1,14 @@
 <template>
     <view class="page">
-        <!-- 顶部英雄区 -->
         <view class="hero">
             <image class="hero-image" src="/static/images/index/title.jpg" mode="aspectFill"></image>
         </view>
-		<!-- 场馆切换 -->
 		<view class="venue-bar" @tap="showVenuePicker">
 		  <text class="venue-label">当前场馆</text>
 		  <text class="venue-name">{{ venueName }}</text>
 		  <text class="venue-arrow">切换 ›</text>
 		</view>
 
-        <!-- 赛事与活动 -->
         <view class="block">
             <view class="block-header">
                 <text class="block-title">赛事与活动</text>
@@ -32,7 +29,6 @@
             </scroll-view>
         </view>
 
-        <!-- 场馆服务 -->
         <view class="block">
             <view class="block-header">
                 <text class="block-title">场馆服务</text>
@@ -58,7 +54,6 @@
             </view>
         </view>
 
-        <!-- 场馆风采 -->
         <view class="block">
             <view class="block-header">
                 <text class="block-title">场馆风采</text>
@@ -76,11 +71,7 @@
 </template>
 
 <script>
-import cloudTipModal from '@/components/cloudTipModal/index';
 export default {
-    components: {
-        cloudTipModal
-    },
     data() {
       return {
         venueList: [],
@@ -93,18 +84,19 @@ export default {
 	},
 methods: {
   loadVenues() {
-    const db = wx.cloud.database()
-    db.collection('venues')
-      .where({ status: 'active' })
-      .get()
+    wx.cloud
+      .callFunction({
+        name: 'userApi',
+        data: { action: 'getVenues' }
+      })
       .then((res) => {
-        const list = (res.data || []).sort((a, b) => (a.sort || 0) - (b.sort || 0))
+        const result = res.result || {}
+        const list = result.list || []
         this.venueList = list
 
         let id = uni.getStorageSync('venue_id')
         let name = uni.getStorageSync('venue_name')
 
-        // 没有选过：默认第一家
         if (!id && list.length) {
           id = list[0].venueId
           name = list[0].name
@@ -112,7 +104,6 @@ methods: {
           uni.setStorageSync('venue_name', name)
         }
 
-        // 校验是否还在列表里
         const found = list.find((v) => v.venueId === id)
         if (found) {
           this.venueId = found.venueId
@@ -126,6 +117,7 @@ methods: {
       })
       .catch((err) => {
         console.error('加载场馆失败', err)
+        uni.showToast({ title: '加载场馆失败', icon: 'none' })
       })
   },
 
@@ -181,48 +173,38 @@ methods: {
     padding-bottom: 40rpx;
     box-sizing: border-box;
 }
-
-/* ===== 英雄区 ===== */
 .hero {
     height: 420rpx;
     width: 100%;
     overflow: hidden;
 }
-
 .hero-image {
     width: 100%;
     height: 100%;
     display: block;
 }
-/* ===== 通用区块 ===== */
 .block {
     margin: 36rpx 30rpx 0;
 }
-
 .block-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 24rpx;
 }
-
 .block-title {
     font-size: 32rpx;
     font-weight: 700;
     color: #1a1a1a;
 }
-
 .more {
     font-size: 26rpx;
     color: #999;
 }
-
-/* ===== 赛事卡片 ===== */
 .event-list {
     white-space: nowrap;
     width: 100%;
 }
-
 .event-item {
     display: inline-block;
     width: 400rpx;
@@ -235,15 +217,12 @@ methods: {
     vertical-align: top;
     color: #fff;
 }
-
 .event-blue {
     background: linear-gradient(135deg, #1e4a6e, #2c6a9e);
 }
-
 .event-green {
     background: linear-gradient(135deg, #1a5c45, #2d8a6a);
 }
-
 .event-tag {
     position: absolute;
     top: 20rpx;
@@ -253,24 +232,19 @@ methods: {
     padding: 4rpx 14rpx;
     border-radius: 16rpx;
 }
-
 .event-tag.green {
     background: #07c160;
 }
-
 .event-name {
     font-size: 30rpx;
     font-weight: 600;
     margin-top: 60rpx;
     margin-bottom: 8rpx;
 }
-
 .event-date {
     font-size: 24rpx;
     opacity: 0.85;
 }
-
-/* ===== 场馆服务 ===== */
 .service-box {
     background: #fff;
     border-radius: 20rpx;
@@ -278,14 +252,12 @@ methods: {
     display: flex;
     box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.03);
 }
-
 .service-item {
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
-
 .icon-wrap {
     width: 88rpx;
     height: 88rpx;
@@ -297,18 +269,14 @@ methods: {
     font-size: 40rpx;
     margin-bottom: 14rpx;
 }
-
 .service-item text {
     font-size: 24rpx;
     color: #333;
 }
-
-/* ===== 场馆风采 ===== */
 .gallery {
     white-space: nowrap;
     width: 100%;
 }
-
 .gallery-item {
     display: inline-block;
     width: 260rpx;
@@ -316,7 +284,6 @@ methods: {
     border-radius: 16rpx;
     margin-right: 20rpx;
 }
-
 .g1 {
     background: linear-gradient(135deg, #1a5276, #2980b9);
 }
@@ -326,7 +293,6 @@ methods: {
 .g3 {
     background: linear-gradient(135deg, #0e6655, #148f77);
 }
-
 .safe-bottom {
     height: 30rpx;
 }

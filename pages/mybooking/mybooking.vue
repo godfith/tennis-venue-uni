@@ -2,37 +2,30 @@
     <view class="container">
         <view class="title">我的预约</view>
 
-        <!-- 空状态 -->
         <view class="empty" v-if="list.length === 0 && !loading">
             <view class="empty-text">暂无预约记录</view>
             <button class="go-btn" @tap="goBooking">去预约</button>
         </view>
 
-        <!-- 列表 -->
         <view class="list" v-else>
-          <view class="item" v-for="(item, index) in list" :key="index" @tap="goDetail(item._id)">
+          <view class="item" v-for="(item, index) in list" :key="index">
             <view class="item-left">
               <view class="court">{{ item.court }}</view>
-              <view class="venue" v-if="item.venueName || item.venueId">
-                {{ item.venueName || venueText(item.venueId) }}
-              </view>
+              <view class="venue" v-if="item.venueName">{{ item.venueName }}</view>
               <view class="date-time">{{ item.date }}　{{ item.time }}</view>
               <view :class="'status ' + (item.status === 'booked' ? 'booked' : 'cancelled')">
                 {{ item.status === 'booked' ? '已预约' : '已取消' }}
               </view>
             </view>
-            <view class="item-right">
-              <text class="arrow">›</text>
+            <view class="item-right" v-if="item.status === 'booked'">
+              <button class="cancel-btn" @tap.stop="onCancel(item._id)">取消</button>
             </view>
           </view>
         </view>
 
-        <!-- 分页控制 -->
         <view class="pagination" v-if="total > 0">
             <button class="page-btn" :disabled="page === 1" @tap="prevPage">上一页</button>
-
             <view class="page-info">{{ page }} / {{ totalPage }}</view>
-
             <button class="page-btn" :disabled="page >= totalPage" @tap="nextPage">下一页</button>
         </view>
     </view>
@@ -44,133 +37,85 @@ export default {
         return {
             list: [],
             page: 1,
-            pageSize: 5,
+            pageSize: 10,
             total: 0,
             totalPage: 1,
             loading: false,
-            openid: '',
-			venueMap: {}
+            openid: ''
         };
     },
     onShow() {
       this.page = 1
-      this.getOpenidAndLoad()
+      this.loadMyBookings()
     },
     methods: {
-        // 先获取 openid，再加载数据
-        getOpenidAndLoad() {
+        loadMyBookings() {
+          const openid = uni.getStorageSync('openid') || ''
+          const userDocId = uni.getStorageSync('userDocId') || ''
+          if (!openid && !userDocId) {
+            uni.showToast({ title: '请先登录', icon: 'none' })
+            return
+          }
+          this.openid = openid
+          this.loading = true
+
           wx.cloud
             .callFunction({
-              name: 'login',
-              config: {
-                env: 'cloud1-d0gmljq45868f5766'
+              name: 'userApi',
+              data: {
+                action: 'getMyBookings',
+                openid,
+                userId: userDocId,
+                page: this.page,
+                pageSize: this.pageSize
               }
             })
             .then((res) => {
-              const openid = res.result.openid
-              this.openid = openid
-              // 先映射场馆，再加载预约
-              return this.loadVenueMap().then(() => {
-                this.loadMyBookings(openid)
-              })
-            })
-            .catch((err) => {
-              console.error('获取 openid 失败', err)
-              uni.showToast({ title: '登录失败', icon: 'none' })
-            })
-        },
-
-        // 加载当前用户的预约
-        loadMyBookings(openid) {
-          const { page, pageSize } = this
-          const db = wx.cloud.database()
-          this.loading = true
-        
-          const whereCondition = { _openid: openid }
-        
-          db.collection('bookings')
-            .where(whereCondition)
-            .count()
-            .then((countRes) => {
-              const total = countRes.total
-              const totalPage = Math.ceil(total / pageSize) || 1
-              return db
-                .collection('bookings')
-                .where(whereCondition)
-                .orderBy('createTime', 'desc')
-                .skip((page - 1) * pageSize)
-                .limit(pageSize)
-                .get()
-                .then((res) => {
-                  this.list = res.data
-                  this.total = total
-                  this.totalPage = totalPage
-                  this.loading = false
-                })
+              const result = res.result || {}
+              if (!result.ok) {
+                uni.showToast({ title: result.msg || '加载失败', icon: 'none' })
+                return
+              }
+              this.list = result.list || []
+              this.total = result.total || 0
+              this.totalPage = Math.ceil(this.total / this.pageSize) || 1
             })
             .catch((err) => {
               console.error('加载失败', err)
-              this.loading = false
               uni.showToast({ title: '加载失败', icon: 'none' })
             })
+            .finally(() => {
+              this.loading = false
+            })
         },
-// 加载场馆名称映射
-loadVenueMap() {
-  const db = wx.cloud.database()
-  return db
-    .collection('venues')
-    .get()
-    .then((res) => {
-      const map = {}
-      ;(res.data || []).forEach((v) => {
-        if (v.venueId) {
-          map[v.venueId] = v.name
-        }
-      })
-      this.venueMap = map
-    })
-    .catch((err) => {
-      console.error('加载场馆失败', err)
-    })
-},
 
-venueText(id) {
-  if (!id) return ''
-  return this.venueMap[id] || id
-},
-
-        // 上一页
        prevPage() {
          if (this.page <= 1) return
          this.page = this.page - 1
-         this.loadMyBookings(this.openid)
+         this.loadMyBookings()
        },
-       
+
        nextPage() {
          if (this.page >= this.totalPage) return
          this.page = this.page + 1
-         this.loadMyBookings(this.openid)
+         this.loadMyBookings()
        },
-        // 判断是否可以取消（提前6小时）
+
         canCancel(booking) {
-          const startTimeStr = booking.time.split('-')[0] // "09:00"
+          const startTimeStr = booking.time.split('-')[0]
           const bookingDateTimeStr = `${booking.date} ${startTimeStr}:00`
           const bookingTime = new Date(bookingDateTimeStr.replace(/-/g, '/'))
           const now = new Date()
-          const diffMs = bookingTime.getTime() - now.getTime()
-          const diffHours = diffMs / 3600000
-        
-          // 已过期 或 不足6小时 → 不可取消
+          const diffHours = (bookingTime.getTime() - now.getTime()) / 3600000
           if (diffHours <= 0) return false
           if (diffHours < 6) return false
           return true
         },
 
-        // 取消预约
         onCancel(id) {
           const booking = this.list.find((item) => item._id === id)
           if (!booking) return
-        
+
           if (!this.canCancel(booking)) {
             uni.showModal({
               title: '无法取消',
@@ -179,35 +124,30 @@ venueText(id) {
             })
             return
           }
-        
+
           uni.showModal({
             title: '确认取消',
             content: '确定要取消这个预约吗？',
             success: (res) => {
-              if (res.confirm) {
-                const db = wx.cloud.database()
-                db.collection('bookings')
-                  .doc(id)
-                  .update({
-                    data: {
-                      status: 'cancelled'
-                    }
-                  })
-                  .then(() => {
-                    uni.showToast({
-                      title: '已取消',
-                      icon: 'success'
-                    })
-                    this.loadMyBookings(this.openid)
-                  })
-                  .catch((err) => {
-                    console.error(err)
-                    uni.showToast({
-                      title: '取消失败',
-                      icon: 'none'
-                    })
-                  })
-              }
+              if (!res.confirm) return
+              wx.cloud
+                .callFunction({
+                  name: 'userApi',
+                  data: { action: 'cancelBooking', id }
+                })
+                .then((r) => {
+                  const result = r.result || {}
+                  if (!result.ok) {
+                    uni.showToast({ title: result.msg || '取消失败', icon: 'none' })
+                    return
+                  }
+                  uni.showToast({ title: '已取消', icon: 'success' })
+                  this.loadMyBookings()
+                })
+                .catch((err) => {
+                  console.error(err)
+                  uni.showToast({ title: '取消失败', icon: 'none' })
+                })
             }
           })
         },
@@ -216,12 +156,7 @@ venueText(id) {
             uni.switchTab({
                 url: '/pages/booking/booking'
             });
-        },
-		goDetail(id) {
-		  uni.navigateTo({
-		    url: `/pages/booking-detail/booking-detail?id=${id}`
-		  })
-		},
+        }
     }
 };
 </script>
@@ -230,7 +165,7 @@ venueText(id) {
   font-size: 24rpx;
   color: #1a5c3a;
   margin-bottom: 8rpx;
-}	
+}
 .container {
     padding: 30rpx;
     background: #f5f6f8;
@@ -238,25 +173,21 @@ venueText(id) {
     box-sizing: border-box;
     padding-bottom: 120rpx;
 }
-
 .title {
     font-size: 40rpx;
     font-weight: bold;
     color: #222;
     margin-bottom: 30rpx;
 }
-
 .empty {
     margin-top: 180rpx;
     text-align: center;
 }
-
 .empty-text {
     font-size: 30rpx;
     color: #999;
     margin-bottom: 40rpx;
 }
-
 .go-btn {
     width: 280rpx;
     background: #07c160 !important;
@@ -264,8 +195,6 @@ venueText(id) {
     border-radius: 50rpx;
     font-size: 30rpx;
 }
-
-/* 列表项 */
 .item {
     background: #fff;
     border-radius: 16rpx;
@@ -276,37 +205,31 @@ venueText(id) {
     align-items: center;
     box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.03);
 }
-
 .court {
     font-size: 32rpx;
     font-weight: bold;
     color: #222;
     margin-bottom: 10rpx;
 }
-
 .date-time {
     font-size: 26rpx;
     color: #666;
     margin-bottom: 12rpx;
 }
-
 .status {
     font-size: 22rpx;
     display: inline-block;
     padding: 4rpx 14rpx;
     border-radius: 8rpx;
 }
-
 .status.booked {
     background: #e8f8ef;
     color: #07c160;
 }
-
 .status.cancelled {
     background: #f0f0f0;
     color: #999;
 }
-
 .cancel-btn {
     background: #fff !important;
     color: #ff4d4f !important;
@@ -316,8 +239,6 @@ venueText(id) {
     margin: 0;
     line-height: 56rpx !important;
 }
-
-/* 分页 */
 .pagination {
     display: flex;
     justify-content: center;
@@ -325,7 +246,6 @@ venueText(id) {
     margin-top: 40rpx;
     gap: 30rpx;
 }
-
 .page-btn {
     font-size: 26rpx !important;
     padding: 0 30rpx !important;
@@ -335,12 +255,10 @@ venueText(id) {
     border-radius: 12rpx !important;
     line-height: 64rpx !important;
 }
-
 .page-btn[disabled] {
     color: #ccc !important;
     background: #f5f5f5 !important;
 }
-
 .page-info {
     font-size: 28rpx;
     color: #666;
