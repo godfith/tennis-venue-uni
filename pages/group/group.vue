@@ -5,11 +5,12 @@
       <view class="sub">{{ venueName || '请先选择场馆' }}</view>
     </view>
 
-    <scroll-view class="date-scroll" scroll-x>
+    <scroll-view class="date-scroll" scroll-x="true">
       <view
         v-for="(item, index) in dateList"
         :key="index"
-        :class="'date-item ' + (currentDate === item.date ? 'active' : '')"
+        class="date-item"
+        :class="{ active: currentDate === item.date }"
         @tap="onSelectDate(item.date)"
       >
         <view class="week">{{ item.week }}</view>
@@ -17,56 +18,47 @@
       </view>
     </scroll-view>
 
-    <view class="loading" v-if="loading">加载中...</view>
+    <view v-if="loading" class="tip">加载中...</view>
+    <view v-else-if="list.length === 0" class="tip">当天暂无团课</view>
 
-    <view class="empty" v-else-if="list.length === 0">
-      <view>当天暂无团课</view>
-    </view>
-
-    <view class="list" v-else>
-      <view class="card" v-for="(item, index) in list" :key="index">
+    <view v-else class="list">
+      <view v-for="(item, index) in list" :key="index" class="card">
         <view class="card-top">
-          <view class="name">{{ item.name }}</view>
-          <view class="badge" :class="full(item) ? 'full' : 'open'">
-            {{ full(item) ? '已满' : '可报名' }}
-          </view>
+          <text class="name">{{ item.name }}</text>
+          <text class="badge">{{ isFull(item) ? '已满' : '可报名' }}</text>
         </view>
-        <view class="row">时段 {{ item.time }}</view>
-        <view class="row">场地 {{ item.court }}</view>
-        <view class="row">教练 {{ item.coachName || '-' }}</view>
-        <view class="row">名额 {{ item.enrolled || 0 }} / {{ item.capacity || 0 }}</view>
+        <view class="row">时段：{{ item.time }}</view>
+        <view class="row">场地：{{ item.court }}</view>
+        <view class="row">教练：{{ item.coachName || '-' }}</view>
+        <view class="row">名额：{{ item.enrolled || 0 }}/{{ item.capacity || 0 }}</view>
         <button
           class="btn"
-          :disabled="full(item) || item.status !== 'open'"
+          :disabled="isFull(item)"
           @tap="openEnroll(item)"
-        >
-          {{ full(item) ? '名额已满' : '报名' }}
-        </button>
+        >{{ isFull(item) ? '名额已满' : '报名' }}</button>
       </view>
     </view>
 
-    <!-- 报名弹层 -->
-    <view class="mask" v-if="show" @tap="show = false">
-      <view class="sheet" @tap.stop="">
+    <view v-if="show" class="mask" @tap="closeSheet">
+      <view class="sheet" @tap="stopBubble">
         <view class="sheet-title">确认报名</view>
-        <view class="sheet-row">{{ current.name }} · {{ current.time }}</view>
-        <view class="sheet-row">场地 {{ current.court }} · 教练 {{ current.coachName || '-' }}</view>
+        <view class="row">{{ current.name }} · {{ current.time }}</view>
+        <view class="row">场地 {{ current.court }} · 教练 {{ current.coachName || '-' }}</view>
 
         <view class="label">选择团课卡</view>
-        <view v-if="!cards.length" class="tip error">没有可用团课卡，请联系前台办理</view>
+        <view v-if="cards.length === 0" class="err">没有可用团课卡，请联系前台</view>
         <view
           v-for="(c, i) in cards"
           :key="i"
-          :class="'card-opt ' + (selectedCardId === c._id ? 'on' : '')"
-          @tap="selectedCardId = c._id"
+          class="card-opt"
+          :class="{ on: selectedCardId === c._id }"
+          @tap="selectCard(c._id)"
         >
-          {{ c.cardName }}（剩 {{ c.remainingTimes }} 次）
+          {{ c.cardName }}（剩{{ c.remainingTimes }}次）
         </view>
 
-        <button class="confirm" :loading="saving" :disabled="!selectedCardId" @tap="submit">
-          确认报名并扣次
-        </button>
-        <button class="cancel" @tap="show = false">取消</button>
+        <button class="confirm" :loading="saving" @tap="submit">确认报名并扣次</button>
+        <button class="cancel" @tap="closeSheet">取消</button>
       </view>
     </view>
   </view>
@@ -94,65 +86,80 @@ export default {
     this.loadList()
   },
   methods: {
-    full(item) {
-      return (item.enrolled || 0) >= (item.capacity || 0)
+    isFull(item) {
+      return Number(item.enrolled || 0) >= Number(item.capacity || 0)
+    },
+    stopBubble() {},
+    closeSheet() {
+      this.show = false
+    },
+    selectCard(id) {
+      this.selectedCardId = id
     },
     initDates() {
-      const weeks = ['日', '一', '二', '三', '四', '五', '六']
-      const list = []
-      const today = new Date()
-      for (let i = 0; i < 7; i++) {
-        const d = new Date(today)
+      var weeks = ['日', '一', '二', '三', '四', '五', '六']
+      var list = []
+      var today = new Date()
+      for (var i = 0; i < 7; i++) {
+        var d = new Date(today.getTime())
         d.setDate(today.getDate() + i)
-        const y = d.getFullYear()
-        const m = d.getMonth() + 1
-        const day = d.getDate()
-        const dateStr = `${y}-${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+        var y = d.getFullYear()
+        var m = d.getMonth() + 1
+        var day = d.getDate()
+        var mm = m < 10 ? '0' + m : '' + m
+        var dd = day < 10 ? '0' + day : '' + day
+        var dateStr = y + '-' + mm + '-' + dd
         list.push({
           date: dateStr,
-          week: i === 0 ? '今天' : `周${weeks[d.getDay()]}`,
-          day: `${m}/${day}`
+          week: i === 0 ? '今天' : '周' + weeks[d.getDay()],
+          day: m + '/' + day
         })
       }
       this.dateList = list
-      if (!this.currentDate) this.currentDate = list[0].date
+      if (!this.currentDate) {
+        this.currentDate = list[0].date
+      }
     },
     onSelectDate(date) {
       this.currentDate = date
       this.loadList()
     },
     loadList() {
-      const venueId = uni.getStorageSync('venue_id')
+      var that = this
+      var venueId = uni.getStorageSync('venue_id') || ''
       if (!venueId) {
         uni.showToast({ title: '请先选择场馆', icon: 'none' })
-        this.list = []
+        that.list = []
         return
       }
-      this.loading = true
-      wx.cloud
-        .callFunction({
-          name: 'userApi',
-          data: {
-            action: 'getGroupClasses',
-            venueId,
-            date: this.currentDate
-          }
-        })
-        .then((res) => {
-          const result = res.result || {}
-          this.list = (result.list || []).filter((g) => g.status === 'open')
-        })
-        .catch((e) => {
-          console.error(e)
+      that.loading = true
+      wx.cloud.callFunction({
+        name: 'userApi',
+        data: {
+          action: 'getGroupClasses',
+          venueId: venueId,
+          date: that.currentDate
+        },
+        success: function (res) {
+          var result = res.result || {}
+          var arr = result.list || []
+          that.list = arr.filter(function (g) {
+            return g.status === 'open'
+          })
+        },
+        fail: function (err) {
+          console.error(err)
           uni.showToast({ title: '加载失败', icon: 'none' })
-        })
-        .finally(() => {
-          this.loading = false
-        })
+          that.list = []
+        },
+        complete: function () {
+          that.loading = false
+        }
+      })
     },
     openEnroll(item) {
-      const nickName = uni.getStorageSync('nickName') || ''
-      const phone = uni.getStorageSync('phone') || ''
+      var nickName = uni.getStorageSync('nickName') || ''
+      var phone = uni.getStorageSync('phone') || ''
       if (!nickName || !phone) {
         uni.showToast({ title: '请先登录', icon: 'none' })
         uni.navigateTo({ url: '/pages/login/login' })
@@ -164,59 +171,66 @@ export default {
       this.loadGroupCards()
     },
     loadGroupCards() {
-      const userDocId = uni.getStorageSync('userDocId') || ''
-      const openid = uni.getStorageSync('openid') || ''
-      wx.cloud
-        .callFunction({
-          name: 'userApi',
-          data: { action: 'getMyCards', userId: userDocId, openid }
-        })
-        .then((res) => {
-          const result = res.result || {}
-          this.cards = (result.list || []).filter(
-            (c) => c.type === 'group' && c.status === 'active' && (c.remainingTimes || 0) > 0
-          )
-          if (this.cards.length === 1) this.selectedCardId = this.cards[0]._id
-        })
-        .catch(() => {
-          this.cards = []
-        })
+      var that = this
+      var userDocId = uni.getStorageSync('userDocId') || ''
+      var openid = uni.getStorageSync('openid') || ''
+      wx.cloud.callFunction({
+        name: 'userApi',
+        data: {
+          action: 'getMyCards',
+          userId: userDocId,
+          openid: openid
+        },
+        success: function (res) {
+          var result = res.result || {}
+          var arr = result.list || []
+          that.cards = arr.filter(function (c) {
+            return c.type === 'group' && c.status === 'active' && Number(c.remainingTimes || 0) > 0
+          })
+          if (that.cards.length === 1) {
+            that.selectedCardId = that.cards[0]._id
+          }
+        },
+        fail: function () {
+          that.cards = []
+        }
+      })
     },
     submit() {
-      if (!this.selectedCardId) {
+      var that = this
+      if (!that.selectedCardId) {
         uni.showToast({ title: '请选择团课卡', icon: 'none' })
         return
       }
-      this.saving = true
-      wx.cloud
-        .callFunction({
-          name: 'userApi',
-          data: {
-            action: 'enrollGroupClass',
-            groupClassId: this.current._id,
-            userId: uni.getStorageSync('userDocId') || '',
-            userName: uni.getStorageSync('nickName') || '',
-            phone: uni.getStorageSync('phone') || '',
-            cardId: this.selectedCardId
-          }
-        })
-        .then((res) => {
-          const result = res.result || {}
+      that.saving = true
+      wx.cloud.callFunction({
+        name: 'userApi',
+        data: {
+          action: 'enrollGroupClass',
+          groupClassId: that.current._id,
+          userId: uni.getStorageSync('userDocId') || '',
+          userName: uni.getStorageSync('nickName') || '',
+          phone: uni.getStorageSync('phone') || '',
+          cardId: that.selectedCardId
+        },
+        success: function (res) {
+          var result = res.result || {}
           if (!result.ok) {
             uni.showToast({ title: result.msg || '报名失败', icon: 'none' })
             return
           }
           uni.showToast({ title: '报名成功', icon: 'success' })
-          this.show = false
-          this.loadList()
-        })
-        .catch((e) => {
-          console.error(e)
+          that.show = false
+          that.loadList()
+        },
+        fail: function (err) {
+          console.error(err)
           uni.showToast({ title: '报名失败', icon: 'none' })
-        })
-        .finally(() => {
-          this.saving = false
-        })
+        },
+        complete: function () {
+          that.saving = false
+        }
+      })
     }
   }
 }
@@ -246,6 +260,7 @@ export default {
   background: #fff;
   padding: 10rpx 20rpx 30rpx;
   white-space: nowrap;
+  width: 100%;
 }
 .date-item {
   display: inline-flex;
@@ -262,21 +277,28 @@ export default {
   background: #07c160;
   color: #fff;
 }
-.week { font-size: 22rpx; }
-.day { font-size: 30rpx; font-weight: 700; margin-top: 6rpx; }
-.loading, .empty {
+.week {
+  font-size: 22rpx;
+}
+.day {
+  font-size: 30rpx;
+  font-weight: 700;
+  margin-top: 6rpx;
+}
+.tip {
   text-align: center;
   color: #999;
   padding: 80rpx 0;
   font-size: 28rpx;
 }
-.list { padding: 24rpx 30rpx; }
+.list {
+  padding: 24rpx 30rpx;
+}
 .card {
   background: #fff;
   border-radius: 20rpx;
   padding: 28rpx;
   margin-bottom: 24rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.03);
 }
 .card-top {
   display: flex;
@@ -284,15 +306,23 @@ export default {
   align-items: center;
   margin-bottom: 12rpx;
 }
-.name { font-size: 32rpx; font-weight: 600; color: #222; }
+.name {
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #222;
+}
 .badge {
   font-size: 22rpx;
   padding: 4rpx 14rpx;
   border-radius: 8rpx;
+  background: #e8f8ef;
+  color: #07c160;
 }
-.badge.open { background: #e8f8ef; color: #07c160; }
-.badge.full { background: #f0f0f0; color: #999; }
-.row { font-size: 26rpx; color: #666; margin-top: 8rpx; }
+.row {
+  font-size: 26rpx;
+  color: #666;
+  margin-top: 8rpx;
+}
 .btn {
   margin-top: 24rpx;
   background: #07c160 !important;
@@ -300,13 +330,13 @@ export default {
   border-radius: 12rpx;
   font-size: 28rpx;
 }
-.btn[disabled] {
-  background: #ccc !important;
-}
 .mask {
   position: fixed;
-  left: 0; right: 0; top: 0; bottom: 0;
-  background: rgba(0,0,0,0.45);
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
   z-index: 100;
   display: flex;
   align-items: flex-end;
@@ -323,18 +353,16 @@ export default {
   font-weight: 700;
   margin-bottom: 16rpx;
 }
-.sheet-row {
-  font-size: 26rpx;
-  color: #666;
-  margin-bottom: 8rpx;
-}
 .label {
   margin-top: 24rpx;
   margin-bottom: 12rpx;
   font-size: 28rpx;
   font-weight: 600;
 }
-.tip.error { color: #f56c6c; font-size: 26rpx; }
+.err {
+  color: #f56c6c;
+  font-size: 26rpx;
+}
 .card-opt {
   padding: 22rpx 24rpx;
   border: 2rpx solid #eee;
