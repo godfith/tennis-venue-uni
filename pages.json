@@ -32,6 +32,14 @@
 		{
 			"path": "pages/mybooking/mybooking",
 			"style": {
+				"navigationBarTitleText": "我的预约",
+				"usingComponents": {}
+			}
+		},
+		{
+			"path": "pages/mycards/mycards",
+			"style": {
+				"navigationBarTitleText": "我的会员卡",
 				"usingComponents": {}
 			}
 		},
