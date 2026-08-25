@@ -65,15 +65,31 @@
 export default {
   data() {
     return {
-      courtConfig: [], dateList: [], venueName: '', courtList: [],
-      currentDate: '', currentCourtId: '', currentCourtName: '', currentTime: '',
-      booking: false, cardSheetVisible: false, cardLoading: false, myCards: [], selectedCardId: '', priceMap: {},
+      courtConfig: [],
+      dateList: [],
+      venueName: '',
+      courtList: [],
+      currentDate: '',
+      currentCourtId: '',
+      currentCourtName: '',
+      currentTime: '',
+      booking: false,
+      cardSheetVisible: false,
+      cardLoading: false,
+      myCards: [],
+      selectedCardId: '',
+      priceMap: {},
       allTimes: [
-        { time: '08:00-09:00', short: '08:00', hour: 8 }, { time: '09:00-10:00', short: '09:00', hour: 9 },
-        { time: '10:00-11:00', short: '10:00', hour: 10 }, { time: '11:00-12:00', short: '11:00', hour: 11 },
-        { time: '14:00-15:00', short: '14:00', hour: 14 }, { time: '15:00-16:00', short: '15:00', hour: 15 },
-        { time: '16:00-17:00', short: '16:00', hour: 16 }, { time: '17:00-18:00', short: '17:00', hour: 17 },
-        { time: '18:00-19:00', short: '18:00', hour: 18 }, { time: '19:00-20:00', short: '19:00', hour: 19 },
+        { time: '08:00-09:00', short: '08:00', hour: 8 },
+        { time: '09:00-10:00', short: '09:00', hour: 9 },
+        { time: '10:00-11:00', short: '10:00', hour: 10 },
+        { time: '11:00-12:00', short: '11:00', hour: 11 },
+        { time: '14:00-15:00', short: '14:00', hour: 14 },
+        { time: '15:00-16:00', short: '15:00', hour: 15 },
+        { time: '16:00-17:00', short: '16:00', hour: 16 },
+        { time: '17:00-18:00', short: '17:00', hour: 17 },
+        { time: '18:00-19:00', short: '18:00', hour: 18 },
+        { time: '19:00-20:00', short: '19:00', hour: 19 },
         { time: '20:00-21:00', short: '20:00', hour: 20 }
       ]
     }
@@ -90,10 +106,20 @@ export default {
       })
     }
   },
-  onLoad() { this.loadCourts(); this.initDateList() },
-  onShow() { this.venueName = uni.getStorageSync('venue_name') || ''; this.loadCourts() },
+  onLoad() {
+    this.loadCourts()
+    this.initDateList()
+  },
+  onShow() {
+    this.venueName = uni.getStorageSync('venue_name') || ''
+    this.loadCourts()
+  },
   methods: {
-    statusText(s) { if (s === 'full') return '已租'; if (s === 'group') return '团课'; return '可约' },
+    statusText(s) {
+      if (s === 'full') return '已租'
+      if (s === 'group') return '团课'
+      return '可约'
+    },
     cardMeta(c) {
       var typeMap = { times: '次卡', coach: '教练卡', time: '时间卡', group: '团课卡' }
       var t = typeMap[c.type] || c.type
@@ -109,7 +135,9 @@ export default {
       if (card.type === 'time') {
         var rule = card.timeRule
         if (!rule || rule.mode === 'unlimited' || rule.mode === 'all') return true
-        var d = new Date(String(dateStr).replace(/-/g, '/')); var weekday = d.getDay(); if (weekday === 0) weekday = 7
+        var d = new Date(String(dateStr).replace(/-/g, '/'))
+        var weekday = d.getDay()
+        if (weekday === 0) weekday = 7
         var slotStart = (timeStr || '').split('-')[0]
         if (rule.mode === 'rules' && Array.isArray(rule.rules)) {
           for (var i = 0; i < rule.rules.length; i++) {
@@ -131,33 +159,69 @@ export default {
       var that = this
       that.venueName = uni.getStorageSync('venue_name') || ''
       var venueId = uni.getStorageSync('venue_id')
-      if (!venueId) { uni.showToast({ title: '请先在首页选择场馆', icon: 'none' }); that.courtConfig = []; that.courtList = []; return }
-      wx.cloud.callFunction({ name: 'userApi', data: { action: 'getCourts', venueId: venueId } }).then(function (res) {
-        var result = res.result || {}
-        if (!result.ok) { uni.showToast({ title: result.msg || '加载场地失败', icon: 'none' }); return }
-        that.courtConfig = (result.list || []).map(function (item) { return { id: item._id, name: item.name, desc: item.type || '' } })
-        if (that.currentDate) that.loadCourtStatus(that.currentDate)
-      }).catch(function () { uni.showToast({ title: '加载场地失败', icon: 'none' }) })
+      if (!venueId) {
+        uni.showToast({ title: '请先在首页选择场馆', icon: 'none' })
+        that.courtConfig = []
+        that.courtList = []
+        return
+      }
+      wx.cloud
+        .callFunction({ name: 'userApi', data: { action: 'getCourts', venueId: venueId } })
+        .then(function (res) {
+          var result = res.result || {}
+          if (!result.ok) {
+            uni.showToast({ title: result.msg || '加载场地失败', icon: 'none' })
+            return
+          }
+          that.courtConfig = (result.list || []).map(function (item) {
+            return { id: item._id, name: item.name, desc: item.type || '' }
+          })
+          if (that.currentDate) that.loadCourtStatus(that.currentDate)
+        })
+        .catch(function () {
+          uni.showToast({ title: '加载场地失败', icon: 'none' })
+        })
     },
     initDateList() {
-      var weeks = ['日', '一', '二', '三', '四', '五', '六']; var list = []; var today = new Date()
+      var weeks = ['日', '一', '二', '三', '四', '五', '六']
+      var list = []
+      var today = new Date()
       for (var i = 0; i < 7; i++) {
-        var d = new Date(today.getTime()); d.setDate(today.getDate() + i)
-        var y = d.getFullYear(), m = d.getMonth() + 1, day = d.getDate()
-        var mm = m < 10 ? '0' + m : '' + m, dd = day < 10 ? '0' + day : '' + day
-        list.push({ date: y + '-' + mm + '-' + dd, week: i === 0 ? '今天' : '周' + weeks[d.getDay()], day: m + '/' + day })
+        var d = new Date(today.getTime())
+        d.setDate(today.getDate() + i)
+        var y = d.getFullYear()
+        var m = d.getMonth() + 1
+        var day = d.getDate()
+        var mm = m < 10 ? '0' + m : '' + m
+        var dd = day < 10 ? '0' + day : '' + day
+        list.push({
+          date: y + '-' + mm + '-' + dd,
+          week: i === 0 ? '今天' : '周' + weeks[d.getDay()],
+          day: m + '/' + day
+        })
       }
-      this.dateList = list; this.currentDate = list[0].date; this.loadCourtStatus(list[0].date)
+      this.dateList = list
+      this.currentDate = list[0].date
+      this.loadCourtStatus(list[0].date)
     },
     onSelectDate(date) {
-      this.currentDate = date; this.currentCourtId = ''; this.currentCourtName = ''; this.currentTime = ''; this.loadCourtStatus(date)
+      this.currentDate = date
+      this.currentCourtId = ''
+      this.currentCourtName = ''
+      this.currentTime = ''
+      this.loadCourtStatus(date)
     },
     getAvailableTimes(dateStr) {
-      var now = new Date(); var y = now.getFullYear(), m = now.getMonth() + 1, day = now.getDate()
-      var mm = m < 10 ? '0' + m : '' + m, dd = day < 10 ? '0' + day : '' + day
+      var now = new Date()
+      var y = now.getFullYear()
+      var m = now.getMonth() + 1
+      var day = now.getDate()
+      var mm = m < 10 ? '0' + m : '' + m
+      var dd = day < 10 ? '0' + day : '' + day
       var todayStr = y + '-' + mm + '-' + dd
       if (dateStr !== todayStr) return this.allTimes
-      var currentHour = now.getHours(), currentMinute = now.getMinutes()
+      var currentHour = now.getHours()
+      var currentMinute = now.getMinutes()
       return this.allTimes.filter(function (item) {
         if (item.hour < currentHour) return false
         if (item.hour === currentHour && currentMinute > 0) return false
@@ -169,86 +233,172 @@ export default {
       var venueId = uni.getStorageSync('venue_id') || ''
       var courtConfig = that.courtConfig
       var availableTimes = that.getAvailableTimes(date)
-      if (availableTimes.length === 0 || !venueId || !courtConfig.length) { that.courtList = []; return }
-      var d = new Date(String(date).replace(/-/g, '/')); var weekday = d.getDay(); if (weekday === 0) weekday = 7
-      wx.cloud.callFunction({
-        name: 'userApi',
-        data: { action: 'getCourtPrices', venueId: venueId, weekday: weekday },
-        success: function (pr) {
-          var r = (pr.result || {}).list || []; var map = {}
-          r.forEach(function (row) { map[row.court + '_' + row.timeSlot] = Number(row.price) || 0 })
+      if (availableTimes.length === 0 || !venueId || !courtConfig.length) {
+        that.courtList = []
+        return
+      }
+      var d = new Date(String(date).replace(/-/g, '/'))
+      var weekday = d.getDay()
+      if (weekday === 0) weekday = 7
+
+      // 先拉价格，再拉日程，保证格子有价
+      wx.cloud
+        .callFunction({
+          name: 'userApi',
+          data: { action: 'getCourtPrices', venueId: venueId, weekday: weekday }
+        })
+        .then(function (pr) {
+          var result = pr.result || {}
+          var r = result.list || []
+          var map = {}
+          r.forEach(function (row) {
+            if (row.court && row.timeSlot) {
+              map[row.court + '_' + row.timeSlot] = Number(row.price) || 0
+            }
+          })
           that.priceMap = map
-        }
-      })
-      wx.cloud.callFunction({ name: 'userApi', data: { action: 'getSchedule', venueId: venueId, date: date } }).then(function (res) {
-        var result = res.result || {}; var bookedMap = {}; var groupMap = {}
-        ;(result.bookings || []).forEach(function (item) {
-          if (item.status === 'booked' && !item.groupClassId) bookedMap[item.court + '_' + item.time] = true
+          return wx.cloud.callFunction({
+            name: 'userApi',
+            data: { action: 'getSchedule', venueId: venueId, date: date }
+          })
         })
-        ;(result.groupClasses || []).forEach(function (g) {
-          if (g.status === 'open') groupMap[g.court + '_' + g.time] = true
+        .then(function (res) {
+          var result = res.result || {}
+          var bookedMap = {}
+          var groupMap = {}
+          ;(result.bookings || []).forEach(function (item) {
+            if (item.status === 'booked' && !item.groupClassId) {
+              bookedMap[item.court + '_' + item.time] = true
+            }
+          })
+          ;(result.groupClasses || []).forEach(function (g) {
+            if (g.status === 'open') groupMap[g.court + '_' + g.time] = true
+          })
+          that.courtList = courtConfig.map(function (court) {
+            return {
+              id: court.id,
+              name: court.name,
+              desc: court.desc,
+              times: availableTimes.map(function (t) {
+                var key = court.name + '_' + t.time
+                var status = 'available'
+                if (groupMap[key]) status = 'group'
+                else if (bookedMap[key]) status = 'full'
+                return {
+                  time: t.time,
+                  short: t.short,
+                  status: status,
+                  price: Number(that.priceMap[key] || 0)
+                }
+              })
+            }
+          })
         })
-        that.courtList = courtConfig.map(function (court) {
-          return {
-            id: court.id, name: court.name, desc: court.desc,
-            times: availableTimes.map(function (t) {
-              var key = court.name + '_' + t.time
-              var status = 'available'
-              if (groupMap[key]) status = 'group'
-              else if (bookedMap[key]) status = 'full'
-              return { time: t.time, short: t.short, status: status, price: Number(that.priceMap[key] || 0) }
-            })
-          }
+        .catch(function (err) {
+          console.error('loadCourtStatus', err)
         })
-      }).catch(function (err) { console.error(err) })
     },
     onSelectSlot(courtId, courtName, time, status) {
-      if (status === 'full') { uni.showToast({ title: '该时段已被预约', icon: 'none' }); return }
-      if (status === 'group') { uni.showToast({ title: '该时段为团课，请从团课入口报名', icon: 'none' }); return }
-      this.currentCourtId = courtId; this.currentCourtName = courtName; this.currentTime = time
+      if (status === 'full') {
+        uni.showToast({ title: '该时段已被预约', icon: 'none' })
+        return
+      }
+      if (status === 'group') {
+        uni.showToast({ title: '该时段为团课，请从团课入口报名', icon: 'none' })
+        return
+      }
+      this.currentCourtId = courtId
+      this.currentCourtName = courtName
+      this.currentTime = time
     },
     onBook() {
-      var nickName = uni.getStorageSync('nickName') || ''; var phone = uni.getStorageSync('phone') || ''
-      if (!nickName || !phone) { uni.showToast({ title: '请先登录', icon: 'none' }); uni.navigateTo({ url: '/pages/login/login' }); return }
-      if (!this.currentDate || !this.currentCourtName || !this.currentTime) { uni.showToast({ title: '请选择场地和时间', icon: 'none' }); return }
-      this.selectedCardId = ''; this.cardSheetVisible = true; this.loadMyCards()
+      var nickName = uni.getStorageSync('nickName') || ''
+      var phone = uni.getStorageSync('phone') || ''
+      if (!nickName || !phone) {
+        uni.showToast({ title: '请先登录', icon: 'none' })
+        uni.navigateTo({ url: '/pages/login/login' })
+        return
+      }
+      if (!this.currentDate || !this.currentCourtName || !this.currentTime) {
+        uni.showToast({ title: '请选择场地和时间', icon: 'none' })
+        return
+      }
+      this.selectedCardId = ''
+      this.cardSheetVisible = true
+      this.loadMyCards()
     },
     loadMyCards() {
-      var that = this; that.cardLoading = true
+      var that = this
+      that.cardLoading = true
       wx.cloud.callFunction({
-        name: 'userApi', data: { action: 'getMyCards', userId: uni.getStorageSync('userDocId') || '' },
-        success: function (res) { that.myCards = (res.result || {}).list || [] },
-        fail: function () { that.myCards = [] },
-        complete: function () { that.cardLoading = false }
+        name: 'userApi',
+        data: { action: 'getMyCards', userId: uni.getStorageSync('userDocId') || '' },
+        success: function (res) {
+          that.myCards = (res.result || {}).list || []
+        },
+        fail: function () {
+          that.myCards = []
+        },
+        complete: function () {
+          that.cardLoading = false
+        }
       })
     },
     submitBook() {
       var that = this
-      var nickName = uni.getStorageSync('nickName') || ''; var phone = uni.getStorageSync('phone') || ''; var userDocId = uni.getStorageSync('userDocId') || ''
+      var nickName = uni.getStorageSync('nickName') || ''
+      var phone = uni.getStorageSync('phone') || ''
+      var userDocId = uni.getStorageSync('userDocId') || ''
       var sel = null
       if (that.selectedCardId) {
-        sel = (that.myCards || []).find(function (c) { return c._id === that.selectedCardId })
-        if (!sel) { uni.showToast({ title: '请重新选择会员卡', icon: 'none' }); return }
+        sel = (that.myCards || []).find(function (c) {
+          return c._id === that.selectedCardId
+        })
+        if (!sel) {
+          uni.showToast({ title: '请重新选择会员卡', icon: 'none' })
+          return
+        }
       }
       that.booking = true
-      wx.cloud.callFunction({
-        name: 'userApi',
-        data: {
-          action: 'createBooking',
+      wx.cloud
+        .callFunction({
+          name: 'userApi',
           data: {
-            court: that.currentCourtName, date: that.currentDate, time: that.currentTime,
-            venueId: uni.getStorageSync('venue_id') || '', venueName: uni.getStorageSync('venue_name') || '',
-            userName: nickName, phone: phone, userId: userDocId,
-            cardId: sel ? sel._id : '', cardName: sel ? sel.cardName : '', cardType: sel ? sel.type : ''
+            action: 'createBooking',
+            data: {
+              court: that.currentCourtName,
+              date: that.currentDate,
+              time: that.currentTime,
+              venueId: uni.getStorageSync('venue_id') || '',
+              venueName: uni.getStorageSync('venue_name') || '',
+              userName: nickName,
+              phone: phone,
+              userId: userDocId,
+              cardId: sel ? sel._id : '',
+              cardName: sel ? sel.cardName : '',
+              cardType: sel ? sel.type : ''
+            }
           }
-        }
-      }).then(function (r) {
-        var result = r.result || {}
-        if (!result.ok) { uni.showToast({ title: result.msg || '预约失败', icon: 'none' }); return }
-        uni.showToast({ title: '预约成功', icon: 'success' })
-        that.cardSheetVisible = false; that.loadCourtStatus(that.currentDate)
-        that.currentCourtId = ''; that.currentCourtName = ''; that.currentTime = ''
-      }).catch(function () { uni.showToast({ title: '预约失败', icon: 'none' }) }).finally(function () { that.booking = false })
+        })
+        .then(function (r) {
+          var result = r.result || {}
+          if (!result.ok) {
+            uni.showToast({ title: result.msg || '预约失败', icon: 'none' })
+            return
+          }
+          uni.showToast({ title: '预约成功', icon: 'success' })
+          that.cardSheetVisible = false
+          that.loadCourtStatus(that.currentDate)
+          that.currentCourtId = ''
+          that.currentCourtName = ''
+          that.currentTime = ''
+        })
+        .catch(function () {
+          uni.showToast({ title: '预约失败', icon: 'none' })
+        })
+        .finally(function () {
+          that.booking = false
+        })
     }
   }
 }
@@ -277,6 +427,7 @@ export default {
 .status-text { font-size: 20rpx; margin-top: 4rpx; }
 .price-text { font-size: 20rpx; color: #1a5c3a; margin-top: 2rpx; font-weight: 600; }
 .price-text.muted { color: #ccc; font-weight: 400; }
+.time-cell.selected .price-text { color: #fff; }
 .time-cell.full .status-text { color: #ff4d4f; }
 .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; background: #fff; padding: 20rpx 30rpx; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 -6rpx 20rpx rgba(0,0,0,0.06); z-index: 100; }
 .selected-info { font-size: 28rpx; color: #333; }
