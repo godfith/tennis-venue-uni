@@ -70,7 +70,6 @@
 
     <view class="loading" v-else>加载中...</view>
 
-    <!-- 选卡 / 到店支付 -->
     <view class="mask" v-if="cardSheetVisible" @tap="cardSheetVisible = false">
       <view class="sheet" @tap.stop="">
         <view class="sheet-title">选择支付方式</view>
@@ -93,7 +92,7 @@
         </view>
 
         <view v-if="!cardLoading && usableCards.length === 0" class="sheet-empty">
-          暂无可用教练卡/次卡，可选择到店支付
+          暂无可用教练卡，可选择到店支付
         </view>
 
         <button class="sheet-btn" :loading="booking" @tap="submitBook">确认预约</button>
@@ -148,43 +147,15 @@ export default {
       return uni.getStorageSync('venue_id') || ''
     },
     cardMeta(c) {
-      var typeMap = { times: '次卡', coach: '教练卡', time: '时间卡', group: '团课卡' }
-      var t = typeMap[c.type] || c.type
-      if (c.type === 'times' || c.type === 'coach') {
-        return t + ' · 剩' + (c.remainingTimes || 0) + '次'
-      }
-      return t
+      return '教练卡 · 剩' + (c.remainingTimes || 0) + '次'
     },
-    isCardUsable(card, dateStr, timeStr) {
+    // 约教练：只允许教练卡；次卡/时间卡/团课卡一律不可用
+    isCardUsable(card, dateStr) {
       if (!card || card.status !== 'active') return false
-      // 约教练：团课卡不可用；教练卡优先；次卡也可抵扣；时间卡按规则
-      if (card.type === 'group') return false
+      if (card.type !== 'coach') return false
+      if ((card.remainingTimes || 0) <= 0) return false
       if (card.validFrom && dateStr < card.validFrom) return false
       if (card.validTo && dateStr > card.validTo) return false
-      if (card.type === 'times' || card.type === 'coach') {
-        return (card.remainingTimes || 0) > 0
-      }
-      if (card.type === 'time') {
-        var rule = card.timeRule
-        if (!rule || rule.mode === 'unlimited' || rule.mode === 'all') return true
-        var d = new Date(String(dateStr).replace(/-/g, '/'))
-        var weekday = d.getDay()
-        if (weekday === 0) weekday = 7
-        var slotStart = (timeStr || '').split('-')[0]
-        if (rule.mode === 'rules' && Array.isArray(rule.rules)) {
-          for (var i = 0; i < rule.rules.length; i++) {
-            var r = rule.rules[i]
-            if (!(r.weekdays || []).includes(weekday)) continue
-            if (r.unlimited) return true
-            var slots = r.timeSlots || []
-            for (var j = 0; j < slots.length; j++) {
-              var s = slots[j]
-              if (slotStart >= s.start && slotStart < s.end) return true
-            }
-          }
-          return false
-        }
-      }
       return true
     },
     loadCoachDetail() {
@@ -411,6 +382,10 @@ export default {
         })
         if (!sel) {
           uni.showToast({ title: '请重新选择会员卡', icon: 'none' })
+          return
+        }
+        if (sel.type !== 'coach') {
+          uni.showToast({ title: '约教练只能使用教练卡', icon: 'none' })
           return
         }
       }
