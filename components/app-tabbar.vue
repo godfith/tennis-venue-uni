@@ -12,7 +12,7 @@
       <view class="item mid" @tap="go(2)">
         <view class="fab-hold"></view>
         <view :class="current === 2 ? 'fab on' : 'fab'">
-          <image class="fab-ico" src="/static/images/tab/book-white.png"></image>
+          <image class="fab-ico" src="/static/images/tab/book-on.png"></image>
         </view>
         <text :class="current === 2 ? 'lab on' : 'lab'">订场开打</text>
       </view>
@@ -59,7 +59,7 @@ export default {
   padding-bottom: env(safe-area-inset-bottom);
 }
 .bar {
-  height: 110rpx;
+  height: 112rpx;
   display: flex;
   align-items: flex-end;
   justify-content: space-around;
@@ -75,29 +75,30 @@ export default {
   justify-content: flex-end;
   position: relative;
 }
-.ico { width: 52rpx; height: 52rpx; margin-bottom: 4rpx; }
+.ico { width: 56rpx; height: 56rpx; margin-bottom: 4rpx; border-radius: 12rpx; }
 .lab { font-size: 20rpx; color: #8aa198; line-height: 1.2; }
-.lab.on { color: #3f6b56; font-weight: 700; }
-.fab-hold { width: 52rpx; height: 52rpx; margin-bottom: 4rpx; }
+.lab.on { color: #1a4a6e; font-weight: 700; }
+.fab-hold { width: 56rpx; height: 56rpx; margin-bottom: 4rpx; }
 .fab {
   position: absolute;
   left: 50%;
-  bottom: 44rpx;
-  width: 116rpx;
-  height: 116rpx;
-  margin-left: -58rpx;
-  border-radius: 58rpx;
-  background: #3f6b56;
+  bottom: 42rpx;
+  width: 120rpx;
+  height: 120rpx;
+  margin-left: -60rpx;
+  border-radius: 60rpx;
+  background: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 10rpx 24rpx rgba(63,107,86,.32);
-  border: 8rpx solid #fff;
+  box-shadow: 0 10rpx 24rpx rgba(26,74,110,.22);
+  border: 6rpx solid #1a4a6e;
   box-sizing: border-box;
+  overflow: hidden;
 }
-.fab.on { background: #2f5343; }
+.fab.on { border-color: #163a58; }
 .fab-ico {
-  width: 56rpx;
-  height: 56rpx;
+  width: 92rpx;
+  height: 92rpx;
 }
 </style>
