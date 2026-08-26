@@ -69,6 +69,37 @@
     </view>
 
     <view class="loading" v-else>加载中...</view>
+
+    <!-- 选卡 / 到店支付 -->
+    <view class="mask" v-if="cardSheetVisible" @tap="cardSheetVisible = false">
+      <view class="sheet" @tap.stop="">
+        <view class="sheet-title">选择支付方式</view>
+        <view class="sheet-sub">{{ coach.name }} · {{ currentDate }} {{ currentTime }} · {{ currentCourt }}</view>
+
+        <view class="card-option" :class="selectedCardId === '' ? 'on' : ''" @tap="selectedCardId = ''">
+          <view class="co-name">不使用卡（到店支付）</view>
+          <view class="co-meta">现场结算课时费</view>
+        </view>
+
+        <view
+          v-for="c in usableCards"
+          :key="c._id"
+          class="card-option"
+          :class="selectedCardId === c._id ? 'on' : ''"
+          @tap="selectedCardId = c._id"
+        >
+          <view class="co-name">{{ c.cardName }}</view>
+          <view class="co-meta">{{ cardMeta(c) }}</view>
+        </view>
+
+        <view v-if="!cardLoading && usableCards.length === 0" class="sheet-empty">
+          暂无可用教练卡/次卡，可选择到店支付
+        </view>
+
+        <button class="sheet-btn" :loading="booking" @tap="submitBook">确认预约</button>
+        <view class="sheet-cancel" @tap="cardSheetVisible = false">取消</view>
+      </view>
+    </view>
   </view>
 </template>
 
@@ -88,11 +119,23 @@ export default {
       bookingsCache: [],
       groupCache: [],
       booking: false,
+      cardSheetVisible: false,
+      cardLoading: false,
+      myCards: [],
+      selectedCardId: '',
       allTimes: [
         '08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00',
         '14:00-15:00', '15:00-16:00', '16:00-17:00', '17:00-18:00',
         '18:00-19:00', '19:00-20:00', '20:00-21:00'
       ]
+    }
+  },
+  computed: {
+    usableCards() {
+      var that = this
+      return (this.myCards || []).filter(function (c) {
+        return that.isCardUsable(c, that.currentDate, that.currentTime)
+      })
     }
   },
   onLoad(options) {
@@ -103,6 +146,46 @@ export default {
   methods: {
     venueId() {
       return uni.getStorageSync('venue_id') || ''
+    },
+    cardMeta(c) {
+      var typeMap = { times: '次卡', coach: '教练卡', time: '时间卡', group: '团课卡' }
+      var t = typeMap[c.type] || c.type
+      if (c.type === 'times' || c.type === 'coach') {
+        return t + ' · 剩' + (c.remainingTimes || 0) + '次'
+      }
+      return t
+    },
+    isCardUsable(card, dateStr, timeStr) {
+      if (!card || card.status !== 'active') return false
+      // 约教练：团课卡不可用；教练卡优先；次卡也可抵扣；时间卡按规则
+      if (card.type === 'group') return false
+      if (card.validFrom && dateStr < card.validFrom) return false
+      if (card.validTo && dateStr > card.validTo) return false
+      if (card.type === 'times' || card.type === 'coach') {
+        return (card.remainingTimes || 0) > 0
+      }
+      if (card.type === 'time') {
+        var rule = card.timeRule
+        if (!rule || rule.mode === 'unlimited' || rule.mode === 'all') return true
+        var d = new Date(String(dateStr).replace(/-/g, '/'))
+        var weekday = d.getDay()
+        if (weekday === 0) weekday = 7
+        var slotStart = (timeStr || '').split('-')[0]
+        if (rule.mode === 'rules' && Array.isArray(rule.rules)) {
+          for (var i = 0; i < rule.rules.length; i++) {
+            var r = rule.rules[i]
+            if (!(r.weekdays || []).includes(weekday)) continue
+            if (r.unlimited) return true
+            var slots = r.timeSlots || []
+            for (var j = 0; j < slots.length; j++) {
+              var s = slots[j]
+              if (slotStart >= s.start && slotStart < s.end) return true
+            }
+          }
+          return false
+        }
+      }
+      return true
     },
     loadCoachDetail() {
       var that = this
@@ -284,11 +367,6 @@ export default {
       this.currentCourt = court
     },
     onBook() {
-      var that = this
-      if (!that.currentDate || !that.currentTime || !that.currentCourt) {
-        uni.showToast({ title: '请完整选择时间与场地', icon: 'none' })
-        return
-      }
       var nickName = uni.getStorageSync('nickName') || ''
       var phone = uni.getStorageSync('phone') || ''
       if (!nickName || !phone) {
@@ -296,50 +374,87 @@ export default {
         uni.navigateTo({ url: '/pages/login/login' })
         return
       }
-      uni.showModal({
-        title: '确认预约',
-        content: '教练：' + that.coach.name + '\n时间：' + that.currentDate + ' ' + that.currentTime + '\n场地：' + that.currentCourt,
+      if (!this.currentDate || !this.currentTime || !this.currentCourt) {
+        uni.showToast({ title: '请完整选择时间与场地', icon: 'none' })
+        return
+      }
+      this.selectedCardId = ''
+      this.cardSheetVisible = true
+      this.loadMyCards()
+    },
+    loadMyCards() {
+      var that = this
+      that.cardLoading = true
+      wx.cloud.callFunction({
+        name: 'userApi',
+        data: { action: 'getMyCards', userId: uni.getStorageSync('userDocId') || '' },
         success: function (res) {
-          if (!res.confirm) return
-          that.booking = true
-          wx.cloud.callFunction({
-            name: 'userApi',
-            data: {
-              action: 'createBooking',
-              data: {
-                venueId: that.venueId(),
-                venueName: uni.getStorageSync('venue_name') || '',
-                court: that.currentCourt,
-                date: that.currentDate,
-                time: that.currentTime,
-                userName: nickName,
-                phone: phone,
-                userId: uni.getStorageSync('userDocId') || '',
-                coachId: that.coachId,
-                coachName: that.coach.name || ''
-              }
-            },
-            success: function (r) {
-              var result = r.result || {}
-              if (!result.ok) {
-                uni.showToast({ title: result.msg || '预约失败', icon: 'none' })
-                that.loadTimeList(that.currentDate)
-                return
-              }
-              uni.showToast({ title: '预约成功', icon: 'success' })
-              that.loadTimeList(that.currentDate)
-              that.currentTime = ''
-              that.currentCourt = ''
-              that.availableCourts = []
-            },
-            fail: function (err) {
-              console.error(err)
-              uni.showToast({ title: '预约失败', icon: 'none' })
-            },
-            complete: function () {
-              that.booking = false
-            }
-          })
+          that.myCards = (res.result || {}).list || []
+        },
+        fail: function () {
+          that.myCards = []
+        },
+        complete: function () {
+          that.cardLoading = false
+        }
+      })
+    },
+    submitBook() {
+      var that = this
+      var nickName = uni.getStorageSync('nickName') || ''
+      var phone = uni.getStorageSync('phone') || ''
+      var userDocId = uni.getStorageSync('userDocId') || ''
+      var sel = null
+      if (that.selectedCardId) {
+        sel = (that.myCards || []).find(function (c) {
+          return c._id === that.selectedCardId
+        })
+        if (!sel) {
+          uni.showToast({ title: '请重新选择会员卡', icon: 'none' })
+          return
+        }
+      }
+      that.booking = true
+      wx.cloud.callFunction({
+        name: 'userApi',
+        data: {
+          action: 'createBooking',
+          data: {
+            venueId: that.venueId(),
+            venueName: uni.getStorageSync('venue_name') || '',
+            court: that.currentCourt,
+            date: that.currentDate,
+            time: that.currentTime,
+            userName: nickName,
+            phone: phone,
+            userId: userDocId,
+            coachId: that.coachId,
+            coachName: (that.coach && that.coach.name) || '',
+            cardId: sel ? sel._id : '',
+            cardName: sel ? sel.cardName : '',
+            cardType: sel ? sel.type : ''
+          }
+        },
+        success: function (r) {
+          var result = r.result || {}
+          if (!result.ok) {
+            uni.showToast({ title: result.msg || '预约失败', icon: 'none' })
+            that.loadTimeList(that.currentDate)
+            return
+          }
+          uni.showToast({ title: '预约成功', icon: 'success' })
+          that.cardSheetVisible = false
+          that.loadTimeList(that.currentDate)
+          that.currentTime = ''
+          that.currentCourt = ''
+          that.availableCourts = []
+        },
+        fail: function (err) {
+          console.error(err)
+          uni.showToast({ title: '预约失败', icon: 'none' })
+        },
+        complete: function () {
+          that.booking = false
         }
       })
     }
@@ -522,5 +637,76 @@ export default {
   color: #999;
   text-align: center;
   padding: 30rpx 0;
+}
+.mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+}
+.sheet {
+  width: 100%;
+  background: #fff;
+  border-radius: 24rpx 24rpx 0 0;
+  padding: 32rpx 30rpx 50rpx;
+  box-sizing: border-box;
+  max-height: 75vh;
+  overflow-y: auto;
+}
+.sheet-title {
+  font-size: 32rpx;
+  font-weight: 600;
+  text-align: center;
+}
+.sheet-sub {
+  text-align: center;
+  color: #888;
+  font-size: 24rpx;
+  margin: 12rpx 0 20rpx;
+}
+.card-option {
+  border: 2rpx solid #eee;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+}
+.card-option.on {
+  border-color: #07c160;
+  background: #f0f9f4;
+}
+.co-name {
+  font-size: 28rpx;
+  color: #222;
+  font-weight: 500;
+}
+.co-meta {
+  font-size: 24rpx;
+  color: #07c160;
+  margin-top: 8rpx;
+}
+.sheet-empty {
+  text-align: center;
+  color: #999;
+  font-size: 26rpx;
+  padding: 20rpx 0;
+}
+.sheet-btn {
+  margin-top: 20rpx;
+  background: #07c160 !important;
+  color: #fff !important;
+  border-radius: 40rpx;
+  font-size: 30rpx;
+}
+.sheet-cancel {
+  text-align: center;
+  color: #999;
+  font-size: 28rpx;
+  margin-top: 24rpx;
+  padding: 12rpx;
 }
 </style>
