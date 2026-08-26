@@ -1,30 +1,17 @@
 <template>
   <view>
     <view class="page">
-      <view class="map">
-        <view class="map-title">COURT MAP</view>
-        <view class="courts-row">
-          <view
-            v-for="(c, i) in courtConfig"
-            :key="c.id"
-            :class="'mini-court ' + (currentCourtName === c.name ? 'on' : '')"
-            @tap="pickCourt(c)"
-          >{{ i + 1 }}</view>
-        </view>
-      </view>
-
-      <view class="greet">
-        <view>
-          <view class="hi">Hi, {{ nickName || '球友' }}</view>
-          <view class="hi-sub">选场地，开打</view>
+      <view class="top">
+        <view class="top-l">
+          <view class="hello">Hi, {{ nickName || '球友' }}</view>
+          <view class="venue">{{ venueName || '请先选择场馆' }}</view>
         </view>
         <view class="sw" @tap="switchVenue">切换场馆</view>
       </view>
-      <view class="addr">{{ venueName || '请先选择场馆' }}</view>
 
       <view class="tabs">
-        <view :class="'tab ' + (mode === 'court' ? 'on' : '')" @tap="mode = 'court'">订场</view>
-        <view :class="'tab ' + (mode === 'coach' ? 'on' : '')" @tap="goCoach">私教</view>
+        <view class="tab on">订场</view>
+        <view class="tab" @tap="goCoach">私教</view>
       </view>
 
       <scroll-view class="dates" scroll-x enable-flex>
@@ -41,11 +28,11 @@
 
       <view class="board" v-if="courtList.length">
         <view class="left">
-          <view class="indoor">场地</view>
+          <view class="left-lab">场地</view>
           <view
-            v-for="(item, index) in courtList"
+            v-for="item in courtList"
             :key="item.id"
-            :class="'cname ' + (currentCourtName === item.name ? 'on' : '')"
+            :class="'l-item ' + (currentCourtName === item.name ? 'on' : '')"
             @tap="pickCourt(item)"
           >{{ item.name }}</view>
         </view>
@@ -53,26 +40,26 @@
           <view
             v-for="(cell, i) in activeTimes"
             :key="i"
-            :class="'slot ' + (cell.status !== 'available' ? 'off' : '') + ' ' + (currentTime === cell.time ? 'sel' : '')"
+            :class="'slot ' + cls(cell)"
             @tap="onSelectSlot(activeCourt.id, activeCourt.name, cell.time, cell.status)"
           >
             <text>{{ cell.time }}</text>
-            <text v-if="cell.status === 'full'" class="tag">已预订</text>
-            <text v-else-if="cell.status === 'group'" class="tag pink">团课</text>
+            <text v-if="cell.status === 'full'" class="st">已订</text>
+            <text v-else-if="cell.status === 'group'" class="st pink">团课</text>
             <text v-else-if="cell.price > 0" class="price">¥{{ cell.price }}</text>
           </view>
           <view v-if="!activeTimes.length" class="empty">暂无时段</view>
         </view>
       </view>
-      <view class="empty-page" v-else>请先在首页选择场馆</view>
+      <view class="empty" v-else>请先在首页选择场馆</view>
     </view>
 
     <view class="bar">
       <view>
-        <view class="sum">共：¥{{ currentPrice || 0 }}</view>
-        <view class="picked">已选 {{ currentTime ? 1 : 0 }} 项 · {{ currentCourtName || '未选场地' }}</view>
+        <view class="sum">¥{{ currentPrice || 0 }}</view>
+        <view class="picked">{{ currentCourtName || '未选场地' }} {{ currentTime }}</view>
       </view>
-      <button class="ok" :disabled="!currentCourtName || !currentTime || booking" :loading="booking" @tap="onBook">1小时起订</button>
+      <button class="ok" :disabled="!currentCourtName || !currentTime || booking" :loading="booking" @tap="onBook">确认订场</button>
     </view>
 
     <view class="mask" v-if="cardSheetVisible" @tap="cardSheetVisible = false">
@@ -81,14 +68,14 @@
         <view class="sheet-sub">{{ currentCourtName }} · {{ currentDate }} {{ currentTime }}</view>
         <view class="sheet-price" v-if="currentPrice > 0">场地参考价 ¥{{ currentPrice }}</view>
         <view class="card-option" :class="selectedCardId === '' ? 'on' : ''" @tap="selectedCardId = ''">
-          <view class="co-name">不使用卡（到店支付）</view>
+          <view class="co-name">到店支付</view>
           <view class="co-meta" v-if="currentPrice > 0">应付约 ¥{{ currentPrice }}</view>
         </view>
         <view v-for="c in usableCards" :key="c._id" class="card-option" :class="selectedCardId === c._id ? 'on' : ''" @tap="selectedCardId = c._id">
           <view class="co-name">{{ c.cardName }}</view>
           <view class="co-meta">{{ cardMeta(c) }}</view>
         </view>
-        <view v-if="!cardLoading && usableCards.length === 0" class="sheet-empty">暂无可用会员卡，可选择到店支付</view>
+        <view v-if="!cardLoading && usableCards.length === 0" class="sheet-empty">暂无可用会员卡</view>
         <button class="sheet-btn" :loading="booking" @tap="submitBook">确认预约</button>
         <view class="sheet-cancel" @tap="cardSheetVisible = false">取消</view>
       </view>
@@ -99,7 +86,6 @@
 export default {
   data() {
     return {
-      mode: 'court',
       nickName: '',
       courtConfig: [],
       dateList: [],
@@ -164,12 +150,13 @@ export default {
     this.loadCourts()
   },
   methods: {
-    goCoach() {
-      uni.navigateTo({ url: '/pages/coach/coach' })
+    cls(cell) {
+      var s = cell.status === 'available' ? '' : 'off'
+      if (this.currentTime === cell.time) s += ' sel'
+      return s
     },
-    switchVenue() {
-      uni.switchTab({ url: '/pages/index/index' })
-    },
+    goCoach() { uni.navigateTo({ url: '/pages/coach/coach' }) },
+    switchVenue() { uni.switchTab({ url: '/pages/index/index' }) },
     pickCourt(item) {
       this.currentCourtId = item.id
       this.currentCourtName = item.name
@@ -251,8 +238,7 @@ export default {
         list.push({
           date: y + '-' + mm + '-' + dd,
           week: i === 0 ? '今天' : weeks[d.getDay()],
-          md: mm + '-' + dd,
-          day: m + '/' + day
+          md: mm + '-' + dd
         })
       }
       this.dateList = list
@@ -431,53 +417,47 @@ export default {
 }
 </script>
 <style>
-.page { min-height: 100vh; background: #f4f2ee; padding-bottom: 160rpx; }
-.map { background: #d7d3cb; padding: 28rpx 24rpx 36rpx; }
-.map-title { font-size: 20rpx; letter-spacing: 6rpx; color: #666; margin-bottom: 16rpx; }
-.courts-row { display: flex; flex-wrap: wrap; gap: 16rpx; }
-.mini-court { width: 120rpx; height: 80rpx; background: #8f8a82; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; border-radius: 8rpx; }
-.mini-court.on { background: #0f3d28; }
-.greet { padding: 28rpx 28rpx 0; display: flex; justify-content: space-between; align-items: flex-start; }
-.hi { font-size: 40rpx; font-weight: 700; }
-.hi-sub { font-size: 24rpx; color: #999; margin-top: 6rpx; }
-.sw { font-size: 24rpx; color: #0f3d28; font-weight: 600; }
-.addr { padding: 8rpx 28rpx 16rpx; font-size: 22rpx; color: #888; }
-.tabs { margin: 0 28rpx 16rpx; display: flex; background: #fff; }
-.tab { flex: 1; text-align: center; padding: 22rpx 0; font-size: 28rpx; font-weight: 600; background: #fff; color: #333; }
-.tab.on { background: #111; color: #fff; }
-.dates { white-space: nowrap; padding: 8rpx 20rpx 20rpx; }
-.date { display: inline-flex; flex-direction: column; align-items: center; width: 110rpx; padding: 12rpx 0; margin-right: 8rpx; }
-.date.on { border: 2rpx solid #111; }
+.page { min-height: 100vh; background: #f3f1ec; padding-bottom: 150rpx; }
+.top { padding: 28rpx 28rpx 12rpx; display: flex; justify-content: space-between; align-items: flex-start; }
+.hello { font-size: 36rpx; font-weight: 700; color: #2c2c2c; }
+.venue { font-size: 24rpx; color: #8a8680; margin-top: 6rpx; }
+.sw { font-size: 24rpx; color: #3f6b56; font-weight: 600; }
+.tabs { margin: 12rpx 28rpx 8rpx; display: flex; background: #e8e4dc; border-radius: 12rpx; overflow: hidden; }
+.tab { flex: 1; text-align: center; padding: 18rpx 0; font-size: 28rpx; color: #6b6760; }
+.tab.on { background: #fff; color: #2c2c2c; font-weight: 700; }
+.dates { white-space: nowrap; padding: 12rpx 20rpx 16rpx; }
+.date { display: inline-flex; flex-direction: column; align-items: center; width: 108rpx; padding: 14rpx 0; margin-right: 10rpx; background: #fff; border-radius: 12rpx; }
+.date.on { background: #3f6b56; color: #fff; }
 .d-md { font-size: 24rpx; font-weight: 600; }
-.d-wk { font-size: 20rpx; color: #888; margin-top: 4rpx; }
-.board { display: flex; min-height: 520rpx; }
-.left { width: 200rpx; background: #eee; }
-.indoor { padding: 20rpx; font-size: 22rpx; color: #888; }
-.cname { padding: 28rpx 16rpx; font-size: 26rpx; font-weight: 700; color: #666; }
-.cname.on { background: #111; color: #fff; }
-.right { flex: 1; padding: 8rpx 16rpx 20rpx; }
-.slot { display: flex; justify-content: space-between; align-items: center; background: #eceae6; padding: 22rpx 20rpx; margin-bottom: 12rpx; font-size: 26rpx; }
-.slot.off { color: #bbb; }
-.slot.sel { background: #fff; border: 2rpx solid #111; }
-.tag { font-size: 22rpx; color: #999; }
-.tag.pink { color: #c2185b; }
-.price { font-size: 26rpx; font-weight: 600; }
-.empty, .empty-page { text-align: center; color: #999; padding: 60rpx 20rpx; }
-.bar { position: fixed; left: 0; right: 0; bottom: 0; background: #fff; padding: 16rpx 24rpx; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 -6rpx 20rpx rgba(0,0,0,.06); z-index: 80; }
-.sum { font-size: 30rpx; font-weight: 700; }
-.picked { font-size: 22rpx; color: #888; margin-top: 4rpx; }
-.ok { margin: 0; background: #eceae6 !important; color: #111 !important; font-size: 26rpx; padding: 0 28rpx; }
-.ok[disabled] { opacity: .6; }
-.mask { position: fixed; left: 0; right: 0; top: 0; bottom: 0; background: rgba(0,0,0,.45); z-index: 200; display: flex; align-items: flex-end; }
-.sheet { width: 100%; background: #fff; border-radius: 24rpx 24rpx 0 0; padding: 32rpx 30rpx 50rpx; box-sizing: border-box; max-height: 75vh; overflow-y: auto; }
-.sheet-title { font-size: 32rpx; font-weight: 600; text-align: center; }
-.sheet-sub { text-align: center; color: #888; font-size: 24rpx; margin: 12rpx 0 8rpx; }
-.sheet-price { text-align: center; color: #e6a23c; font-size: 28rpx; font-weight: 600; margin-bottom: 16rpx; }
-.card-option { border: 2rpx solid #eee; border-radius: 16rpx; padding: 24rpx; margin-bottom: 16rpx; }
-.card-option.on { border-color: #0f3d28; background: #f3f7f4; }
-.co-name { font-size: 28rpx; color: #222; font-weight: 500; }
-.co-meta { font-size: 24rpx; color: #07c160; margin-top: 8rpx; }
-.sheet-empty { text-align: center; color: #999; font-size: 26rpx; padding: 20rpx 0; }
-.sheet-btn { margin-top: 20rpx; background: #0f3d28 !important; color: #fff !important; border-radius: 8rpx; font-size: 30rpx; }
-.sheet-cancel { text-align: center; color: #999; font-size: 28rpx; margin-top: 24rpx; padding: 12rpx; }
+.d-wk { font-size: 20rpx; margin-top: 4rpx; opacity: .75; }
+.board { display: flex; min-height: 560rpx; margin: 0 16rpx; background: #fff; border-radius: 16rpx; overflow: hidden; }
+.left { width: 176rpx; background: #f7f5f1; }
+.left-lab { padding: 20rpx 16rpx 8rpx; font-size: 22rpx; color: #8a8680; }
+.l-item { padding: 26rpx 16rpx; font-size: 26rpx; color: #5c5852; }
+.l-item.on { background: #3f6b56; color: #fff; font-weight: 700; }
+.right { flex: 1; padding: 12rpx; }
+.slot { display: flex; justify-content: space-between; align-items: center; background: #f3f1ec; padding: 22rpx 18rpx; margin-bottom: 10rpx; border-radius: 10rpx; font-size: 26rpx; color: #2c2c2c; }
+.slot.off { color: #b3aea6; }
+.slot.sel { background: #eef4f0; outline: 2rpx solid #3f6b56; }
+.st { font-size: 22rpx; color: #b3aea6; }
+.st.pink { color: #b85c4a; }
+.price { font-size: 26rpx; color: #b87333; font-weight: 600; }
+.empty { text-align: center; color: #8a8680; padding: 60rpx 20rpx; }
+.bar { position: fixed; left: 0; right: 0; bottom: 0; background: #fff; padding: 16rpx 24rpx; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 -8rpx 24rpx rgba(44,44,44,.06); }
+.sum { font-size: 34rpx; font-weight: 700; color: #2c2c2c; }
+.picked { font-size: 22rpx; color: #8a8680; margin-top: 4rpx; }
+.ok { margin: 0; background: #3f6b56 !important; color: #fff !important; font-size: 28rpx; padding: 0 36rpx; border-radius: 12rpx; }
+.ok[disabled] { background: #d8d4cc !important; color: #9a968f !important; }
+.mask { position: fixed; inset: 0; background: rgba(44,44,44,.4); z-index: 200; display: flex; align-items: flex-end; }
+.sheet { width: 100%; background: #fff; border-radius: 24rpx 24rpx 0 0; padding: 32rpx 28rpx 48rpx; max-height: 75vh; overflow-y: auto; }
+.sheet-title { text-align: center; font-size: 32rpx; font-weight: 700; }
+.sheet-sub { text-align: center; color: #8a8680; font-size: 24rpx; margin: 10rpx 0 8rpx; }
+.sheet-price { text-align: center; color: #b87333; font-weight: 600; margin-bottom: 16rpx; }
+.card-option { border: 2rpx solid #ece8e1; border-radius: 12rpx; padding: 22rpx; margin-bottom: 12rpx; }
+.card-option.on { border-color: #3f6b56; background: #eef4f0; }
+.co-name { font-size: 28rpx; font-weight: 600; }
+.co-meta { font-size: 24rpx; color: #3f6b56; margin-top: 6rpx; }
+.sheet-empty { text-align: center; color: #8a8680; padding: 16rpx 0; }
+.sheet-btn { margin-top: 8rpx; background: #3f6b56 !important; color: #fff !important; border-radius: 12rpx; }
+.sheet-cancel { text-align: center; color: #8a8680; margin-top: 18rpx; padding: 10rpx; }
 </style>
