@@ -73,7 +73,9 @@
     <view class="mask" v-if="cardSheetVisible" @tap="cardSheetVisible = false">
       <view class="sheet" @tap.stop="">
         <view class="sheet-title">选择支付方式</view>
-        <view class="sheet-sub">{{ coach.name }} · {{ currentDate }} {{ currentTime }} · {{ currentCourt }}</view>
+        <view class="sheet-sub">
+          {{ coach.name }} · {{ pending.date }} {{ pending.time }} · {{ pending.court }}
+        </view>
 
         <view class="card-option" :class="selectedCardId === '' ? 'on' : ''" @tap="selectedCardId = ''">
           <view class="co-name">不使用卡（到店支付）</view>
@@ -113,6 +115,7 @@ export default {
       currentDate: '',
       currentTime: '',
       currentCourt: '',
+      pending: { date: '', time: '', court: '' },
       coachId: '',
       courtList: [],
       bookingsCache: [],
@@ -132,8 +135,9 @@ export default {
   computed: {
     usableCards() {
       var that = this
+      var dateStr = that.pending.date || that.currentDate
       return (this.myCards || []).filter(function (c) {
-        return that.isCardUsable(c, that.currentDate, that.currentTime)
+        return that.isCardUsable(c, dateStr)
       })
     }
   },
@@ -149,13 +153,12 @@ export default {
     cardMeta(c) {
       return '教练卡 · 剩' + (c.remainingTimes || 0) + '次'
     },
-    // 约教练：只允许教练卡；次卡/时间卡/团课卡一律不可用
     isCardUsable(card, dateStr) {
       if (!card || card.status !== 'active') return false
       if (card.type !== 'coach') return false
       if ((card.remainingTimes || 0) <= 0) return false
-      if (card.validFrom && dateStr < card.validFrom) return false
-      if (card.validTo && dateStr > card.validTo) return false
+      if (card.validFrom && dateStr && dateStr < card.validFrom) return false
+      if (card.validTo && dateStr && dateStr > card.validTo) return false
       return true
     },
     loadCoachDetail() {
@@ -225,7 +228,7 @@ export default {
       }
       this.dateList = list
       this.currentDate = list[0].date
-      this.loadTimeList(list[0].date)
+      this.loadTimeList(list[0].date, true)
     },
     getAvailableTimes(dateStr) {
       var now = new Date()
@@ -245,15 +248,17 @@ export default {
         return true
       })
     },
-    loadTimeList(date) {
+    loadTimeList(date, resetSelect) {
       var that = this
       var venueId = that.venueId()
       var availableTimes = that.getAvailableTimes(date)
-      if (availableTimes.length === 0) {
-        that.timeList = []
+      if (resetSelect) {
         that.currentTime = ''
         that.currentCourt = ''
         that.availableCourts = []
+      }
+      if (availableTimes.length === 0) {
+        that.timeList = []
         return
       }
       if (!venueId) {
@@ -297,9 +302,6 @@ export default {
             var full = !!coachBusy[time] || used.length >= total
             return { time: time, status: full ? 'full' : 'available' }
           })
-          that.currentTime = ''
-          that.currentCourt = ''
-          that.availableCourts = []
         },
         fail: function (err) {
           console.error(err)
@@ -311,7 +313,7 @@ export default {
     },
     onSelectDate(date) {
       this.currentDate = date
-      this.loadTimeList(date)
+      this.loadTimeList(date, true)
     },
     onSelectTime(time, status) {
       if (status === 'full') {
@@ -346,8 +348,13 @@ export default {
         return
       }
       if (!this.currentDate || !this.currentTime || !this.currentCourt) {
-        uni.showToast({ title: '请完整选择时间与场地', icon: 'none' })
+        uni.showToast({ title: '请先选择日期、时段和场地', icon: 'none' })
         return
+      }
+      this.pending = {
+        date: this.currentDate,
+        time: this.currentTime,
+        court: this.currentCourt
       }
       this.selectedCardId = ''
       this.cardSheetVisible = true
@@ -372,6 +379,13 @@ export default {
     },
     submitBook() {
       var that = this
+      var date = that.pending.date
+      var time = that.pending.time
+      var court = that.pending.court
+      if (!date || !time || !court) {
+        uni.showToast({ title: '请先选择日期、时段和场地', icon: 'none' })
+        return
+      }
       var nickName = uni.getStorageSync('nickName') || ''
       var phone = uni.getStorageSync('phone') || ''
       var userDocId = uni.getStorageSync('userDocId') || ''
@@ -397,9 +411,9 @@ export default {
           data: {
             venueId: that.venueId(),
             venueName: uni.getStorageSync('venue_name') || '',
-            court: that.currentCourt,
-            date: that.currentDate,
-            time: that.currentTime,
+            court: court,
+            date: date,
+            time: time,
             userName: nickName,
             phone: phone,
             userId: userDocId,
@@ -414,15 +428,16 @@ export default {
           var result = r.result || {}
           if (!result.ok) {
             uni.showToast({ title: result.msg || '预约失败', icon: 'none' })
-            that.loadTimeList(that.currentDate)
+            that.loadTimeList(that.currentDate, false)
             return
           }
           uni.showToast({ title: '预约成功', icon: 'success' })
           that.cardSheetVisible = false
-          that.loadTimeList(that.currentDate)
+          that.pending = { date: '', time: '', court: '' }
           that.currentTime = ''
           that.currentCourt = ''
           that.availableCourts = []
+          that.loadTimeList(that.currentDate, false)
         },
         fail: function (err) {
           console.error(err)
