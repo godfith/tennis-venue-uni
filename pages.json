@@ -97,33 +97,23 @@
 		"list": [
 			{
 				"pagePath": "pages/index/index",
-				"text": "首页",
-				"iconPath": "static/images/ui/bYMYQ.jpg",
-				"selectedIconPath": "static/images/ui/bYMYQ.jpg"
+				"text": "首页"
 			},
 			{
 				"pagePath": "pages/shop/shop",
-				"text": "商城",
-				"iconPath": "static/images/ui/gwm0c.jpg",
-				"selectedIconPath": "static/images/ui/gwm0c.jpg"
+				"text": "商城"
 			},
 			{
 				"pagePath": "pages/booking/booking",
-				"text": "订场",
-				"iconPath": "static/images/ui/T8zdG.jpg",
-				"selectedIconPath": "static/images/ui/T8zdG.jpg"
+				"text": "订场"
 			},
 			{
 				"pagePath": "pages/my/my",
-				"text": "我的",
-				"iconPath": "static/images/ui/AOIXl.jpg",
-				"selectedIconPath": "static/images/ui/AOIXl.jpg"
+				"text": "我的"
 			},
 			{
 				"pagePath": "pages/rank/rank",
-				"text": "排名",
-				"iconPath": "static/images/ui/gwm0c.jpg",
-				"selectedIconPath": "static/images/ui/gwm0c.jpg"
+				"text": "排名"
 			}
 		]
 	},
