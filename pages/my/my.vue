@@ -49,11 +49,14 @@
       </view>
       <view class="logout" @tap="logout">退出登录</view>
     </block>
+    <app-tabbar :current="3" />
   </view>
 </template>
 
 <script>
+import AppTabbar from '@/components/app-tabbar.vue'
 export default {
+  components: { AppTabbar },
   data() {
     return {
       isLogin: false,
@@ -63,7 +66,10 @@ export default {
       role: 'user'
     }
   },
-  onShow() { this.checkLoginStatus() },
+  onShow() {
+    try { uni.hideTabBar({ animation: false }) } catch (e) {}
+    this.checkLoginStatus()
+  },
   methods: {
     checkLoginStatus() {
       var nickName = uni.getStorageSync('nickName') || ''
@@ -102,11 +108,11 @@ export default {
 </script>
 
 <style>
-.page { min-height: 100vh; background: #f4f2ee; padding-bottom: 40rpx; }
+.page { min-height: 100vh; background: #f4f2ee; padding-bottom: 180rpx; }
 .login-box { margin: 120rpx 40rpx; background: #fff; border-radius: 24rpx; padding: 80rpx 40rpx; text-align: center; }
 .login-title { font-size: 40rpx; font-weight: 700; }
 .login-desc { font-size: 26rpx; color: #999; margin: 16rpx 0 48rpx; }
-.login-btn { background: #0f3d28 !important; color: #fff !important; border-radius: 8rpx; }
+.login-btn { background: #3f6b56 !important; color: #fff !important; border-radius: 8rpx; }
 .head { padding: 48rpx 0 24rpx; display: flex; flex-direction: column; align-items: center; background: #fff; }
 .avatar { width: 140rpx; height: 140rpx; border-radius: 50%; background: #eee; }
 .name { font-size: 40rpx; font-weight: 700; margin-top: 20rpx; }
