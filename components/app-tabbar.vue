@@ -12,7 +12,7 @@
       <view class="item mid" @tap="go(2)">
         <view class="fab-hold"></view>
         <view :class="current === 2 ? 'fab on' : 'fab'">
-          <image class="fab-ico" src="/static/images/tab/book-on.png"></image>
+          <image class="fab-ico" src="/static/images/tab/book-white.png"></image>
         </view>
         <text :class="current === 2 ? 'lab on' : 'lab'">订场开打</text>
       </view>
@@ -75,18 +75,18 @@ export default {
   justify-content: flex-end;
   position: relative;
 }
-.ico { width: 48rpx; height: 48rpx; margin-bottom: 4rpx; }
+.ico { width: 52rpx; height: 52rpx; margin-bottom: 4rpx; }
 .lab { font-size: 20rpx; color: #8aa198; line-height: 1.2; }
 .lab.on { color: #3f6b56; font-weight: 700; }
-.fab-hold { width: 48rpx; height: 48rpx; margin-bottom: 4rpx; }
+.fab-hold { width: 52rpx; height: 52rpx; margin-bottom: 4rpx; }
 .fab {
   position: absolute;
   left: 50%;
-  bottom: 46rpx;
-  width: 112rpx;
-  height: 112rpx;
-  margin-left: -56rpx;
-  border-radius: 56rpx;
+  bottom: 44rpx;
+  width: 116rpx;
+  height: 116rpx;
+  margin-left: -58rpx;
+  border-radius: 58rpx;
   background: #3f6b56;
   display: flex;
   align-items: center;
@@ -97,8 +97,7 @@ export default {
 }
 .fab.on { background: #2f5343; }
 .fab-ico {
-  width: 52rpx;
-  height: 52rpx;
-  filter: brightness(12);
+  width: 56rpx;
+  height: 56rpx;
 }
 </style>
