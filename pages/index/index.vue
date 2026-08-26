@@ -72,11 +72,14 @@
         <view class="v-sw">切换场馆</view>
       </view>
     </view>
+    <app-tabbar :current="0" />
   </view>
 </template>
 
 <script>
+import AppTabbar from '@/components/app-tabbar.vue'
 export default {
+  components: { AppTabbar },
   data() {
     return {
       venueList: [],
@@ -93,6 +96,7 @@ export default {
     }
   },
   onShow() {
+    try { uni.hideTabBar({ animation: false }) } catch (e) {}
     this.nickName = uni.getStorageSync('nickName') || ''
     this.phone = uni.getStorageSync('phone') || ''
     this.avatarUrl = uni.getStorageSync('avatarUrl') || ''
@@ -182,7 +186,7 @@ export default {
 </script>
 
 <style>
-.page { min-height: 100vh; background: #f4f2ee; }
+.page { min-height: 100vh; background: #f4f2ee; padding-bottom: 180rpx; }
 .hero { height: 360rpx; position: relative; }
 .hero-image { width: 100%; height: 100%; display: block; }
 .hero-mask { position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: linear-gradient(180deg, rgba(15,61,40,.25), rgba(15,61,40,.72)); }
@@ -196,8 +200,8 @@ export default {
 .no { font-size: 22rpx; color: #999; margin-top: 6rpx; }
 .points { text-align: right; }
 .p-lab { font-size: 20rpx; color: #999; }
-.p-num { font-size: 40rpx; font-weight: 700; color: #0f3d28; }
-.member-card { background: #0f3d28; border-radius: 20rpx; padding: 32rpx; display: flex; color: #fff; margin-bottom: 24rpx; }
+.p-num { font-size: 40rpx; font-weight: 700; color: #3f6b56; }
+.member-card { background: #3f6b56; border-radius: 20rpx; padding: 32rpx; display: flex; color: #fff; margin-bottom: 24rpx; }
 .mc-left { flex: 1; }
 .mc-kicker { font-size: 20rpx; letter-spacing: 3rpx; opacity: .7; }
 .mc-level { font-size: 40rpx; font-weight: 700; margin: 10rpx 0 16rpx; }
@@ -217,6 +221,6 @@ export default {
 .action-icon { position: absolute; right: 24rpx; bottom: 20rpx; font-size: 44rpx; }
 .venue-bar { background: #fff; border-radius: 16rpx; padding: 24rpx 28rpx; display: flex; align-items: center; justify-content: space-between; }
 .v-lab { font-size: 20rpx; color: #999; }
-.v-name { font-size: 28rpx; font-weight: 600; color: #0f3d28; margin-top: 6rpx; }
-.v-sw { font-size: 24rpx; color: #07c160; font-weight: 600; }
+.v-name { font-size: 28rpx; font-weight: 600; color: #3f6b56; margin-top: 6rpx; }
+.v-sw { font-size: 24rpx; color: #3f6b56; font-weight: 600; }
 </style>
