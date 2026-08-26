@@ -80,10 +80,13 @@
         <view class="sheet-cancel" @tap="cardSheetVisible = false">取消</view>
       </view>
     </view>
+    <app-tabbar :current="2" />
   </view>
 </template>
 <script>
+import AppTabbar from '@/components/app-tabbar.vue'
 export default {
+  components: { AppTabbar },
   data() {
     return {
       nickName: '',
@@ -145,6 +148,7 @@ export default {
     this.initDateList()
   },
   onShow() {
+    try { uni.hideTabBar({ animation: false }) } catch (e) {}
     this.nickName = uni.getStorageSync('nickName') || ''
     this.venueName = uni.getStorageSync('venue_name') || ''
     this.loadCourts()
@@ -417,7 +421,7 @@ export default {
 }
 </script>
 <style>
-.page { min-height: 100vh; background: #f3f1ec; padding-bottom: 150rpx; }
+.page { min-height: 100vh; background: #f3f1ec; padding-bottom: 280rpx; }
 .top { padding: 28rpx 28rpx 12rpx; display: flex; justify-content: space-between; align-items: flex-start; }
 .hello { font-size: 36rpx; font-weight: 700; color: #2c2c2c; }
 .venue { font-size: 24rpx; color: #8a8680; margin-top: 6rpx; }
@@ -443,7 +447,7 @@ export default {
 .st.pink { color: #b85c4a; }
 .price { font-size: 26rpx; color: #b87333; font-weight: 600; }
 .empty { text-align: center; color: #8a8680; padding: 60rpx 20rpx; }
-.bar { position: fixed; left: 0; right: 0; bottom: 0; background: #fff; padding: 16rpx 24rpx; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 -8rpx 24rpx rgba(44,44,44,.06); }
+.bar { position: fixed; left: 0; right: 0; bottom: calc(128rpx + env(safe-area-inset-bottom)); background: #fff; padding: 16rpx 24rpx; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 -8rpx 24rpx rgba(44,44,44,.06); z-index: 80; }
 .sum { font-size: 34rpx; font-weight: 700; color: #2c2c2c; }
 .picked { font-size: 22rpx; color: #8a8680; margin-top: 4rpx; }
 .ok { margin: 0; background: #3f6b56 !important; color: #fff !important; font-size: 28rpx; padding: 0 36rpx; border-radius: 12rpx; }
