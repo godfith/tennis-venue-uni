@@ -1,294 +1,222 @@
 <template>
-    <view class="page">
-        <view class="hero">
-            <image class="hero-image" src="/static/images/index/title.jpg" mode="aspectFill"></image>
-        </view>
-		<view class="venue-bar" @tap="showVenuePicker">
-		  <text class="venue-label">当前场馆</text>
-		  <text class="venue-name">{{ venueName }}</text>
-		  <text class="venue-arrow">切换 ›</text>
-		</view>
-
-        <view class="block">
-            <view class="block-header">
-                <text class="block-title">赛事与活动</text>
-                <text class="more" @tap="comingSoon">更多 ></text>
-            </view>
-
-            <scroll-view scroll-x class="event-list" enhanced :show-scrollbar="false">
-                <view class="event-item event-blue">
-                    <view class="event-tag">进行中</view>
-                    <view class="event-name">周末网球体验营</view>
-                    <view class="event-date">本周六 - 周日</view>
-                </view>
-                <view class="event-item event-green">
-                    <view class="event-tag green">报名中</view>
-                    <view class="event-name">青少年网球挑战赛</view>
-                    <view class="event-date">即将开始</view>
-                </view>
-            </scroll-view>
-        </view>
-
-        <view class="block">
-            <view class="block-header">
-                <text class="block-title">场馆服务</text>
-            </view>
-
-            <view class="service-box">
-                <view class="service-item" @tap="goBooking">
-                    <view class="icon-wrap">📅</view>
-                    <text>场地预订</text>
-                </view>
-                <view class="service-item" @tap="goGroup">
-                    <view class="icon-wrap">👥</view>
-                    <text>团课报名</text>
-                </view>
-                <view class="service-item" @tap="goCoach">
-                    <view class="icon-wrap">🎾</view>
-                    <text>教练指导</text>
-                </view>
-                <view class="service-item" @tap="goMy">
-                    <view class="icon-wrap">👤</view>
-                    <text>会员中心</text>
-                </view>
-            </view>
-        </view>
-
-        <view class="block">
-            <view class="block-header">
-                <text class="block-title">场馆风采</text>
-            </view>
-
-            <scroll-view scroll-x class="gallery" enhanced :show-scrollbar="false">
-                <view class="gallery-item g1"></view>
-                <view class="gallery-item g2"></view>
-                <view class="gallery-item g3"></view>
-            </scroll-view>
-        </view>
-
-        <view class="safe-bottom"></view>
+  <view class="page">
+    <view class="hero">
+      <image class="hero-image" src="/static/images/index/title.jpg" mode="aspectFill"></image>
+      <view class="hero-mask"></view>
+      <view class="hero-brand">GOAT TENNIS</view>
+      <view class="hero-name">山羊Goat网球馆</view>
     </view>
+
+    <view class="sheet">
+      <view class="hello-row">
+        <image class="avatar" :src="avatarUrl || '/static/images/avatar.png'" mode="aspectFill"></image>
+        <view class="hello-txt">
+          <view class="hi">Hi, {{ nickName || '球友' }}</view>
+          <view class="no">{{ phone ? phone : '登录后查看会员权益' }}</view>
+        </view>
+        <view class="points" @tap="goMyCards">
+          <view class="p-lab">持卡张数</view>
+          <view class="p-num">{{ cardCount }}</view>
+        </view>
+      </view>
+
+      <view class="member-card" @tap="goMyCards">
+        <view class="mc-left">
+          <view class="mc-kicker">MEMBERSHIP</view>
+          <view class="mc-level">Goat Member</view>
+          <view class="mc-tip">点击查看全部会员卡</view>
+        </view>
+        <view class="mc-badge">
+          <view class="mc-club">Goat Clubhouse</view>
+          <view class="mc-sub">TENNIS</view>
+        </view>
+      </view>
+
+      <view class="stat-row">
+        <view class="stat" @tap="goCoach">
+          <view class="stat-n">{{ coachLeft }}</view>
+          <view class="stat-l">私教课</view>
+        </view>
+        <view class="stat" @tap="goMyCards">
+          <view class="stat-n">{{ timesLeft }}</view>
+          <view class="stat-l">场地次卡</view>
+        </view>
+        <view class="stat" @tap="goGroup">
+          <view class="stat-n">{{ groupLeft }}</view>
+          <view class="stat-l">团课卡</view>
+        </view>
+        <view class="stat" @tap="goMyCards">
+          <view class="stat-n">{{ timeCardCount }}</view>
+          <view class="stat-l">时间卡</view>
+        </view>
+      </view>
+
+      <view class="action-row">
+        <view class="action" @tap="goBooking">
+          <view class="action-title">立即订场</view>
+          <view class="action-en">BOOK A COURT</view>
+          <view class="action-icon">🎾</view>
+        </view>
+        <view class="action" @tap="goCoach">
+          <view class="action-title">预约私教</view>
+          <view class="action-en">COACHING</view>
+          <view class="action-icon">🏆</view>
+        </view>
+      </view>
+
+      <view class="venue-bar" @tap="showVenuePicker">
+        <view>
+          <view class="v-lab">当前场馆</view>
+          <view class="v-name">{{ venueName }}</view>
+        </view>
+        <view class="v-sw">切换场馆</view>
+      </view>
+    </view>
+  </view>
 </template>
 
 <script>
 export default {
-    data() {
-      return {
-        venueList: [],
-        venueId: '',
-        venueName: '请选择场馆'
-      }
-    },
-	onShow() {
-	  this.loadVenues()
-	},
-methods: {
-  loadVenues() {
-    wx.cloud
-      .callFunction({
+  data() {
+    return {
+      venueList: [],
+      venueId: '',
+      venueName: '请选择场馆',
+      nickName: '',
+      phone: '',
+      avatarUrl: '',
+      cardCount: 0,
+      coachLeft: 0,
+      timesLeft: 0,
+      groupLeft: 0,
+      timeCardCount: 0
+    }
+  },
+  onShow() {
+    this.nickName = uni.getStorageSync('nickName') || ''
+    this.phone = uni.getStorageSync('phone') || ''
+    this.avatarUrl = uni.getStorageSync('avatarUrl') || ''
+    this.loadVenues()
+    this.loadCards()
+  },
+  methods: {
+    loadVenues() {
+      var that = this
+      wx.cloud.callFunction({
         name: 'userApi',
-        data: { action: 'getVenues' }
-      })
-      .then((res) => {
-        const result = res.result || {}
-        const list = result.list || []
-        this.venueList = list
-
-        let id = uni.getStorageSync('venue_id')
-        let name = uni.getStorageSync('venue_name')
-
-        if (!id && list.length) {
-          id = list[0].venueId
-          name = list[0].name
-          uni.setStorageSync('venue_id', id)
-          uni.setStorageSync('venue_name', name)
-        }
-
-        const found = list.find((v) => v.venueId === id)
-        if (found) {
-          this.venueId = found.venueId
-          this.venueName = found.name
-        } else if (list.length) {
-          this.venueId = list[0].venueId
-          this.venueName = list[0].name
-          uni.setStorageSync('venue_id', this.venueId)
-          uni.setStorageSync('venue_name', this.venueName)
+        data: { action: 'getVenues' },
+        success: function (res) {
+          var list = (res.result || {}).list || []
+          that.venueList = list
+          var id = uni.getStorageSync('venue_id')
+          var found = list.find(function (v) { return v.venueId === id })
+          if (found) {
+            that.venueId = found.venueId
+            that.venueName = found.name
+          } else if (list.length) {
+            that.venueId = list[0].venueId
+            that.venueName = list[0].name
+            uni.setStorageSync('venue_id', that.venueId)
+            uni.setStorageSync('venue_name', that.venueName)
+          }
         }
       })
-      .catch((err) => {
-        console.error('加载场馆失败', err)
-        uni.showToast({ title: '加载场馆失败', icon: 'none' })
-      })
-  },
-
-  showVenuePicker() {
-    if (!this.venueList.length) {
-      uni.showToast({ title: '暂无场馆', icon: 'none' })
-      return
-    }
-    const names = this.venueList.map((v) => v.name)
-    uni.showActionSheet({
-      itemList: names,
-      success: (res) => {
-        const v = this.venueList[res.tapIndex]
-        this.venueId = v.venueId
-        this.venueName = v.name
-        uni.setStorageSync('venue_id', v.venueId)
-        uni.setStorageSync('venue_name', v.name)
-        uni.showToast({ title: '已切换', icon: 'success' })
+    },
+    loadCards() {
+      var that = this
+      var userId = uni.getStorageSync('userDocId') || ''
+      if (!userId && !uni.getStorageSync('openid')) {
+        that.cardCount = that.coachLeft = that.timesLeft = that.groupLeft = that.timeCardCount = 0
+        return
       }
-    })
-  },
-        goBooking() {
-            uni.switchTab({ url: '/pages/booking/booking' });
-        },
-        goGroup() {
-            uni.navigateTo({ url: '/pages/group/group' });
-        },
-        goMy() {
-            uni.switchTab({ url: '/pages/my/my' });
-        },
-        goCoach() {
-            uni.navigateTo({ url: '/pages/coach/coach' });
-        },
-        comingSoon() {
-            uni.showToast({ title: '功能即将上线', icon: 'none' });
+      wx.cloud.callFunction({
+        name: 'userApi',
+        data: { action: 'getMyCards', userId: userId },
+        success: function (res) {
+          var list = ((res.result || {}).list || []).filter(function (c) {
+            return c.status === 'active'
+          })
+          that.cardCount = list.length
+          that.coachLeft = 0
+          that.timesLeft = 0
+          that.groupLeft = 0
+          that.timeCardCount = 0
+          list.forEach(function (c) {
+            if (c.type === 'coach') that.coachLeft += Number(c.remainingTimes || 0)
+            if (c.type === 'times') that.timesLeft += Number(c.remainingTimes || 0)
+            if (c.type === 'group') that.groupLeft += Number(c.remainingTimes || 0)
+            if (c.type === 'time') that.timeCardCount += 1
+          })
         }
+      })
+    },
+    showVenuePicker() {
+      if (!this.venueList.length) {
+        uni.showToast({ title: '暂无场馆', icon: 'none' })
+        return
+      }
+      var that = this
+      uni.showActionSheet({
+        itemList: that.venueList.map(function (v) { return v.name }),
+        success: function (res) {
+          var v = that.venueList[res.tapIndex]
+          that.venueId = v.venueId
+          that.venueName = v.name
+          uni.setStorageSync('venue_id', v.venueId)
+          uni.setStorageSync('venue_name', v.name)
+        }
+      })
+    },
+    goBooking() { uni.switchTab({ url: '/pages/booking/booking' }) },
+    goCoach() { uni.navigateTo({ url: '/pages/coach/coach' }) },
+    goGroup() { uni.navigateTo({ url: '/pages/group/group' }) },
+    goMyCards() {
+      if (!this.nickName && !this.phone) {
+        uni.navigateTo({ url: '/pages/login/login' })
+        return
+      }
+      uni.navigateTo({ url: '/pages/mycards/mycards' })
     }
-};
+  }
+}
 </script>
+
 <style>
-.page {
-    min-height: 100vh;
-    background: #f5f6f8;
-    padding-bottom: 40rpx;
-    box-sizing: border-box;
-}
-.hero {
-    height: 420rpx;
-    width: 100%;
-    overflow: hidden;
-}
-.hero-image {
-    width: 100%;
-    height: 100%;
-    display: block;
-}
-.block {
-    margin: 36rpx 30rpx 0;
-}
-.block-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24rpx;
-}
-.block-title {
-    font-size: 32rpx;
-    font-weight: 700;
-    color: #1a1a1a;
-}
-.more {
-    font-size: 26rpx;
-    color: #999;
-}
-.event-list {
-    white-space: nowrap;
-    width: 100%;
-}
-.event-item {
-    display: inline-block;
-    width: 400rpx;
-    height: 200rpx;
-    border-radius: 20rpx;
-    margin-right: 24rpx;
-    padding: 28rpx;
-    box-sizing: border-box;
-    position: relative;
-    vertical-align: top;
-    color: #fff;
-}
-.event-blue {
-    background: linear-gradient(135deg, #1e4a6e, #2c6a9e);
-}
-.event-green {
-    background: linear-gradient(135deg, #1a5c45, #2d8a6a);
-}
-.event-tag {
-    position: absolute;
-    top: 20rpx;
-    right: 20rpx;
-    background: #e6a23c;
-    font-size: 20rpx;
-    padding: 4rpx 14rpx;
-    border-radius: 16rpx;
-}
-.event-tag.green {
-    background: #07c160;
-}
-.event-name {
-    font-size: 30rpx;
-    font-weight: 600;
-    margin-top: 60rpx;
-    margin-bottom: 8rpx;
-}
-.event-date {
-    font-size: 24rpx;
-    opacity: 0.85;
-}
-.service-box {
-    background: #fff;
-    border-radius: 20rpx;
-    padding: 36rpx 10rpx;
-    display: flex;
-    box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.03);
-}
-.service-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-.icon-wrap {
-    width: 88rpx;
-    height: 88rpx;
-    background: #f0f4f8;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 40rpx;
-    margin-bottom: 14rpx;
-}
-.service-item text {
-    font-size: 24rpx;
-    color: #333;
-}
-.gallery {
-    white-space: nowrap;
-    width: 100%;
-}
-.gallery-item {
-    display: inline-block;
-    width: 260rpx;
-    height: 160rpx;
-    border-radius: 16rpx;
-    margin-right: 20rpx;
-}
-.g1 { background: linear-gradient(135deg, #1a5276, #2980b9); }
-.g2 { background: linear-gradient(135deg, #1a3a5c, #2c3e50); }
-.g3 { background: linear-gradient(135deg, #0e6655, #148f77); }
-.safe-bottom { height: 30rpx; }
-.venue-bar {
-  margin: 24rpx 30rpx 0;
-  padding: 24rpx 28rpx;
-  background: #fff;
-  border-radius: 16rpx;
-  display: flex;
-  align-items: center;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
-}
-.venue-label { font-size: 24rpx; color: #999; margin-right: 16rpx; }
-.venue-name { flex: 1; font-size: 28rpx; font-weight: 600; color: #1a5c3a; }
-.venue-arrow { font-size: 26rpx; color: #07c160; }
+.page { min-height: 100vh; background: #f4f2ee; }
+.hero { height: 360rpx; position: relative; }
+.hero-image { width: 100%; height: 100%; display: block; }
+.hero-mask { position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: linear-gradient(180deg, rgba(15,61,40,.25), rgba(15,61,40,.72)); }
+.hero-brand { position: absolute; left: 40rpx; bottom: 88rpx; color: #fff; letter-spacing: 8rpx; font-size: 22rpx; font-weight: 600; }
+.hero-name { position: absolute; left: 40rpx; bottom: 36rpx; color: #fff; font-size: 40rpx; font-weight: 700; }
+.sheet { margin-top: -28rpx; background: #f4f2ee; border-radius: 28rpx 28rpx 0 0; padding: 36rpx 28rpx 40rpx; position: relative; }
+.hello-row { display: flex; align-items: center; margin-bottom: 28rpx; }
+.avatar { width: 88rpx; height: 88rpx; border-radius: 50%; margin-right: 20rpx; background: #ddd; }
+.hello-txt { flex: 1; }
+.hi { font-size: 34rpx; font-weight: 700; color: #111; }
+.no { font-size: 22rpx; color: #999; margin-top: 6rpx; }
+.points { text-align: right; }
+.p-lab { font-size: 20rpx; color: #999; }
+.p-num { font-size: 40rpx; font-weight: 700; color: #0f3d28; }
+.member-card { background: #0f3d28; border-radius: 20rpx; padding: 32rpx; display: flex; color: #fff; margin-bottom: 24rpx; }
+.mc-left { flex: 1; }
+.mc-kicker { font-size: 20rpx; letter-spacing: 3rpx; opacity: .7; }
+.mc-level { font-size: 40rpx; font-weight: 700; margin: 10rpx 0 16rpx; }
+.mc-tip { font-size: 22rpx; opacity: .75; }
+.mc-badge { width: 220rpx; background: rgba(255,255,255,.08); border-radius: 16rpx; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.mc-club { font-size: 24rpx; font-weight: 600; }
+.mc-sub { font-size: 18rpx; letter-spacing: 4rpx; opacity: .6; margin-top: 8rpx; }
+.stat-row { background: #fff; border-radius: 16rpx; display: flex; padding: 28rpx 0; margin-bottom: 24rpx; }
+.stat { flex: 1; text-align: center; border-right: 1rpx solid #eee; }
+.stat:last-child { border-right: none; }
+.stat-n { font-size: 36rpx; font-weight: 700; color: #111; }
+.stat-l { font-size: 20rpx; color: #999; margin-top: 8rpx; }
+.action-row { display: flex; gap: 16rpx; margin-bottom: 24rpx; }
+.action { flex: 1; background: #fff; border-radius: 16rpx; padding: 28rpx; min-height: 160rpx; position: relative; }
+.action-title { font-size: 30rpx; font-weight: 700; color: #111; }
+.action-en { font-size: 18rpx; color: #aaa; letter-spacing: 2rpx; margin-top: 8rpx; }
+.action-icon { position: absolute; right: 24rpx; bottom: 20rpx; font-size: 44rpx; }
+.venue-bar { background: #fff; border-radius: 16rpx; padding: 24rpx 28rpx; display: flex; align-items: center; justify-content: space-between; }
+.v-lab { font-size: 20rpx; color: #999; }
+.v-name { font-size: 28rpx; font-weight: 600; color: #0f3d28; margin-top: 6rpx; }
+.v-sw { font-size: 24rpx; color: #07c160; font-weight: 600; }
 </style>
