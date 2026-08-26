@@ -12,15 +12,15 @@
 
     <view class="chips">
       <view class="chip">
-        <view class="ico ico-green">🎾</view>
+        <image class="chip-ico" src="/static/images/ui/T8zdG.jpg" mode="aspectFill"></image>
         <text>一对一</text>
       </view>
       <view class="chip">
-        <view class="ico ico-copper">🧢</view>
+        <image class="chip-ico" src="/static/images/ui/AOIXl.jpg" mode="aspectFill"></image>
         <text>{{ coachList.length }} 位教练</text>
       </view>
       <view class="chip">
-        <view class="ico ico-sage">📅</view>
+        <image class="chip-ico" src="/static/images/ui/gwm0c.jpg" mode="aspectFill"></image>
         <text>7天可约</text>
       </view>
     </view>
@@ -36,11 +36,7 @@
         @tap="goDetail(item._id)"
       >
         <view :class="'photo tone-' + (index % 3)">
-          <image
-            class="avatar"
-            :src="item.avatar || '/static/images/avatar.png'"
-            mode="aspectFill"
-          ></image>
+          <image class="avatar" :src="cover(item)" mode="aspectFill"></image>
           <view class="badge">0{{ index + 1 }}</view>
         </view>
         <view class="body">
@@ -76,6 +72,9 @@ export default {
     this.loadCoaches()
   },
   methods: {
+    cover(item) {
+      return item.avatar || '/static/images/ui/MMi0Y.jpg'
+    },
     goBook() { uni.switchTab({ url: '/pages/booking/booking' }) },
     loadCoaches() {
       var venueId = uni.getStorageSync('venue_id')
@@ -115,19 +114,16 @@ export default {
 .tab { flex: 1; text-align: center; padding: 18rpx 0; font-size: 28rpx; color: #6b6760; }
 .tab.on { background: #fff; color: #2c2c2c; font-weight: 700; }
 .chips { display: flex; gap: 12rpx; padding: 0 24rpx 20rpx; }
-.chip { flex: 1; background: #fff; border-radius: 12rpx; padding: 16rpx 12rpx; display: flex; align-items: center; gap: 10rpx; font-size: 22rpx; color: #5c5852; }
-.ico { width: 44rpx; height: 44rpx; border-radius: 10rpx; display: flex; align-items: center; justify-content: center; font-size: 24rpx; }
-.ico-green { background: #3f6b56; }
-.ico-copper { background: #c97848; }
-.ico-sage { background: #7a8f7a; }
+.chip { flex: 1; background: #fff; border-radius: 12rpx; padding: 12rpx 10rpx; display: flex; align-items: center; gap: 10rpx; font-size: 22rpx; color: #5c5852; }
+.chip-ico { width: 48rpx; height: 48rpx; border-radius: 10rpx; flex-shrink: 0; background: #eee; }
 .loading, .empty { text-align: center; color: #8a8680; padding: 80rpx 0; }
 .list { padding: 0 20rpx; }
 .card { background: #fff; border-radius: 20rpx; overflow: hidden; margin-bottom: 20rpx; }
-.photo { height: 220rpx; position: relative; background: #d8d2c8; }
+.photo { height: 280rpx; position: relative; background: #d8d2c8; }
 .tone-0 { background: #d7e0d8; }
 .tone-1 { background: #e7d7c8; }
 .tone-2 { background: #d6d3e0; }
-.avatar { width: 100%; height: 220rpx; }
+.avatar { width: 100%; height: 280rpx; }
 .badge {
   position: absolute; left: 16rpx; top: 16rpx;
   background: rgba(44,44,44,.72); color: #fff;
