@@ -89,7 +89,6 @@
 		}
 	],
 	"tabBar": {
-		"custom": true,
 		"color": "#8a8680",
 		"selectedColor": "#3f6b56",
 		"backgroundColor": "#ffffff",
@@ -97,23 +96,33 @@
 		"list": [
 			{
 				"pagePath": "pages/index/index",
-				"text": "首页"
+				"text": "首页",
+				"iconPath": "static/images/tab/home.png",
+				"selectedIconPath": "static/images/tab/home.png"
 			},
 			{
 				"pagePath": "pages/shop/shop",
-				"text": "商城"
+				"text": "商城",
+				"iconPath": "static/images/tab/shop.png",
+				"selectedIconPath": "static/images/tab/shop.png"
 			},
 			{
 				"pagePath": "pages/booking/booking",
-				"text": "订场"
+				"text": "订场",
+				"iconPath": "static/images/tab/book.png",
+				"selectedIconPath": "static/images/tab/book.png"
 			},
 			{
 				"pagePath": "pages/my/my",
-				"text": "我的"
+				"text": "我的",
+				"iconPath": "static/images/tab/mine.png",
+				"selectedIconPath": "static/images/tab/mine.png"
 			},
 			{
 				"pagePath": "pages/rank/rank",
-				"text": "排名"
+				"text": "排名",
+				"iconPath": "static/images/tab/rank.png",
+				"selectedIconPath": "static/images/tab/rank.png"
 			}
 		]
 	},
