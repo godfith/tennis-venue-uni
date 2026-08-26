@@ -89,41 +89,17 @@
 		}
 	],
 	"tabBar": {
-		"color": "#9e9e9e",
-		"selectedColor": "#1c1c1c",
+		"custom": true,
+		"color": "#8aa198",
+		"selectedColor": "#3f6b56",
 		"backgroundColor": "#ffffff",
 		"borderStyle": "white",
 		"list": [
-			{
-				"pagePath": "pages/index/index",
-				"text": "首页",
-				"iconPath": "static/images/tab/home.png",
-				"selectedIconPath": "static/images/tab/home-on.png"
-			},
-			{
-				"pagePath": "pages/shop/shop",
-				"text": "商城",
-				"iconPath": "static/images/tab/shop.png",
-				"selectedIconPath": "static/images/tab/shop-on.png"
-			},
-			{
-				"pagePath": "pages/booking/booking",
-				"text": "订场",
-				"iconPath": "static/images/tab/book.png",
-				"selectedIconPath": "static/images/tab/book-on.png"
-			},
-			{
-				"pagePath": "pages/my/my",
-				"text": "我的",
-				"iconPath": "static/images/tab/mine.png",
-				"selectedIconPath": "static/images/tab/mine-on.png"
-			},
-			{
-				"pagePath": "pages/rank/rank",
-				"text": "排名",
-				"iconPath": "static/images/tab/rank.png",
-				"selectedIconPath": "static/images/tab/rank-on.png"
-			}
+			{ "pagePath": "pages/index/index", "text": "首页" },
+			{ "pagePath": "pages/shop/shop", "text": "商城" },
+			{ "pagePath": "pages/booking/booking", "text": "订场" },
+			{ "pagePath": "pages/my/my", "text": "我的" },
+			{ "pagePath": "pages/rank/rank", "text": "排名" }
 		]
 	},
 	"sitemapLocation": "sitemap.json",
