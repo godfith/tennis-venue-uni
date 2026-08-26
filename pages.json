@@ -11,7 +11,7 @@
 			"path": "pages/index/index",
 			"style": {
 				"navigationBarTitleText": "山羊Goat",
-				"navigationBarBackgroundColor": "#0f3d28",
+				"navigationBarBackgroundColor": "#3f6b56",
 				"navigationBarTextStyle": "white"
 			}
 		},
@@ -89,30 +89,41 @@
 		}
 	],
 	"tabBar": {
-		"color": "#8a8a8a",
-		"selectedColor": "#0f3d28",
+		"custom": true,
+		"color": "#8a8680",
+		"selectedColor": "#3f6b56",
 		"backgroundColor": "#ffffff",
 		"borderStyle": "white",
 		"list": [
 			{
 				"pagePath": "pages/index/index",
-				"text": "首页"
+				"text": "首页",
+				"iconPath": "static/images/ui/bYMYQ.jpg",
+				"selectedIconPath": "static/images/ui/bYMYQ.jpg"
 			},
 			{
 				"pagePath": "pages/shop/shop",
-				"text": "商城"
+				"text": "商城",
+				"iconPath": "static/images/ui/gwm0c.jpg",
+				"selectedIconPath": "static/images/ui/gwm0c.jpg"
 			},
 			{
 				"pagePath": "pages/booking/booking",
-				"text": "订场"
+				"text": "订场",
+				"iconPath": "static/images/ui/T8zdG.jpg",
+				"selectedIconPath": "static/images/ui/T8zdG.jpg"
 			},
 			{
 				"pagePath": "pages/my/my",
-				"text": "我的"
+				"text": "我的",
+				"iconPath": "static/images/ui/AOIXl.jpg",
+				"selectedIconPath": "static/images/ui/AOIXl.jpg"
 			},
 			{
 				"pagePath": "pages/rank/rank",
-				"text": "排名"
+				"text": "排名",
+				"iconPath": "static/images/ui/gwm0c.jpg",
+				"selectedIconPath": "static/images/ui/gwm0c.jpg"
 			}
 		]
 	},
@@ -122,7 +133,7 @@
 		"navigationBarTitleText": "山羊Goat网球馆",
 		"navigationBarBackgroundColor": "#ffffff",
 		"navigationBarTextStyle": "black",
-		"backgroundColor": "#f4f2ee"
+		"backgroundColor": "#f3f1ec"
 	},
 	"subPackages": []
 }
