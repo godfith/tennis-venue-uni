@@ -1,7 +1,7 @@
 <template>
   <view class="page">
     <view class="hero">
-      <image class="hero-image" src="/static/images/index/title.jpg" mode="aspectFill"></image>
+      <image class="hero-image" src="/static/images/index/banner.jpg" mode="aspectFill"></image>
       <view class="hero-mask"></view>
       <view class="hero-brand">GOAT TENNIS</view>
       <view class="hero-name">山羊Goat网球馆</view>
@@ -198,7 +198,7 @@ export default {
 .page { min-height: 100vh; background: #f4f2ee; padding-bottom: 180rpx; }
 .hero { height: 360rpx; position: relative; }
 .hero-image { width: 100%; height: 100%; display: block; }
-.hero-mask { position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: linear-gradient(180deg, rgba(30,72,112,.15), rgba(30,72,112,.55)); }
+.hero-mask { position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: linear-gradient(180deg, rgba(30,72,112,.08), rgba(30,72,112,.42)); }
 .hero-brand { position: absolute; left: 40rpx; bottom: 88rpx; color: #fff; letter-spacing: 8rpx; font-size: 22rpx; font-weight: 600; }
 .hero-name { position: absolute; left: 40rpx; bottom: 36rpx; color: #fff; font-size: 40rpx; font-weight: 700; }
 .sheet { margin-top: -28rpx; background: #f4f2ee; border-radius: 28rpx 28rpx 0 0; padding: 36rpx 28rpx 40rpx; position: relative; }
