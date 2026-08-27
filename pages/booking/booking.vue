@@ -429,15 +429,15 @@ export default {
   box-sizing: border-box;
 }
 .top { padding: 28rpx 28rpx 12rpx; display: flex; justify-content: space-between; align-items: flex-start; }
-.hello { font-size: 36rpx; font-weight: 700; color: #2c2c2c; }
+.hello { font-size: 36rpx; font-weight: 700; color: #1e4870; }
 .venue { font-size: 24rpx; color: #8a8680; margin-top: 6rpx; }
-.sw { font-size: 24rpx; color: #3f6b56; font-weight: 600; }
+.sw { font-size: 24rpx; color: #1e4870; font-weight: 600; }
 .tabs { margin: 12rpx 28rpx 8rpx; display: flex; background: #e8e4dc; border-radius: 12rpx; overflow: hidden; }
 .tab { flex: 1; text-align: center; padding: 18rpx 0; font-size: 28rpx; color: #6b6760; }
-.tab.on { background: #fff; color: #2c2c2c; font-weight: 700; }
+.tab.on { background: #fff; color: #1e4870; font-weight: 700; }
 .dates { white-space: nowrap; padding: 12rpx 20rpx 16rpx; }
 .date { display: inline-flex; flex-direction: column; align-items: center; width: 108rpx; padding: 14rpx 0; margin-right: 10rpx; background: #fff; border-radius: 12rpx; }
-.date.on { background: #3f6b56; color: #fff; }
+.date.on { background: #1e4870; color: #fff; }
 .d-md { font-size: 24rpx; font-weight: 600; }
 .d-wk { font-size: 20rpx; margin-top: 4rpx; opacity: .75; }
 .board {
@@ -451,11 +451,11 @@ export default {
 .left { width: 176rpx; background: #f7f5f1; }
 .left-lab { padding: 20rpx 16rpx 8rpx; font-size: 22rpx; color: #8a8680; }
 .l-item { padding: 26rpx 16rpx; font-size: 26rpx; color: #5c5852; }
-.l-item.on { background: #3f6b56; color: #fff; font-weight: 700; }
+.l-item.on { background: #1e4870; color: #fff; font-weight: 700; }
 .right { flex: 1; height: 100%; padding: 12rpx; box-sizing: border-box; }
-.slot { display: flex; justify-content: space-between; align-items: center; background: #f3f1ec; padding: 22rpx 18rpx; margin-bottom: 10rpx; border-radius: 10rpx; font-size: 26rpx; color: #2c2c2c; }
+.slot { display: flex; justify-content: space-between; align-items: center; background: #f3f1ec; padding: 22rpx 18rpx; margin-bottom: 10rpx; border-radius: 10rpx; font-size: 26rpx; color: #1e4870; }
 .slot.off { color: #b3aea6; }
-.slot.sel { background: #eef4f0; outline: 2rpx solid #3f6b56; }
+.slot.sel { background: #e8eef5; outline: 2rpx solid #1e4870; }
 .st { font-size: 22rpx; color: #b3aea6; }
 .st.pink { color: #b85c4a; }
 .price { font-size: 26rpx; color: #b87333; font-weight: 600; }
@@ -472,9 +472,9 @@ export default {
   box-shadow: 0 -8rpx 24rpx rgba(44,44,44,.06);
   z-index: 80;
 }
-.sum { font-size: 34rpx; font-weight: 700; color: #2c2c2c; }
+.sum { font-size: 34rpx; font-weight: 700; color: #1e4870; }
 .picked { font-size: 22rpx; color: #8a8680; margin-top: 4rpx; }
-.ok { margin: 0; background: #3f6b56 !important; color: #fff !important; font-size: 28rpx; padding: 0 36rpx; border-radius: 12rpx; }
+.ok { margin: 0; background: #1e4870 !important; color: #fff !important; font-size: 28rpx; padding: 0 36rpx; border-radius: 12rpx; }
 .ok[disabled] { background: #d8d4cc !important; color: #9a968f !important; }
 .mask { position: fixed; inset: 0; background: rgba(44,44,44,.4); z-index: 20000; display: flex; align-items: flex-end; }
 .sheet { width: 100%; background: #fff; border-radius: 24rpx 24rpx 0 0; padding: 32rpx 28rpx 48rpx; max-height: 75vh; overflow-y: auto; }
@@ -482,10 +482,10 @@ export default {
 .sheet-sub { text-align: center; color: #8a8680; font-size: 24rpx; margin: 10rpx 0 8rpx; }
 .sheet-price { text-align: center; color: #b87333; font-weight: 600; margin-bottom: 16rpx; }
 .card-option { border: 2rpx solid #ece8e1; border-radius: 12rpx; padding: 22rpx; margin-bottom: 12rpx; }
-.card-option.on { border-color: #3f6b56; background: #eef4f0; }
+.card-option.on { border-color: #1e4870; background: #e8eef5; }
 .co-name { font-size: 28rpx; font-weight: 600; }
-.co-meta { font-size: 24rpx; color: #3f6b56; margin-top: 6rpx; }
+.co-meta { font-size: 24rpx; color: #1e4870; margin-top: 6rpx; }
 .sheet-empty { text-align: center; color: #8a8680; padding: 16rpx 0; }
-.sheet-btn { margin-top: 8rpx; background: #3f6b56 !important; color: #fff !important; border-radius: 12rpx; }
+.sheet-btn { margin-top: 8rpx; background: #1e4870 !important; color: #fff !important; border-radius: 12rpx; }
 .sheet-cancel { text-align: center; color: #8a8680; margin-top: 18rpx; padding: 10rpx; }
 </style>
