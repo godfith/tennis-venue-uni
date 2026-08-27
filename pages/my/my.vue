@@ -17,34 +17,49 @@
 
       <view class="triple">
         <view class="t-item" @tap="goMyCards">
-          <view class="t-n">卡</view>
+          <image class="t-ico" src="/static/images/tab/shop-on.png"></image>
           <view class="t-l">卡券</view>
         </view>
         <view class="t-item" @tap="goMyBooking">
-          <view class="t-n">约</view>
+          <image class="t-ico" src="/static/images/tab/book-on.png"></image>
           <view class="t-l">预约</view>
         </view>
         <view class="t-item" @tap="goMyCards">
-          <view class="t-n">会</view>
+          <image class="t-ico" src="/static/images/tab/home-on.png"></image>
           <view class="t-l">会员卡</view>
         </view>
       </view>
 
       <view class="menu">
-        <view class="item" @tap="goMyBooking">
-          <text>订单中心</text><text class="en">MY ORDERS ›</text>
+        <view class="menu-row" @tap="goMyBooking">
+          <image class="m-ico" src="/static/images/tab/rank-on.png"></image>
+          <text class="m-name">订单中心</text>
+          <text class="en">MY ORDERS</text>
+          <text class="arrow">›</text>
         </view>
-        <view class="item" @tap="goMyCards">
-          <text>我的会员卡</text><text class="en">MY CARDS ›</text>
+        <view class="menu-row" @tap="goMyCards">
+          <image class="m-ico" src="/static/images/tab/shop-on.png"></image>
+          <text class="m-name">我的会员卡</text>
+          <text class="en">MY CARDS</text>
+          <text class="arrow">›</text>
         </view>
-        <view class="item" v-if="role === 'coach'" @tap="goCoachWorkbench">
-          <text>教练工作台</text><text class="en">WORKBENCH ›</text>
+        <view class="menu-row" v-if="role === 'coach'" @tap="goCoachWorkbench">
+          <image class="m-ico" src="/static/images/tab/book-on.png"></image>
+          <text class="m-name">教练工作台</text>
+          <text class="en">WORKBENCH</text>
+          <text class="arrow">›</text>
         </view>
-        <view class="item" @tap="comingSoon">
-          <text>个人资料</text><text class="en">PERSONAL INFO ›</text>
+        <view class="menu-row" @tap="comingSoon">
+          <image class="m-ico" src="/static/images/tab/mine-on.png"></image>
+          <text class="m-name">个人资料</text>
+          <text class="en">PERSONAL INFO</text>
+          <text class="arrow">›</text>
         </view>
-        <view class="item" @tap="comingSoon">
-          <text>联系客服</text><text class="en">CONTACT ›</text>
+        <view class="menu-row" @tap="comingSoon">
+          <image class="m-ico" src="/static/images/tab/home-on.png"></image>
+          <text class="m-name">联系客服</text>
+          <text class="en">CONTACT</text>
+          <text class="arrow">›</text>
         </view>
       </view>
       <view class="logout" @tap="logout">退出登录</view>
@@ -112,18 +127,26 @@ export default {
 .login-box { margin: 120rpx 40rpx; background: #fff; border-radius: 24rpx; padding: 80rpx 40rpx; text-align: center; }
 .login-title { font-size: 40rpx; font-weight: 700; }
 .login-desc { font-size: 26rpx; color: #999; margin: 16rpx 0 48rpx; }
-.login-btn { background: #3f6b56 !important; color: #fff !important; border-radius: 8rpx; }
+.login-btn { background: #1e4870 !important; color: #fff !important; border-radius: 8rpx; }
 .head { padding: 48rpx 0 24rpx; display: flex; flex-direction: column; align-items: center; background: #fff; }
 .avatar { width: 140rpx; height: 140rpx; border-radius: 50%; background: #eee; }
-.name { font-size: 40rpx; font-weight: 700; margin-top: 20rpx; }
+.name { font-size: 40rpx; font-weight: 700; margin-top: 20rpx; color: #1e4870; }
 .since { font-size: 24rpx; color: #666; margin-top: 8rpx; }
 .since.muted { color: #bbb; }
-.triple { display: flex; background: #fff; padding: 28rpx 0 40rpx; margin-bottom: 16rpx; }
+.triple { display: flex; background: #fff; padding: 12rpx 0 32rpx; margin-bottom: 16rpx; }
 .t-item { flex: 1; text-align: center; }
-.t-n { font-size: 32rpx; font-weight: 700; }
-.t-l { font-size: 22rpx; color: #999; margin-top: 8rpx; }
+.t-ico { width: 56rpx; height: 56rpx; }
+.t-l { font-size: 22rpx; color: #1e4870; margin-top: 8rpx; font-weight: 600; }
 .menu { background: #fff; }
-.item { padding: 34rpx 36rpx; display: flex; justify-content: space-between; border-bottom: 1rpx solid #f3f3f3; font-size: 30rpx; }
-.en { font-size: 20rpx; color: #bbb; letter-spacing: 1rpx; }
+.menu-row {
+  padding: 28rpx 32rpx;
+  display: flex;
+  align-items: center;
+  border-bottom: 1rpx solid #f3f3f3;
+}
+.m-ico { width: 44rpx; height: 44rpx; margin-right: 20rpx; flex-shrink: 0; }
+.m-name { flex: 1; font-size: 30rpx; color: #222; }
+.en { font-size: 18rpx; color: #c0c4c8; letter-spacing: 1rpx; margin-right: 8rpx; }
+.arrow { font-size: 36rpx; color: #ccc; line-height: 1; }
 .logout { margin: 40rpx 36rpx; text-align: center; color: #c45656; font-size: 28rpx; }
 </style>
