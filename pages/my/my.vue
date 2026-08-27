@@ -17,17 +17,17 @@
 
       <view class="triple">
         <view class="t-item" @tap="goMyCards">
-          <image class="t-ico" src="/static/images/tab/ico-card.png"></image>
+          <image class="t-ico" src="/static/images/ui/ico-card.png"></image>
           <view class="t-n">卡</view>
           <view class="t-l">卡券</view>
         </view>
         <view class="t-item" @tap="goMyBooking">
-          <image class="t-ico" src="/static/images/tab/ico-book.png"></image>
+          <image class="t-ico" src="/static/images/ui/ico-book.png"></image>
           <view class="t-n">约</view>
           <view class="t-l">预约</view>
         </view>
         <view class="t-item" @tap="goMyCards">
-          <image class="t-ico" src="/static/images/tab/ico-member.png"></image>
+          <image class="t-ico" src="/static/images/ui/ico-member.png"></image>
           <view class="t-n">会</view>
           <view class="t-l">会员卡</view>
         </view>
