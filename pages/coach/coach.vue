@@ -75,13 +75,13 @@ export default {
 }
 </script>
 <style>
-.page { min-height: 100vh; background: #f3f1ec; }
+.page { min-height: 100vh; background: #f4f2ee; }
 .top { padding: 28rpx 32rpx 8rpx; }
-.hello { font-size: 36rpx; font-weight: 700; color: #2c2c2c; }
+.hello { font-size: 36rpx; font-weight: 700; color: #1e4870; }
 .venue { font-size: 24rpx; color: #8a8680; margin-top: 6rpx; }
 .tabs { margin: 16rpx 28rpx 24rpx; display: flex; background: #e8e4dc; border-radius: 12rpx; overflow: hidden; }
 .tab { flex: 1; text-align: center; padding: 18rpx 0; font-size: 28rpx; color: #6b6760; }
-.tab.on { background: #fff; color: #2c2c2c; font-weight: 700; }
+.tab.on { background: #fff; color: #1e4870; font-weight: 700; }
 .loading, .empty { text-align: center; color: #8a8680; padding: 80rpx 0; }
 .list { padding: 0 24rpx 40rpx; }
 .card {
@@ -93,32 +93,19 @@ export default {
   align-items: center;
 }
 .photo {
-  width: 132rpx;
-  height: 132rpx;
-  border-radius: 16rpx;
-  overflow: hidden;
-  background: #ece8e1;
-  flex-shrink: 0;
-  margin-right: 20rpx;
+  width: 132rpx; height: 132rpx; border-radius: 16rpx; overflow: hidden;
+  background: #ece8e1; flex-shrink: 0; margin-right: 20rpx;
 }
 .avatar { width: 132rpx; height: 132rpx; }
 .info { flex: 1; min-width: 0; }
-.name { font-size: 32rpx; font-weight: 700; color: #2c2c2c; }
-.title { font-size: 22rpx; color: #3f6b56; margin: 6rpx 0; }
+.name { font-size: 32rpx; font-weight: 700; color: #222; }
+.title { font-size: 22rpx; color: #1e4870; margin: 6rpx 0; }
 .desc {
-  font-size: 22rpx;
-  color: #8a8680;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 22rpx; color: #8a8680;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .cta {
-  margin-left: 12rpx;
-  background: #3f6b56;
-  color: #fff;
-  font-size: 24rpx;
-  padding: 12rpx 22rpx;
-  border-radius: 10rpx;
-  flex-shrink: 0;
+  margin-left: 12rpx; background: #1e4870; color: #fff;
+  font-size: 24rpx; padding: 12rpx 22rpx; border-radius: 10rpx; flex-shrink: 0;
 }
 </style>
