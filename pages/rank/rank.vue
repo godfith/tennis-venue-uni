@@ -15,7 +15,7 @@ export default {
 </script>
 <style>
 .page { min-height: 100vh; background: #f4f2ee; padding-top: 80rpx; padding-bottom: 180rpx; text-align: center; }
-.title { font-size: 44rpx; font-weight: 700; }
+.title { font-size: 44rpx; font-weight: 700; color: #1e4870; }
 .sub { font-size: 22rpx; color: #999; letter-spacing: 4rpx; margin-top: 8rpx; }
 .empty { margin-top: 80rpx; color: #aaa; }
 </style>

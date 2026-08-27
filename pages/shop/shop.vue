@@ -22,10 +22,10 @@ export default {
 </script>
 <style>
 .page { min-height: 100vh; background: #f4f2ee; padding-bottom: 180rpx; }
-.banner { height: 360rpx; background: linear-gradient(135deg, #3f6b56, #6a9a7e); color: #fff; padding: 80rpx 40rpx; box-sizing: border-box; }
+.banner { height: 360rpx; background: linear-gradient(135deg, #1e4870, #3a6ea0); color: #fff; padding: 80rpx 40rpx; box-sizing: border-box; }
 .b-kicker { letter-spacing: 6rpx; font-size: 20rpx; opacity: .8; }
 .b-title { font-size: 48rpx; font-weight: 700; margin: 12rpx 0; }
 .b-sub { font-size: 26rpx; opacity: .85; }
 .empty { text-align: center; color: #999; padding: 80rpx 40rpx 30rpx; }
-.btn { width: 60%; background: #3f6b56 !important; color: #fff !important; border-radius: 8rpx; }
+.btn { width: 60%; background: #1e4870 !important; color: #fff !important; border-radius: 8rpx; }
 </style>
