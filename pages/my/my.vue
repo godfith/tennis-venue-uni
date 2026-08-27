@@ -18,18 +18,15 @@
       <view class="triple">
         <view class="t-item" @tap="goMyCards">
           <image class="t-ico" src="/static/images/ui/ico-card.png"></image>
-          <view class="t-n">卡</view>
-          <view class="t-l">卡券</view>
+          <view class="t-n">卡券</view>
         </view>
         <view class="t-item" @tap="goMyBooking">
           <image class="t-ico" src="/static/images/ui/ico-book.png"></image>
-          <view class="t-n">约</view>
-          <view class="t-l">预约</view>
+          <view class="t-n">我的预约</view>
         </view>
         <view class="t-item" @tap="goMyCards">
           <image class="t-ico" src="/static/images/ui/ico-member.png"></image>
-          <view class="t-n">会</view>
-          <view class="t-l">会员卡</view>
+          <view class="t-n">会员卡</view>
         </view>
       </view>
 
@@ -128,7 +125,7 @@ export default {
 <style>
 .page { min-height: 100vh; background: #f4f2ee; padding-bottom: 180rpx; }
 .login-box { margin: 120rpx 40rpx; background: #fff; border-radius: 24rpx; padding: 80rpx 40rpx; text-align: center; }
-.login-title { font-size: 40rpx; font-weight: 700; }
+.login-title { font-size: 40rpx; font-weight: 700; color: #1e4870; }
 .login-desc { font-size: 26rpx; color: #999; margin: 16rpx 0 48rpx; }
 .login-btn { background: #1e4870 !important; color: #fff !important; border-radius: 8rpx; }
 .head { padding: 48rpx 0 24rpx; display: flex; flex-direction: column; align-items: center; background: #fff; }
@@ -136,11 +133,10 @@ export default {
 .name { font-size: 40rpx; font-weight: 700; margin-top: 20rpx; color: #1e4870; }
 .since { font-size: 24rpx; color: #666; margin-top: 8rpx; }
 .since.muted { color: #bbb; }
-.triple { display: flex; background: #fff; padding: 8rpx 0 32rpx; margin-bottom: 16rpx; }
+.triple { display: flex; background: #fff; padding: 12rpx 0 36rpx; margin-bottom: 16rpx; }
 .t-item { flex: 1; text-align: center; }
-.t-ico { width: 56rpx; height: 56rpx; margin-bottom: 6rpx; }
-.t-n { font-size: 32rpx; font-weight: 700; color: #1e4870; }
-.t-l { font-size: 22rpx; color: #999; margin-top: 4rpx; }
+.t-ico { width: 56rpx; height: 56rpx; margin-bottom: 10rpx; }
+.t-n { font-size: 28rpx; font-weight: 700; color: #1e4870; }
 .menu { background: #fff; }
 .menu-row {
   padding: 28rpx 32rpx;
