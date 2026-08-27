@@ -1,28 +1,28 @@
 <template>
-  <view class="dock">
-    <view class="bar">
-      <view class="item" @tap="go(0)">
-        <image class="ico" :src="current === 0 ? '/static/images/tab/home-on.png' : '/static/images/tab/home.png'"></image>
-        <text :class="current === 0 ? 'lab on' : 'lab'">首页</text>
+  <view class="goat-tb">
+    <view class="goat-tb-row">
+      <view class="goat-tb-item" @tap="go(0)">
+        <image class="goat-tb-ico" :src="current === 0 ? '/static/images/tab/home-on.png' : '/static/images/tab/home.png'"></image>
+        <text :class="current === 0 ? 'goat-tb-lab on' : 'goat-tb-lab'">首页</text>
       </view>
-      <view class="item" @tap="go(1)">
-        <image class="ico" :src="current === 1 ? '/static/images/tab/shop-on.png' : '/static/images/tab/shop.png'"></image>
-        <text :class="current === 1 ? 'lab on' : 'lab'">商城</text>
+      <view class="goat-tb-item" @tap="go(1)">
+        <image class="goat-tb-ico" :src="current === 1 ? '/static/images/tab/shop-on.png' : '/static/images/tab/shop.png'"></image>
+        <text :class="current === 1 ? 'goat-tb-lab on' : 'goat-tb-lab'">商城</text>
       </view>
-      <view class="item mid" @tap="go(2)">
-        <view class="fab-hold"></view>
-        <view :class="current === 2 ? 'fab on' : 'fab'">
-          <image class="fab-ico" src="/static/images/tab/book-on.png"></image>
+      <view class="goat-tb-item goat-tb-mid" @tap="go(2)">
+        <view class="goat-tb-hold"></view>
+        <view :class="current === 2 ? 'goat-tb-fab on' : 'goat-tb-fab'">
+          <image class="goat-tb-fab-ico" src="/static/images/tab/book-on.png"></image>
         </view>
-        <text :class="current === 2 ? 'lab on' : 'lab'">订场开打</text>
+        <text :class="current === 2 ? 'goat-tb-lab on' : 'goat-tb-lab'">订场开打</text>
       </view>
-      <view class="item" @tap="go(3)">
-        <image class="ico" :src="current === 3 ? '/static/images/tab/mine-on.png' : '/static/images/tab/mine.png'"></image>
-        <text :class="current === 3 ? 'lab on' : 'lab'">我的</text>
+      <view class="goat-tb-item" @tap="go(3)">
+        <image class="goat-tb-ico" :src="current === 3 ? '/static/images/tab/mine-on.png' : '/static/images/tab/mine.png'"></image>
+        <text :class="current === 3 ? 'goat-tb-lab on' : 'goat-tb-lab'">我的</text>
       </view>
-      <view class="item" @tap="go(4)">
-        <image class="ico" :src="current === 4 ? '/static/images/tab/rank-on.png' : '/static/images/tab/rank.png'"></image>
-        <text :class="current === 4 ? 'lab on' : 'lab'">排名</text>
+      <view class="goat-tb-item" @tap="go(4)">
+        <image class="goat-tb-ico" :src="current === 4 ? '/static/images/tab/rank-on.png' : '/static/images/tab/rank.png'"></image>
+        <text :class="current === 4 ? 'goat-tb-lab on' : 'goat-tb-lab'">排名</text>
       </view>
     </view>
   </view>
@@ -47,8 +47,8 @@ export default {
   }
 }
 </script>
-<style>
-.dock {
+<style scoped>
+.goat-tb {
   position: fixed;
   left: 0;
   right: 0;
@@ -58,7 +58,7 @@ export default {
   padding-bottom: constant(safe-area-inset-bottom);
   padding-bottom: env(safe-area-inset-bottom);
 }
-.bar {
+.goat-tb-row {
   height: 112rpx;
   display: flex;
   align-items: flex-end;
@@ -66,7 +66,7 @@ export default {
   padding: 0 6rpx 10rpx;
   box-sizing: border-box;
 }
-.item {
+.goat-tb-item {
   flex: 1;
   height: 100%;
   display: flex;
@@ -75,30 +75,46 @@ export default {
   justify-content: flex-end;
   position: relative;
 }
-.ico { width: 56rpx; height: 56rpx; margin-bottom: 4rpx; border-radius: 12rpx; }
-.lab { font-size: 20rpx; color: #8aa198; line-height: 1.2; }
-.lab.on { color: #1a4a6e; font-weight: 700; }
-.fab-hold { width: 56rpx; height: 56rpx; margin-bottom: 4rpx; }
-.fab {
+.goat-tb-ico {
+  width: 56rpx;
+  height: 56rpx;
+  margin-bottom: 4rpx;
+}
+.goat-tb-lab {
+  font-size: 20rpx;
+  color: #8aa0b0;
+  line-height: 1.2;
+}
+.goat-tb-lab.on {
+  color: #1e4870;
+  font-weight: 700;
+}
+.goat-tb-hold {
+  width: 56rpx;
+  height: 56rpx;
+  margin-bottom: 4rpx;
+}
+.goat-tb-fab {
   position: absolute;
   left: 50%;
   bottom: 42rpx;
-  width: 120rpx;
-  height: 120rpx;
-  margin-left: -60rpx;
-  border-radius: 60rpx;
-  background: #fff;
+  width: 112rpx;
+  height: 112rpx;
+  margin-left: -56rpx;
+  border-radius: 56rpx;
+  background: #1e4870;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 10rpx 24rpx rgba(26,74,110,.22);
-  border: 6rpx solid #1a4a6e;
+  box-shadow: 0 10rpx 24rpx rgba(30,72,112,.28);
+  border: 6rpx solid #fff;
   box-sizing: border-box;
-  overflow: hidden;
 }
-.fab.on { border-color: #163a58; }
-.fab-ico {
-  width: 92rpx;
-  height: 92rpx;
+.goat-tb-fab.on {
+  background: #163a58;
+}
+.goat-tb-fab-ico {
+  width: 64rpx;
+  height: 64rpx;
 }
 </style>
