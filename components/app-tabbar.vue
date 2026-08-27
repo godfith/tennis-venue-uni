@@ -12,7 +12,7 @@
       <view class="goat-tb-item goat-tb-mid" @tap="go(2)">
         <view class="goat-tb-hold"></view>
         <view :class="current === 2 ? 'goat-tb-fab on' : 'goat-tb-fab'">
-          <image class="goat-tb-fab-ico" src="/static/images/tab/book-on.png"></image>
+          <image class="goat-tb-fab-ico" src="/static/images/tab/book-white.png"></image>
         </view>
         <text :class="current === 2 ? 'goat-tb-lab on' : 'goat-tb-lab'">订场开打</text>
       </view>
