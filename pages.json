@@ -11,7 +11,7 @@
 			"path": "pages/index/index",
 			"style": {
 				"navigationBarTitleText": "山羊Goat",
-				"navigationBarBackgroundColor": "#3f6b56",
+				"navigationBarBackgroundColor": "#1e4870",
 				"navigationBarTextStyle": "white"
 			}
 		},
@@ -90,8 +90,8 @@
 	],
 	"tabBar": {
 		"custom": true,
-		"color": "#8aa198",
-		"selectedColor": "#3f6b56",
+		"color": "#8a8680",
+		"selectedColor": "#1e4870",
 		"backgroundColor": "#ffffff",
 		"borderStyle": "white",
 		"list": [
@@ -106,9 +106,9 @@
 	"lazyCodeLoading": "requiredComponents",
 	"globalStyle": {
 		"navigationBarTitleText": "山羊Goat网球馆",
-		"navigationBarBackgroundColor": "#ffffff",
-		"navigationBarTextStyle": "black",
-		"backgroundColor": "#f3f1ec"
+		"navigationBarBackgroundColor": "#1e4870",
+		"navigationBarTextStyle": "white",
+		"backgroundColor": "#f4f2ee"
 	},
 	"subPackages": []
 }
