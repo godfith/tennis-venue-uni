@@ -34,19 +34,19 @@
 
       <view class="stat-row">
         <view class="stat" @tap="goCoach">
-          <view class="stat-n">{{ coachLeft }}</view>
+          <view class="stat-n">{{ coachLeft }}<text class="unit">次</text></view>
           <view class="stat-l">私教课</view>
         </view>
         <view class="stat" @tap="goMyCards">
-          <view class="stat-n">{{ timesLeft }}</view>
+          <view class="stat-n">{{ timesLeft }}<text class="unit">次</text></view>
           <view class="stat-l">场地次卡</view>
         </view>
         <view class="stat" @tap="goGroup">
-          <view class="stat-n">{{ groupLeft }}</view>
+          <view class="stat-n">{{ groupLeft }}<text class="unit">次</text></view>
           <view class="stat-l">团课卡</view>
         </view>
         <view class="stat" @tap="goMyCards">
-          <view class="stat-n">{{ timeCardCount }}</view>
+          <view class="stat-n">{{ timeCardDays }}<text class="unit">天</text></view>
           <view class="stat-l">时间卡</view>
         </view>
       </view>
@@ -92,7 +92,7 @@ export default {
       coachLeft: 0,
       timesLeft: 0,
       groupLeft: 0,
-      timeCardCount: 0
+      timeCardDays: 0
     }
   },
   onShow() {
@@ -104,6 +104,15 @@ export default {
     this.loadCards()
   },
   methods: {
+    remainDays(card) {
+      if (!card || !card.validTo) return 0
+      var t = new Date(String(card.validTo).slice(0, 10).replace(/-/g, '/'))
+      var now = new Date()
+      now.setHours(0, 0, 0, 0)
+      t.setHours(0, 0, 0, 0)
+      var d = Math.round((t.getTime() - now.getTime()) / 86400000)
+      return d > 0 ? d : 0
+    },
     loadVenues() {
       var that = this
       wx.cloud.callFunction({
@@ -130,7 +139,7 @@ export default {
       var that = this
       var userId = uni.getStorageSync('userDocId') || ''
       if (!userId && !uni.getStorageSync('openid')) {
-        that.cardCount = that.coachLeft = that.timesLeft = that.groupLeft = that.timeCardCount = 0
+        that.cardCount = that.coachLeft = that.timesLeft = that.groupLeft = that.timeCardDays = 0
         return
       }
       wx.cloud.callFunction({
@@ -144,12 +153,12 @@ export default {
           that.coachLeft = 0
           that.timesLeft = 0
           that.groupLeft = 0
-          that.timeCardCount = 0
+          that.timeCardDays = 0
           list.forEach(function (c) {
             if (c.type === 'coach') that.coachLeft += Number(c.remainingTimes || 0)
             if (c.type === 'times') that.timesLeft += Number(c.remainingTimes || 0)
             if (c.type === 'group') that.groupLeft += Number(c.remainingTimes || 0)
-            if (c.type === 'time') that.timeCardCount += 1
+            if (c.type === 'time') that.timeCardDays += that.remainDays(c)
           })
         }
       })
@@ -213,6 +222,7 @@ export default {
 .stat { flex: 1; text-align: center; border-right: 1rpx solid #eee; }
 .stat:last-child { border-right: none; }
 .stat-n { font-size: 36rpx; font-weight: 700; color: #111; }
+.unit { font-size: 20rpx; font-weight: 600; color: #888; margin-left: 2rpx; }
 .stat-l { font-size: 20rpx; color: #999; margin-top: 8rpx; }
 .action-row { display: flex; gap: 16rpx; margin-bottom: 24rpx; }
 .action { flex: 1; background: #fff; border-radius: 16rpx; padding: 28rpx; min-height: 160rpx; position: relative; }

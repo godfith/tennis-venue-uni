@@ -22,7 +22,9 @@
           <view v-if="isTimesLike(item.type)" class="times">
             剩余 <text class="num">{{ item.remainingTimes }}</text> / {{ item.totalTimes }} 次
           </view>
-          <view v-else class="times">时间卡</view>
+          <view v-else class="times">
+            剩余 <text class="num">{{ remainDays(item) }}</text> 天
+          </view>
           <view class="valid" v-if="item.validFrom || item.validTo">
             有效期：{{ item.validFrom || '不限' }} ~ {{ item.validTo || '不限' }}
           </view>
@@ -54,10 +56,24 @@ export default {
     statusLabel(s) {
       return { active: '可用', used_up: '已用完', refunded: '已退卡', disabled: '停用' }[s] || s
     },
+    remainDays(item) {
+      if (!item || !item.validTo) return 0
+      var t = new Date(String(item.validTo).slice(0, 10).replace(/-/g, '/'))
+      var now = new Date()
+      now.setHours(0, 0, 0, 0)
+      t.setHours(0, 0, 0, 0)
+      var d = Math.round((t.getTime() - now.getTime()) / 86400000)
+      return d > 0 ? d : 0
+    },
     cardClass(item) {
-      if (item.status === 'active') return 'ok'
-      if (item.status === 'refunded') return 'refund'
-      return 'off'
+      var st = item.status === 'active' ? '' : (item.status === 'refunded' ? ' refund' : ' off')
+      var tp = {
+        coach: 'c-coach',
+        times: 'c-times',
+        group: 'c-group',
+        time: 'c-time'
+      }[item.type] || 'c-times'
+      return tp + st
     },
     loadCards() {
       const userDocId = uni.getStorageSync('userDocId') || ''
@@ -130,15 +146,12 @@ export default {
   position: relative;
   overflow: hidden;
 }
-.card.ok {
-  background: linear-gradient(135deg, #1a5c3a, #2d8a5e);
-}
-.card.off {
-  background: linear-gradient(135deg, #888, #aaa);
-}
-.card.refund {
-  background: linear-gradient(135deg, #999, #bbb);
-}
+.card.c-coach { background: linear-gradient(135deg, #1e4870, #3a6ea0); }
+.card.c-times { background: linear-gradient(135deg, #2d6a4f, #52b788); }
+.card.c-group { background: linear-gradient(135deg, #7b2d3b, #c45c6a); }
+.card.c-time { background: linear-gradient(135deg, #8a5a12, #d4a017); }
+.card.off { background: linear-gradient(135deg, #888, #aaa) !important; }
+.card.refund { background: linear-gradient(135deg, #999, #bbb) !important; }
 .card-top {
   display: flex;
   justify-content: space-between;
