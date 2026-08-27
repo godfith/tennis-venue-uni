@@ -17,17 +17,17 @@
 
       <view class="triple">
         <view class="t-item" @tap="goMyCards">
-          <image class="t-ico" src="/static/images/ui/ico-card.png"></image>
+          <image class="t-ico" src="/static/images/tab/ico-card.png"></image>
           <view class="t-n">卡</view>
           <view class="t-l">卡券</view>
         </view>
         <view class="t-item" @tap="goMyBooking">
-          <image class="t-ico" src="/static/images/ui/ico-book.png"></image>
+          <image class="t-ico" src="/static/images/tab/ico-book.png"></image>
           <view class="t-n">约</view>
           <view class="t-l">预约</view>
         </view>
         <view class="t-item" @tap="goMyCards">
-          <image class="t-ico" src="/static/images/ui/ico-member.png"></image>
+          <image class="t-ico" src="/static/images/tab/ico-member.png"></image>
           <view class="t-n">会</view>
           <view class="t-l">会员卡</view>
         </view>
@@ -138,7 +138,7 @@ export default {
 .since.muted { color: #bbb; }
 .triple { display: flex; background: #fff; padding: 8rpx 0 32rpx; margin-bottom: 16rpx; }
 .t-item { flex: 1; text-align: center; }
-.t-ico { width: 52rpx; height: 52rpx; margin-bottom: 4rpx; }
+.t-ico { width: 56rpx; height: 56rpx; margin-bottom: 6rpx; }
 .t-n { font-size: 32rpx; font-weight: 700; color: #1e4870; }
 .t-l { font-size: 22rpx; color: #999; margin-top: 4rpx; }
 .menu { background: #fff; }
