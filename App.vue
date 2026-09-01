@@ -25,11 +25,10 @@ export default {
       console.error('请使用 2.2.3 或以上的基础库以使用云能力')
     } else {
       wx.cloud.init({
-        env: 'cloud1-d0gmljq45868f5766',
+        env: 'cloud1-d3g0pb1qk028e3585',
         traceUser: true
       })
     }
-    // 启动时检查登录
     setTimeout(goLoginIfNeeded, 50)
   },
   onShow() {
