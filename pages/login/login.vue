@@ -44,6 +44,8 @@
 </template>
 
 <script>
+import { callCloud } from '@/utils/api'
+
 export default {
   data() {
     return {
@@ -67,29 +69,40 @@ export default {
     this.ensureOpenid()
   },
   methods: {
-    ensureOpenid() {
+    wxLoginCode() {
+      return new Promise(function (resolve) {
+        wx.login({
+          success: function (r) {
+            resolve((r && r.code) || '')
+          },
+          fail: function () {
+            resolve('')
+          }
+        })
+      })
+    },
+    async ensureOpenid() {
       const local = uni.getStorageSync('openid')
       if (local) {
         this.openid = local
-        return Promise.resolve(local)
+        return local
       }
-      return wx.cloud
-        .callFunction({
+      try {
+        const code = await this.wxLoginCode()
+        const res = await callCloud({
           name: 'login',
-          data: { action: 'openid' }
+          data: { action: 'openid', code: code }
         })
-        .then((res) => {
-          const openid = res.result && res.result.openid
-          if (openid) {
-            this.openid = openid
-            uni.setStorageSync('openid', openid)
-          }
-          return openid
-        })
-        .catch((err) => {
-          console.error(err)
-          return ''
-        })
+        const openid = res.result && res.result.openid
+        if (openid) {
+          this.openid = openid
+          uni.setStorageSync('openid', openid)
+        }
+        return openid || ''
+      } catch (err) {
+        console.error(err)
+        return ''
+      }
     },
     onChooseAvatar(e) {
       this.avatarUrl = e.detail.avatarUrl || ''
@@ -119,17 +132,16 @@ export default {
       this.loading = true
       try {
         await this.ensureOpenid()
-        if (!this.openid) {
-          uni.showToast({ title: '登录标识获取失败', icon: 'none' })
-          return
-        }
-        const res = await wx.cloud.callFunction({
+        const code = await this.wxLoginCode()
+        const res = await callCloud({
           name: 'login',
           data: {
             action: 'register',
+            code: code,
             nickName: this.nickName,
             avatarUrl: this.avatarUrl,
-            phone: this.phone
+            phone: this.phone,
+            openid: this.openid || ''
           }
         })
         const result = res.result || {}
@@ -142,7 +154,7 @@ export default {
         uni.setStorageSync('phone', result.phone || this.phone)
         uni.setStorageSync('openid', result.openid || this.openid)
         uni.setStorageSync('userId', result.userId || '')
-        uni.setStorageSync('userDocId', result.userDocId || '')
+        uni.setStorageSync('userDocId', result.userDocId || result.userId || '')
         uni.setStorageSync('role', result.role || 'user')
         uni.showToast({ title: '登录成功', icon: 'success' })
         setTimeout(() => {

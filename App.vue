@@ -1,4 +1,6 @@
 <script>
+import { installHttpCloud } from '@/utils/api'
+
 function needLogin() {
   const nickName = uni.getStorageSync('nickName')
   const phone = uni.getStorageSync('phone')
@@ -21,17 +23,11 @@ function goLoginIfNeeded() {
 
 export default {
   onLaunch() {
-    if (!wx.cloud) {
-      console.error('请使用 2.2.3 或以上的基础库以使用云能力')
-    } else {
-      wx.cloud.init({
-        env: 'cloud1-d3g0pb1qk028e3585-d862bc2',
-        traceUser: true
-      })
-    }
+    installHttpCloud()
     setTimeout(goLoginIfNeeded, 50)
   },
   onShow() {
+    installHttpCloud()
     setTimeout(goLoginIfNeeded, 50)
   },
   globalData: {}
