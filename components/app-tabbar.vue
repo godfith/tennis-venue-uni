@@ -81,7 +81,7 @@ export default {
   margin-bottom: 4rpx;
 }
 .goat-tb-lab {
-  font-size: 20rpx;
+  font-size: 24rpx;
   color: #8aa0b0;
   line-height: 1.2;
 }

@@ -58,5 +58,7 @@ page {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+  font-size: 28rpx;
+  color: #333;
 }
 </style>
