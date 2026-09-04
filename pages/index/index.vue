@@ -190,38 +190,38 @@ export default {
 .hero { height: 360rpx; position: relative; }
 .hero-image { width: 100%; height: 100%; display: block; }
 .hero-mask { position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: linear-gradient(180deg, rgba(30,72,112,.08), rgba(30,72,112,.42)); }
-.hero-brand { position: absolute; left: 40rpx; bottom: 88rpx; color: #fff; letter-spacing: 8rpx; font-size: 22rpx; font-weight: 600; }
-.hero-name { position: absolute; left: 40rpx; bottom: 36rpx; color: #fff; font-size: 40rpx; font-weight: 700; }
+.hero-brand { position: absolute; left: 40rpx; bottom: 88rpx; color: #fff; letter-spacing: 8rpx; font-size: 24rpx; font-weight: 600; }
+.hero-name { position: absolute; left: 40rpx; bottom: 36rpx; color: #fff; font-size: 44rpx; font-weight: 700; }
 .sheet { margin-top: -28rpx; background: #f4f2ee; border-radius: 28rpx 28rpx 0 0; padding: 36rpx 28rpx 40rpx; position: relative; }
 .hello-row { display: flex; align-items: center; margin-bottom: 28rpx; }
 .avatar { width: 88rpx; height: 88rpx; border-radius: 50%; margin-right: 20rpx; background: #ddd; }
 .hello-txt { flex: 1; }
-.hi { font-size: 34rpx; font-weight: 700; color: #1e4870; }
-.no { font-size: 22rpx; color: #999; margin-top: 6rpx; }
+.hi { font-size: 38rpx; font-weight: 700; color: #1e4870; }
+.no { font-size: 26rpx; color: #999; margin-top: 6rpx; }
 .points { text-align: right; }
-.p-lab { font-size: 20rpx; color: #999; }
-.p-num { font-size: 40rpx; font-weight: 700; color: #1e4870; }
+.p-lab { font-size: 24rpx; color: #999; }
+.p-num { font-size: 44rpx; font-weight: 700; color: #1e4870; }
 .member-card { background: #1e4870; border-radius: 20rpx; padding: 32rpx; display: flex; color: #fff; margin-bottom: 24rpx; }
 .mc-left { flex: 1; }
-.mc-kicker { font-size: 20rpx; letter-spacing: 3rpx; opacity: .7; }
-.mc-level { font-size: 40rpx; font-weight: 700; margin: 10rpx 0 16rpx; }
-.mc-tip { font-size: 22rpx; opacity: .75; }
+.mc-kicker { font-size: 22rpx; letter-spacing: 3rpx; opacity: .7; }
+.mc-level { font-size: 44rpx; font-weight: 700; margin: 10rpx 0 16rpx; }
+.mc-tip { font-size: 26rpx; opacity: .75; }
 .mc-badge { width: 220rpx; background: rgba(255,255,255,.08); border-radius: 16rpx; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.mc-club { font-size: 24rpx; font-weight: 600; }
-.mc-sub { font-size: 18rpx; letter-spacing: 4rpx; opacity: .6; margin-top: 8rpx; }
+.mc-club { font-size: 26rpx; font-weight: 600; }
+.mc-sub { font-size: 20rpx; letter-spacing: 4rpx; opacity: .6; margin-top: 8rpx; }
 .stat-row { background: #fff; border-radius: 16rpx; display: flex; padding: 28rpx 0; margin-bottom: 24rpx; }
 .stat { flex: 1; text-align: center; border-right: 1rpx solid #eee; }
 .stat:last-child { border-right: none; }
-.stat-n { font-size: 36rpx; font-weight: 700; color: #111; }
-.unit { font-size: 20rpx; font-weight: 600; color: #888; margin-left: 2rpx; }
-.stat-l { font-size: 20rpx; color: #999; margin-top: 8rpx; }
+.stat-n { font-size: 40rpx; font-weight: 700; color: #111; }
+.unit { font-size: 22rpx; font-weight: 600; color: #888; margin-left: 2rpx; }
+.stat-l { font-size: 24rpx; color: #999; margin-top: 8rpx; }
 .action-row { display: flex; gap: 16rpx; margin-bottom: 24rpx; }
 .action { flex: 1; background: #fff; border-radius: 16rpx; padding: 28rpx; min-height: 160rpx; position: relative; }
-.action-title { font-size: 30rpx; font-weight: 700; color: #1e4870; }
-.action-en { font-size: 18rpx; color: #aaa; letter-spacing: 2rpx; margin-top: 8rpx; }
+.action-title { font-size: 34rpx; font-weight: 700; color: #1e4870; }
+.action-en { font-size: 20rpx; color: #aaa; letter-spacing: 2rpx; margin-top: 8rpx; }
 .action-icon { position: absolute; right: 24rpx; bottom: 20rpx; font-size: 44rpx; }
 .venue-bar { background: #fff; border-radius: 16rpx; padding: 24rpx 28rpx; display: flex; align-items: center; justify-content: space-between; }
-.v-lab { font-size: 20rpx; color: #999; }
-.v-name { font-size: 28rpx; font-weight: 600; color: #1e4870; margin-top: 6rpx; }
-.v-sw { font-size: 24rpx; color: #1e4870; font-weight: 600; }
+.v-lab { font-size: 24rpx; color: #999; }
+.v-name { font-size: 32rpx; font-weight: 600; color: #1e4870; margin-top: 6rpx; }
+.v-sw { font-size: 26rpx; color: #1e4870; font-weight: 600; }
 </style>
