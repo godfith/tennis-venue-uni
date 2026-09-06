@@ -67,11 +67,20 @@
         <view class="sheet-title">选择支付方式</view>
         <view class="sheet-sub">{{ currentCourtName }} · {{ currentDate }} {{ currentTime }}</view>
         <view class="sheet-price" v-if="currentPrice > 0">场地参考价 ¥{{ currentPrice }}</view>
-        <view class="card-option" :class="selectedCardId === '' ? 'on' : ''" @tap="selectedCardId = ''">
-          <view class="co-name">到店支付</view>
-          <view class="co-meta" v-if="currentPrice > 0">应付约 ¥{{ currentPrice }}</view>
+        <view
+          v-if="currentPrice > 0 && canWxPay"
+          class="card-option"
+          :class="payWay === 'wx' ? 'on' : ''"
+          @tap="pickWxPay"
+        >
+          <view class="co-name">微信支付</view>
+          <view class="co-meta">在线支付 ¥{{ currentPrice }}</view>
         </view>
-        <view v-for="c in usableCards" :key="c._id" class="card-option" :class="selectedCardId === c._id ? 'on' : ''" @tap="selectedCardId = c._id">
+        <view class="card-option" :class="payWay === 'shop' && selectedCardId === '' ? 'on' : ''" @tap="pickShopPay">
+          <view class="co-name">到店支付</view>
+          <view class="co-meta" v-if="currentPrice > 0">到店应付约 ¥{{ currentPrice }}</view>
+        </view>
+        <view v-for="c in usableCards" :key="c._id" class="card-option" :class="payWay === 'card' && selectedCardId === c._id ? 'on' : ''" @tap="pickCardPay(c._id)">
           <view class="co-name">{{ c.cardName }}</view>
           <view class="co-meta">{{ cardMeta(c) }}</view>
         </view>
@@ -103,6 +112,7 @@ export default {
       cardLoading: false,
       myCards: [],
       selectedCardId: '',
+      payWay: 'shop',
       priceMap: {},
       allTimes: [
         { time: '08:00-09:00', short: '08:00', hour: 8 },
@@ -123,6 +133,9 @@ export default {
     currentPrice() {
       if (!this.currentCourtName || !this.currentTime) return 0
       return Number(this.priceMap[this.currentCourtName + '_' + this.currentTime] || 0)
+    },
+    canWxPay() {
+      return uni.getStorageSync('venue_id') === 'venue_chenjiaci'
     },
     usableCards() {
       var that = this
@@ -355,6 +368,7 @@ export default {
         return
       }
       this.selectedCardId = ''
+      this.payWay = this.canWxPay && this.currentPrice > 0 ? 'wx' : 'shop'
       this.cardSheetVisible = true
       this.loadMyCards()
     },
@@ -369,13 +383,26 @@ export default {
         complete: function () { that.cardLoading = false }
       })
     },
+    pickWxPay() {
+      this.payWay = 'wx'
+      this.selectedCardId = ''
+    },
+    pickShopPay() {
+      this.payWay = 'shop'
+      this.selectedCardId = ''
+    },
+    pickCardPay(id) {
+      this.payWay = 'card'
+      this.selectedCardId = id
+    },
     submitBook() {
       var that = this
       var nickName = uni.getStorageSync('nickName') || ''
       var phone = uni.getStorageSync('phone') || ''
       var userDocId = uni.getStorageSync('userDocId') || ''
+      var openid = uni.getStorageSync('openid') || ''
       var sel = null
-      if (that.selectedCardId) {
+      if (that.payWay === 'card' && that.selectedCardId) {
         sel = (that.myCards || []).find(function (c) { return c._id === that.selectedCardId })
         if (!sel) {
           uni.showToast({ title: '请重新选择会员卡', icon: 'none' })
@@ -383,39 +410,100 @@ export default {
         }
       }
       that.booking = true
-      wx.cloud.callFunction({
-        name: 'userApi',
-        data: {
-          action: 'createBooking',
+      function doCreate(payNo) {
+        wx.cloud.callFunction({
+          name: 'userApi',
           data: {
+            action: 'createBooking',
+            data: {
+              court: that.currentCourtName,
+              date: that.currentDate,
+              time: that.currentTime,
+              venueId: uni.getStorageSync('venue_id') || '',
+              venueName: uni.getStorageSync('venue_name') || '',
+              userName: nickName,
+              phone: phone,
+              userId: userDocId,
+              cardId: sel ? sel._id : '',
+              cardName: sel ? sel.cardName : '',
+              cardType: sel ? sel.type : '',
+              payOrderNo: payNo || ''
+            }
+          }
+        }).then(function (r) {
+          var result = r.result || {}
+          if (!result.ok) {
+            uni.showToast({ title: result.msg || '预约失败', icon: 'none' })
+            return
+          }
+          uni.showToast({ title: '预约成功', icon: 'success' })
+          that.cardSheetVisible = false
+          that.currentTime = ''
+          that.loadCourtStatus(that.currentDate)
+        }).catch(function () {
+          uni.showToast({ title: '预约失败', icon: 'none' })
+        }).finally(function () {
+          that.booking = false
+        })
+      }
+      if (that.payWay === 'wx') {
+        if (!that.canWxPay) {
+          uni.showToast({ title: '该店暂未开通线上支付', icon: 'none' })
+          that.booking = false
+          return
+        }
+        if (!openid) {
+          uni.showToast({ title: '登录信息不完整，请重新登录', icon: 'none' })
+          that.booking = false
+          return
+        }
+        if (!(that.currentPrice > 0)) {
+          uni.showToast({ title: '该时段未定价，请到店或用卡', icon: 'none' })
+          that.booking = false
+          return
+        }
+        wx.cloud.callFunction({
+          name: 'pay',
+          data: {
+            action: 'createCourtPay',
+            venueId: uni.getStorageSync('venue_id') || '',
+            venueName: uni.getStorageSync('venue_name') || '',
             court: that.currentCourtName,
             date: that.currentDate,
             time: that.currentTime,
-            venueId: uni.getStorageSync('venue_id') || '',
-            venueName: uni.getStorageSync('venue_name') || '',
-            userName: nickName,
-            phone: phone,
+            amount: that.currentPrice,
+            openid: openid,
             userId: userDocId,
-            cardId: sel ? sel._id : '',
-            cardName: sel ? sel.cardName : '',
-            cardType: sel ? sel.type : ''
+            userName: nickName,
+            phone: phone
           }
-        }
-      }).then(function (r) {
-        var result = r.result || {}
-        if (!result.ok) {
-          uni.showToast({ title: result.msg || '预约失败', icon: 'none' })
-          return
-        }
-        uni.showToast({ title: '预约成功', icon: 'success' })
-        that.cardSheetVisible = false
-        that.currentTime = ''
-        that.loadCourtStatus(that.currentDate)
-      }).catch(function () {
-        uni.showToast({ title: '预约失败', icon: 'none' })
-      }).finally(function () {
-        that.booking = false
-      })
+        }).then(function (r) {
+          var result = r.result || {}
+          if (!result.ok || !result.payParams) {
+            uni.showToast({ title: result.msg || '下单失败', icon: 'none' })
+            that.booking = false
+            return
+          }
+          var p = result.payParams
+          uni.requestPayment({
+            timeStamp: p.timeStamp,
+            nonceStr: p.nonceStr,
+            package: p.package,
+            signType: p.signType,
+            paySign: p.paySign,
+            success: function () { doCreate(result.outTradeNo) },
+            fail: function () {
+              uni.showToast({ title: '已取消支付', icon: 'none' })
+              that.booking = false
+            }
+          })
+        }).catch(function () {
+          uni.showToast({ title: '下单失败', icon: 'none' })
+          that.booking = false
+        })
+        return
+      }
+      doCreate('')
     }
   }
 }
