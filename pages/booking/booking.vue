@@ -68,17 +68,13 @@
         <view class="sheet-sub">{{ currentCourtName }} · {{ currentDate }} {{ currentTime }}</view>
         <view class="sheet-price" v-if="currentPrice > 0">场地参考价 ¥{{ currentPrice }}</view>
         <view
-          v-if="currentPrice > 0 && canWxPay"
+          v-if="currentPrice > 0"
           class="card-option"
           :class="payWay === 'wx' ? 'on' : ''"
           @tap="pickWxPay"
         >
           <view class="co-name">微信支付</view>
           <view class="co-meta">在线支付 ¥{{ currentPrice }}</view>
-        </view>
-        <view class="card-option" :class="payWay === 'shop' && selectedCardId === '' ? 'on' : ''" @tap="pickShopPay">
-          <view class="co-name">到店支付</view>
-          <view class="co-meta" v-if="currentPrice > 0">到店应付约 ¥{{ currentPrice }}</view>
         </view>
         <view v-for="c in usableCards" :key="c._id" class="card-option" :class="payWay === 'card' && selectedCardId === c._id ? 'on' : ''" @tap="pickCardPay(c._id)">
           <view class="co-name">{{ c.cardName }}</view>
@@ -112,7 +108,7 @@ export default {
       cardLoading: false,
       myCards: [],
       selectedCardId: '',
-      payWay: 'shop',
+      payWay: 'wx',
       priceMap: {},
       allTimes: [
         { time: '08:00-09:00', short: '08:00', hour: 8 },
@@ -133,9 +129,6 @@ export default {
     currentPrice() {
       if (!this.currentCourtName || !this.currentTime) return 0
       return Number(this.priceMap[this.currentCourtName + '_' + this.currentTime] || 0)
-    },
-    canWxPay() {
-      return uni.getStorageSync('venue_id') === 'venue_chenjiaci'
     },
     usableCards() {
       var that = this
@@ -368,7 +361,7 @@ export default {
         return
       }
       this.selectedCardId = ''
-      this.payWay = this.canWxPay && this.currentPrice > 0 ? 'wx' : 'shop'
+      this.payWay = this.currentPrice > 0 ? 'wx' : 'card'
       this.cardSheetVisible = true
       this.loadMyCards()
     },
@@ -385,10 +378,6 @@ export default {
     },
     pickWxPay() {
       this.payWay = 'wx'
-      this.selectedCardId = ''
-    },
-    pickShopPay() {
-      this.payWay = 'shop'
       this.selectedCardId = ''
     },
     pickCardPay(id) {
@@ -446,19 +435,15 @@ export default {
           that.booking = false
         })
       }
-      if (that.payWay === 'wx') {
-        if (!that.canWxPay) {
-          uni.showToast({ title: '该店暂未开通线上支付', icon: 'none' })
+      if (that.payWay !== 'card') {
+        that.payWay = 'wx'
+        if (!(that.currentPrice > 0)) {
+          uni.showToast({ title: '请选择会员卡', icon: 'none' })
           that.booking = false
           return
         }
         if (!openid) {
           uni.showToast({ title: '登录信息不完整，请重新登录', icon: 'none' })
-          that.booking = false
-          return
-        }
-        if (!(that.currentPrice > 0)) {
-          uni.showToast({ title: '该时段未定价，请到店或用卡', icon: 'none' })
           that.booking = false
           return
         }
