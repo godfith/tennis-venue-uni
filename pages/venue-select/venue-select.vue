@@ -2,7 +2,6 @@
   <view class="page">
     <view class="hero">
       <view class="logo-text">选择注册场馆</view>
-      <view class="logo-sub">这里只记你常去的店，方便后台管理。以后花地湾、陈家祠都能订场。</view>
     </view>
     <view class="card">
       <view v-if="loading" class="empty">加载场馆中...</view>
@@ -15,7 +14,6 @@
       >
         <view class="name">{{ v.name }}</view>
         <view class="addr" v-if="v.address">{{ v.address }}</view>
-        <view class="addr" v-else>点击选中，再点下方确认</view>
       </view>
       <view v-if="!loading && !list.length" class="empty">暂无场馆</view>
       <button class="submit-btn" :disabled="!picked" :loading="saving" @tap="askConfirm">确认注册场馆</button>
@@ -91,7 +89,6 @@ export default {
 .page { min-height: 100vh; background: linear-gradient(180deg, #1e4870 0%, #f4f2ee 42%); padding: 80rpx 40rpx 40rpx; box-sizing: border-box; }
 .hero { text-align: center; color: #fff; margin-bottom: 40rpx; }
 .logo-text { font-size: 44rpx; font-weight: 700; }
-.logo-sub { font-size: 26rpx; opacity: 0.85; margin-top: 12rpx; padding: 0 20rpx; line-height: 1.5; }
 .card { background: #fff; border-radius: 24rpx; padding: 28rpx 24rpx 36rpx; }
 .item { background: #f4f2ee; border-radius: 16rpx; padding: 28rpx 24rpx; margin-bottom: 16rpx; border: 2rpx solid transparent; }
 .item.on { border-color: #1e4870; background: #eef3f8; }
