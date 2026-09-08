@@ -1,8 +1,8 @@
 <template>
   <view class="page">
     <view class="hero">
-      <view class="logo-text">选择场馆</view>
-      <view class="logo-sub">登录后请先确认常去的店，订场和约教练都会记到这家</view>
+      <view class="logo-text">选择注册场馆</view>
+      <view class="logo-sub">这里只记你常去的店，方便后台管理。以后花地湾、陈家祠都能订场。</view>
     </view>
     <view class="card">
       <view v-if="loading" class="empty">加载场馆中...</view>
@@ -18,7 +18,7 @@
         <view class="addr" v-else>点击选中，再点下方确认</view>
       </view>
       <view v-if="!loading && !list.length" class="empty">暂无场馆</view>
-      <button class="submit-btn" :disabled="!picked" :loading="saving" @tap="askConfirm">确认进入</button>
+      <button class="submit-btn" :disabled="!picked" :loading="saving" @tap="askConfirm">确认注册场馆</button>
     </view>
   </view>
 </template>
@@ -51,8 +51,8 @@ export default {
       }
       var that = this
       uni.showModal({
-        title: '确认常去场馆',
-        content: '将「' + that.pickedName + '」设为你的注册场馆？订场、约教练和后台用户资料都会记在这家。',
+        title: '确认注册场馆',
+        content: '将「' + that.pickedName + '」记为你的注册店。以后仍可以到其他店订场、约教练。',
         confirmText: '确认',
         cancelText: '再想想',
         success: function (r) { if (r.confirm) that.saveVenue() }
@@ -61,10 +61,12 @@ export default {
     async saveVenue() {
       this.saving = true
       try {
-        uni.setStorageSync('venue_id', this.picked)
-        uni.setStorageSync('venue_name', this.pickedName)
         uni.setStorageSync('home_venue_id', this.picked)
         uni.setStorageSync('home_venue_name', this.pickedName)
+        if (!uni.getStorageSync('venue_id')) {
+          uni.setStorageSync('venue_id', this.picked)
+          uni.setStorageSync('venue_name', this.pickedName)
+        }
         await callCloud({
           name: 'login',
           data: {
