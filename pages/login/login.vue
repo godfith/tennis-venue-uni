@@ -6,7 +6,7 @@
     </view>
     <view class="card">
       <view class="title">会员登录</view>
-      <view class="desc">登录后先选择常去的场馆</view>
+      <view class="desc">登录后记录注册场馆，各店仍可订场</view>
       <button class="avatar-btn" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
         <image class="avatar" :src="avatarUrl || '/static/images/avatar.png'" mode="aspectFill" />
         <view class="avatar-tip">选择头像</view>
@@ -43,7 +43,7 @@ export default {
   },
   methods: {
     goAfterLogin() {
-      if (!uni.getStorageSync('venue_id')) {
+      if (!uni.getStorageSync('home_venue_id') && !uni.getStorageSync('venue_id')) {
         uni.redirectTo({ url: '/pages/venue-select/venue-select' })
         return
       }
@@ -109,8 +109,6 @@ export default {
         uni.setStorageSync('userDocId', result.userDocId || result.userId || '')
         uni.setStorageSync('role', result.role || 'user')
         if (result.venueId) {
-          uni.setStorageSync('venue_id', result.venueId)
-          uni.setStorageSync('venue_name', result.venueName || '')
           uni.setStorageSync('home_venue_id', result.venueId)
           uni.setStorageSync('home_venue_name', result.venueName || '')
         }
