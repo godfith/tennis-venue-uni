@@ -6,7 +6,6 @@
       <view class="hero-brand">GOAT TENNIS</view>
       <view class="hero-name">山羊Goat网球馆</view>
     </view>
-
     <view class="sheet">
       <view class="hello-row">
         <image class="avatar" :src="avatarUrl || '/static/images/avatar.png'" mode="aspectFill"></image>
@@ -19,7 +18,6 @@
           <view class="p-num">{{ cardCount }}</view>
         </view>
       </view>
-
       <view class="member-card" @tap="goMyCards">
         <view class="mc-left">
           <view class="mc-kicker">MEMBERSHIP</view>
@@ -31,7 +29,6 @@
           <view class="mc-sub">TENNIS</view>
         </view>
       </view>
-
       <view class="stat-row">
         <view class="stat" @tap="goCoach">
           <view class="stat-n">{{ coachCount }}<text class="unit">张</text></view>
@@ -50,7 +47,6 @@
           <view class="stat-l">时间卡</view>
         </view>
       </view>
-
       <view class="action-row">
         <view class="action" @tap="goBooking">
           <view class="action-title">立即订场</view>
@@ -63,7 +59,6 @@
           <view class="action-icon">🏆</view>
         </view>
       </view>
-
       <view class="venue-bar" @tap="showVenuePicker">
         <view>
           <view class="v-lab">当前场馆</view>
@@ -75,24 +70,15 @@
     <app-tabbar :current="0" />
   </view>
 </template>
-
 <script>
 import AppTabbar from '@/components/app-tabbar.vue'
 export default {
   components: { AppTabbar },
   data() {
     return {
-      venueList: [],
-      venueId: '',
-      venueName: '请选择场馆',
-      nickName: '',
-      phone: '',
-      avatarUrl: '',
-      cardCount: 0,
-      coachCount: 0,
-      timesCount: 0,
-      groupCount: 0,
-      timeCount: 0
+      venueList: [], venueId: '', venueName: '请选择场馆',
+      nickName: '', phone: '', avatarUrl: '',
+      cardCount: 0, coachCount: 0, timesCount: 0, groupCount: 0, timeCount: 0
     }
   },
   onShow() {
@@ -113,15 +99,13 @@ export default {
           var list = (res.result || {}).list || []
           that.venueList = list
           var id = uni.getStorageSync('venue_id')
-          var found = list.find(function (v) { return v.venueId === id })
+          var found = list.find(function (v) { return v.venueId === id || v._id === id })
           if (found) {
-            that.venueId = found.venueId
+            that.venueId = found.venueId || found._id
             that.venueName = found.name
-          } else if (list.length) {
-            that.venueId = list[0].venueId
-            that.venueName = list[0].name
-            uni.setStorageSync('venue_id', that.venueId)
-            uni.setStorageSync('venue_name', that.venueName)
+          } else {
+            that.venueId = ''
+            that.venueName = '请选择场馆'
           }
         }
       })
@@ -137,14 +121,9 @@ export default {
         name: 'userApi',
         data: { action: 'getMyCards', userId: userId },
         success: function (res) {
-          var list = ((res.result || {}).list || []).filter(function (c) {
-            return c.status === 'active'
-          })
+          var list = ((res.result || {}).list || []).filter(function (c) { return c.status === 'active' })
           that.cardCount = list.length
-          that.coachCount = 0
-          that.timesCount = 0
-          that.groupCount = 0
-          that.timeCount = 0
+          that.coachCount = that.timesCount = that.groupCount = that.timeCount = 0
           list.forEach(function (c) {
             if (c.type === 'coach') that.coachCount += 1
             else if (c.type === 'times') that.timesCount += 1
@@ -164,10 +143,19 @@ export default {
         itemList: that.venueList.map(function (v) { return v.name }),
         success: function (res) {
           var v = that.venueList[res.tapIndex]
-          that.venueId = v.venueId
-          that.venueName = v.name
-          uni.setStorageSync('venue_id', v.venueId)
-          uni.setStorageSync('venue_name', v.name)
+          uni.showModal({
+            title: '切换当前场馆',
+            content: '订场和约教练将记到「' + v.name + '」？',
+            confirmText: '确认',
+            cancelText: '取消',
+            success: function (r) {
+              if (!r.confirm) return
+              that.venueId = v.venueId || v._id
+              that.venueName = v.name
+              uni.setStorageSync('venue_id', that.venueId)
+              uni.setStorageSync('venue_name', v.name)
+            }
+          })
         }
       })
     },
@@ -184,7 +172,6 @@ export default {
   }
 }
 </script>
-
 <style>
 .page { min-height: 100vh; background: #f4f2ee; padding-bottom: 180rpx; }
 .hero { height: 360rpx; position: relative; }
