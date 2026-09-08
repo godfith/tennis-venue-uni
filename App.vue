@@ -7,28 +7,41 @@ function needLogin() {
   return !nickName || !phone
 }
 
-function goLoginIfNeeded() {
+function needVenue() {
+  return !uni.getStorageSync('venue_id')
+}
+
+function currentRoute() {
   try {
     const pages = getCurrentPages()
     const cur = pages && pages.length ? pages[pages.length - 1] : null
-    const route = cur ? cur.route || cur.__route__ : ''
-    if (route === 'pages/login/login') return
-    if (needLogin()) {
-      uni.reLaunch({ url: '/pages/login/login' })
-    }
+    return cur ? cur.route || cur.__route__ || '' : ''
   } catch (e) {
-    console.error(e)
+    return ''
+  }
+}
+
+function guard() {
+  const route = currentRoute()
+  if (route === 'pages/login/login') return
+  if (needLogin()) {
+    uni.reLaunch({ url: '/pages/login/login' })
+    return
+  }
+  if (route === 'pages/venue-select/venue-select') return
+  if (needVenue()) {
+    uni.reLaunch({ url: '/pages/venue-select/venue-select' })
   }
 }
 
 export default {
   onLaunch() {
     installHttpCloud()
-    setTimeout(goLoginIfNeeded, 50)
+    setTimeout(guard, 50)
   },
   onShow() {
     installHttpCloud()
-    setTimeout(goLoginIfNeeded, 50)
+    setTimeout(guard, 50)
   },
   globalData: {}
 }
