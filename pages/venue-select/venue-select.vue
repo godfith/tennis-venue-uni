@@ -6,17 +6,16 @@
     <view class="card">
       <view v-if="loading" class="empty">加载场馆中...</view>
       <view
-        v-for="v in list"
-        :key="v.venueId || v._id"
+        v-for="(v, idx) in list"
+        :key="idx"
         class="item"
-        :class="picked === (v.venueId || v._id) ? 'on' : ''"
-        @tap="pick(v)"
+        :class="pickedIndex === idx ? 'active' : ''"
+        @tap="onPick(idx)"
       >
         <view class="name">{{ v.name }}</view>
-        <view class="addr" v-if="v.address">{{ v.address }}</view>
       </view>
       <view v-if="!loading && !list.length" class="empty">暂无场馆</view>
-      <button class="submit-btn" :disabled="!picked" :loading="saving" @tap="askConfirm">确认注册场馆</button>
+      <view class="submit-btn" :class="pickedIndex < 0 ? 'off' : ''" @tap="askConfirm">确认注册场馆</view>
     </view>
   </view>
 </template>
@@ -24,46 +23,70 @@
 import { callCloud } from '@/utils/api'
 export default {
   data() {
-    return { list: [], picked: '', pickedName: '', loading: false, saving: false }
+    return {
+      list: [],
+      pickedIndex: -1,
+      loading: false,
+      saving: false
+    }
   },
-  onShow() { this.loadVenues() },
+  onShow() {
+    this.loadVenues()
+  },
   methods: {
+    venueIdOf(v) {
+      if (!v) return ''
+      return v.venueId || v._id || v.id || ''
+    },
     loadVenues() {
       var that = this
       that.loading = true
       wx.cloud.callFunction({
         name: 'userApi',
         data: { action: 'getVenues' },
-        success: function (res) { that.list = (res.result || {}).list || [] },
-        complete: function () { that.loading = false }
+        success: function (res) {
+          var raw = (res.result || {}).list || []
+          that.list = raw.map(function (v) {
+            return {
+              venueId: that.venueIdOf(v),
+              name: v.name || ''
+            }
+          })
+        },
+        complete: function () {
+          that.loading = false
+        }
       })
     },
-    pick(v) {
-      this.picked = v.venueId || v._id
-      this.pickedName = v.name
+    onPick(idx) {
+      this.pickedIndex = idx
     },
     askConfirm() {
-      if (!this.picked) {
+      if (this.saving) return
+      var v = this.list[this.pickedIndex]
+      if (!v || !v.venueId) {
         uni.showToast({ title: '请选择场馆', icon: 'none' })
         return
       }
       var that = this
       uni.showModal({
         title: '确认注册场馆',
-        content: '将「' + that.pickedName + '」记为你的注册店。以后仍可以到其他店订场、约教练。',
+        content: '将「' + v.name + '」记为你的注册店？',
         confirmText: '确认',
         cancelText: '再想想',
-        success: function (r) { if (r.confirm) that.saveVenue() }
+        success: function (r) {
+          if (r.confirm) that.saveVenue(v.venueId, v.name)
+        }
       })
     },
-    async saveVenue() {
+    async saveVenue(venueId, venueName) {
       this.saving = true
       try {
-        uni.setStorageSync('home_venue_id', this.picked)
-        uni.setStorageSync('home_venue_name', this.pickedName)
+        uni.setStorageSync('home_venue_id', venueId)
+        uni.setStorageSync('home_venue_name', venueName)
         if (!uni.getStorageSync('venue_id')) {
-          uni.setStorageSync('venue_id', this.picked)
-          uni.setStorageSync('venue_name', this.pickedName)
+          uni.setStorageSync('venue_id', venueId)
+          uni.setStorageSync('venue_name', venueName)
         }
         await callCloud({
           name: 'login',
@@ -71,8 +94,8 @@ export default {
             action: 'setVenue',
             userId: uni.getStorageSync('userDocId') || uni.getStorageSync('userId') || '',
             openid: uni.getStorageSync('openid') || '',
-            venueId: this.picked,
-            venueName: this.pickedName
+            venueId: venueId,
+            venueName: venueName
           }
         })
         uni.switchTab({ url: '/pages/index/index' })
@@ -91,10 +114,9 @@ export default {
 .logo-text { font-size: 44rpx; font-weight: 700; }
 .card { background: #fff; border-radius: 24rpx; padding: 28rpx 24rpx 36rpx; }
 .item { background: #f4f2ee; border-radius: 16rpx; padding: 28rpx 24rpx; margin-bottom: 16rpx; border: 2rpx solid transparent; }
-.item.on { border-color: #1e4870; background: #eef3f8; }
+.item.active { border-color: #1e4870; background: #eef3f8; }
 .name { font-size: 32rpx; font-weight: 700; color: #1e4870; }
-.addr { font-size: 24rpx; color: #888; margin-top: 8rpx; }
 .empty { text-align: center; color: #999; padding: 40rpx 0; }
-.submit-btn { width: 100%; height: 90rpx; line-height: 90rpx; margin-top: 20rpx; background: #1e4870 !important; color: #fff !important; border-radius: 16rpx; font-size: 32rpx; }
-.submit-btn[disabled] { opacity: 0.45; }
+.submit-btn { width: 100%; height: 90rpx; line-height: 90rpx; text-align: center; margin-top: 20rpx; background: #1e4870; color: #fff; border-radius: 16rpx; font-size: 32rpx; }
+.submit-btn.off { opacity: 0.45; }
 </style>
