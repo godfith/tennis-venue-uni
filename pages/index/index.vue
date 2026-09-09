@@ -30,7 +30,7 @@
         </view>
       </view>
       <view class="stat-row">
-        <view class="stat" @tap="goCoach">
+        <view class="stat" @tap="goMyCards">
           <view class="stat-n">{{ coachCount }}<text class="unit">张</text></view>
           <view class="stat-l">私教卡</view>
         </view>
@@ -53,9 +53,9 @@
           <view class="action-en">BOOK A COURT</view>
           <view class="action-icon">🎾</view>
         </view>
-        <view class="action" @tap="goCoach">
-          <view class="action-title">预约私教</view>
-          <view class="action-en">COACHING</view>
+        <view class="action" @tap="goGroup">
+          <view class="action-title">团课报名</view>
+          <view class="action-en">GROUP CLASS</view>
           <view class="action-icon">🏆</view>
         </view>
       </view>
@@ -145,7 +145,7 @@ export default {
           var v = that.venueList[res.tapIndex]
           uni.showModal({
             title: '切换当前场馆',
-            content: '订场和约教练将记到「' + v.name + '」？',
+            content: '订场和团课将记到「' + v.name + '」？',
             confirmText: '确认',
             cancelText: '取消',
             success: function (r) {
