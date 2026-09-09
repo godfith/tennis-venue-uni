@@ -416,7 +416,8 @@ export default {
               cardId: sel ? sel._id : '',
               cardName: sel ? sel.cardName : '',
               cardType: sel ? sel.type : '',
-              payOrderNo: payNo || ''
+              payOrderNo: payNo || '',
+              outTradeNo: payNo || ''
             }
           }
         }).then(function (r) {
