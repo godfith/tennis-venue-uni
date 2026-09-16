@@ -21,9 +21,10 @@ export default {
       pose: 0,
       poses: [
         '/static/images/pet/sit.png',
+        '/static/images/pet/lie.png',
         '/static/images/pet/jump.png',
-        '/static/images/pet/wink.png',
-        '/static/images/pet/lie.png'
+        '/static/images/pet/stand.png',
+        '/static/images/pet/run.png'
       ]
     }
   },
@@ -58,7 +59,7 @@ export default {
       this.pose = (this.pose + 1) % this.poses.length
       this.$nextTick(function () {
         that.hopping = true
-        that.line = LINES[Math.floor(Math.random() * LINES.length)]
+        that.line = LINES[that.pose] || LINES[Math.floor(Math.random() * LINES.length)]
         setTimeout(function () { that.hopping = false; that.line = '' }, 1400)
       })
     }
@@ -67,16 +68,16 @@ export default {
 </script>
 <style>
 .wrap { position: fixed; right: 8rpx; bottom: 190rpx; z-index: 999; pointer-events: none; }
-.pet { pointer-events: auto; width: 168rpx; height: 168rpx; position: relative; }
-.pic { width: 168rpx; height: 168rpx; display: block; background: transparent; }
+.pet { pointer-events: auto; width: 176rpx; height: 176rpx; position: relative; }
+.pic { width: 176rpx; height: 176rpx; display: block; background: transparent; }
 .pic.hop { animation: hop 0.45s ease; }
 @keyframes hop {
   0% { transform: translateY(0); }
-  40% { transform: translateY(-20rpx); }
+  40% { transform: translateY(-22rpx); }
   100% { transform: translateY(0); }
 }
 .bubble {
-  position: absolute; right: 160rpx; top: 18rpx;
+  position: absolute; right: 168rpx; top: 18rpx;
   background: #fff; color: #1e4870; font-size: 24rpx;
   padding: 10rpx 16rpx; border-radius: 18rpx;
   box-shadow: 0 6rpx 18rpx rgba(30,72,112,.12);
