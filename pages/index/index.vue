@@ -18,6 +18,16 @@
           <view class="p-num">{{ cardCount }}</view>
         </view>
       </view>
+      <view class="wallet-row">
+        <view class="wallet-item">
+          <view class="w-lab">现金余额</view>
+          <view class="w-num">¥{{ Number(balance).toFixed(2) }}</view>
+        </view>
+        <view class="wallet-item">
+          <view class="w-lab">积分</view>
+          <view class="w-num">{{ points || 0 }}</view>
+        </view>
+      </view>
       <view class="member-card" @tap="goMyCards">
         <view class="mc-left">
           <view class="mc-kicker">MEMBERSHIP</view>
@@ -78,7 +88,8 @@ export default {
     return {
       venueList: [], venueId: '', venueName: '请选择场馆',
       nickName: '', phone: '', avatarUrl: '',
-      cardCount: 0, coachCount: 0, timesCount: 0, groupCount: 0, timeCount: 0
+      balance: 0, points: 0, cardCount: 0,
+      coachCount: 0, timesCount: 0, groupCount: 0, timeCount: 0
     }
   },
   onShow() {
@@ -86,8 +97,11 @@ export default {
     this.nickName = uni.getStorageSync('nickName') || ''
     this.phone = uni.getStorageSync('phone') || ''
     this.avatarUrl = uni.getStorageSync('avatarUrl') || ''
+    this.balance = Number(uni.getStorageSync('balance') || 0)
+    this.points = Number(uni.getStorageSync('points') || 0)
     this.loadVenues()
     this.loadCards()
+    this.loadWallet()
   },
   methods: {
     loadVenues() {
@@ -110,6 +124,21 @@ export default {
         }
       })
     },
+    loadWallet() {
+      var that = this
+      wx.cloud.callFunction({
+        name: 'userApi',
+        data: { action: 'getWallet', userId: uni.getStorageSync('userDocId') || '', phone: uni.getStorageSync('phone') || '' },
+        success: function (res) {
+          var r = res.result || {}
+          if (!r.ok) return
+          that.balance = Number(r.balance) || 0
+          that.points = Number(r.points) || 0
+          uni.setStorageSync('balance', that.balance)
+          uni.setStorageSync('points', that.points)
+        }
+      })
+    },
     loadCards() {
       var that = this
       var userId = uni.getStorageSync('userDocId') || ''
@@ -119,7 +148,7 @@ export default {
       }
       wx.cloud.callFunction({
         name: 'userApi',
-        data: { action: 'getMyCards', userId: userId },
+        data: { action: 'getMyCards', userId: userId, phone: uni.getStorageSync('phone') || '' },
         success: function (res) {
           var list = ((res.result || {}).list || []).filter(function (c) { return c.status === 'active' })
           that.cardCount = list.length
@@ -134,10 +163,7 @@ export default {
       })
     },
     showVenuePicker() {
-      if (!this.venueList.length) {
-        uni.showToast({ title: '暂无场馆', icon: 'none' })
-        return
-      }
+      if (!this.venueList.length) { uni.showToast({ title: '暂无场馆', icon: 'none' }); return }
       var that = this
       uni.showActionSheet({
         itemList: that.venueList.map(function (v) { return v.name }),
@@ -145,9 +171,7 @@ export default {
           var v = that.venueList[res.tapIndex]
           uni.showModal({
             title: '切换当前场馆',
-            content: '订场和团课将记到「' + v.name + '」？',
-            confirmText: '确认',
-            cancelText: '取消',
+            content: '订场和约教练将记到「' + v.name + '」？',
             success: function (r) {
               if (!r.confirm) return
               that.venueId = v.venueId || v._id
@@ -163,10 +187,7 @@ export default {
     goCoach() { uni.navigateTo({ url: '/pages/coach/coach' }) },
     goGroup() { uni.navigateTo({ url: '/pages/group/group' }) },
     goMyCards() {
-      if (!this.nickName && !this.phone) {
-        uni.navigateTo({ url: '/pages/login/login' })
-        return
-      }
+      if (!this.nickName && !this.phone) { uni.navigateTo({ url: '/pages/login/login' }); return }
       uni.navigateTo({ url: '/pages/mycards/mycards' })
     }
   }
@@ -188,6 +209,10 @@ export default {
 .points { text-align: right; }
 .p-lab { font-size: 24rpx; color: #999; }
 .p-num { font-size: 44rpx; font-weight: 700; color: #1e4870; }
+.wallet-row { display: flex; gap: 16rpx; margin-bottom: 24rpx; }
+.wallet-item { flex: 1; background: #fff; border-radius: 16rpx; padding: 22rpx 24rpx; }
+.w-lab { font-size: 22rpx; color: #999; }
+.w-num { font-size: 36rpx; font-weight: 700; color: #1e4870; margin-top: 6rpx; }
 .member-card { background: #1e4870; border-radius: 20rpx; padding: 32rpx; display: flex; color: #fff; margin-bottom: 24rpx; }
 .mc-left { flex: 1; }
 .mc-kicker { font-size: 22rpx; letter-spacing: 3rpx; opacity: .7; }
