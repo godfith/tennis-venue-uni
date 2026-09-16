@@ -12,35 +12,26 @@
     </view>
   </view>
 </template>
-
 <script>
-var frames = require('./pet-frames.js')
+var frames = {
+  sit: require('./pet-frame-sit.js'),
+  jump: require('./pet-frame-jump.js'),
+  wink: require('./pet-frame-wink.js'),
+  lie: require('./pet-frame-lie.js')
+}
 var LINES = {
   jump: '发球！',
   wink: '嘿嘿～',
   lie: '歇一会儿',
   sit: '要订场吗'
 }
-
 export default {
   data() {
-    return {
-      pose: 'sit',
-      line: '',
-      ox: 0,
-      oy: 0,
-      startX: 0,
-      startY: 0,
-      moved: false
-    }
+    return { pose: 'sit', line: '', ox: 0, oy: 0, startX: 0, startY: 0, moved: false }
   },
   computed: {
-    pic() {
-      return frames[this.pose] || frames.sit
-    },
-    boxStyle() {
-      return 'transform:translate(' + this.ox + 'px,' + this.oy + 'px)'
-    }
+    pic() { return frames[this.pose] || frames.sit },
+    boxStyle() { return 'transform:translate(' + this.ox + 'px,' + this.oy + 'px)' }
   },
   methods: {
     onStart(e) {
@@ -70,34 +61,15 @@ export default {
       this.pose = next
       this.line = LINES[next]
       var that = this
-      setTimeout(function () {
-        that.pose = 'sit'
-        that.line = ''
-      }, 1600)
+      setTimeout(function () { that.pose = 'sit'; that.line = '' }, 1600)
     }
   }
 }
 </script>
-
 <style>
-.wrap {
-  position: fixed;
-  right: 8rpx;
-  bottom: 190rpx;
-  z-index: 999;
-  pointer-events: none;
-}
-.pet {
-  pointer-events: auto;
-  width: 160rpx;
-  height: 160rpx;
-  position: relative;
-}
-.pic {
-  width: 160rpx;
-  height: 160rpx;
-  display: block;
-}
+.wrap { position: fixed; right: 8rpx; bottom: 190rpx; z-index: 999; pointer-events: none; }
+.pet { pointer-events: auto; width: 160rpx; height: 160rpx; position: relative; }
+.pic { width: 160rpx; height: 160rpx; display: block; }
 .pic.jump { animation: hop 0.5s ease; }
 @keyframes hop {
   0% { transform: translateY(0); }
@@ -105,14 +77,9 @@ export default {
   100% { transform: translateY(0); }
 }
 .bubble {
-  position: absolute;
-  right: 150rpx;
-  top: 16rpx;
-  background: #fff;
-  color: #1e4870;
-  font-size: 24rpx;
-  padding: 10rpx 16rpx;
-  border-radius: 18rpx;
+  position: absolute; right: 150rpx; top: 16rpx;
+  background: #fff; color: #1e4870; font-size: 24rpx;
+  padding: 10rpx 16rpx; border-radius: 18rpx;
   box-shadow: 0 6rpx 18rpx rgba(30,72,112,.12);
   white-space: nowrap;
 }
