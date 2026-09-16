@@ -1,77 +1,119 @@
 <template>
-  <view class="pet" :class="{ hide: hidden }">
+  <view class="wrap">
     <view
-      class="ball"
-      :class="pose"
-      :style="{ left: x + 'px', top: y + 'px' }"
-      @tap.stop="poke"
-      @longpress.stop="toggleHide"
-      @touchstart.stop="onStart"
-      @touchmove.stop.prevent="onDrag"
+      class="pet"
+      :style="boxStyle"
+      @touchstart="onStart"
+      @touchmove.stop.prevent="onMove"
+      @touchend="onEnd"
     >
-      <text class="emoji">🐐</text>
       <view class="bubble" v-if="line">{{ line }}</view>
+      <image class="pic" :class="pose" :src="pic" mode="aspectFit" />
     </view>
   </view>
 </template>
+
 <script>
-var LINES = ['咩～', '要订场吗', '点我干嘛', '打网球去', '嘿嘿']
+var frames = require('./pet-frames.js')
+var LINES = {
+  jump: '发球！',
+  wink: '嘿嘿～',
+  lie: '歇一会儿',
+  sit: '要订场吗'
+}
+
 export default {
   data() {
-    return { x: 0, y: 0, pose: '', line: '', hidden: false, startX: 0, startY: 0 }
+    return {
+      pose: 'sit',
+      line: '',
+      ox: 0,
+      oy: 0,
+      startX: 0,
+      startY: 0,
+      moved: false
+    }
   },
-  mounted() {
-    try {
-      var s = uni.getSystemInfoSync()
-      this.x = (s.windowWidth || 320) - 78
-      this.y = (s.windowHeight || 640) - 210
-    } catch (e) {
-      this.x = 260
-      this.y = 500
+  computed: {
+    pic() {
+      return frames[this.pose] || frames.sit
+    },
+    boxStyle() {
+      return 'transform:translate(' + this.ox + 'px,' + this.oy + 'px)'
     }
   },
   methods: {
-    poke() {
-      if (this.hidden) { this.hidden = false; return }
-      this.line = LINES[Math.floor(Math.random() * LINES.length)]
-      this.pose = 'bounce'
-      var that = this
-      setTimeout(function () { that.pose = ''; that.line = '' }, 1200)
-    },
-    toggleHide() { this.hidden = true; this.line = '' },
     onStart(e) {
       var t = e.touches && e.touches[0]
       if (!t) return
-      this.startX = t.clientX - this.x
-      this.startY = t.clientY - this.y
+      this.startX = t.clientX
+      this.startY = t.clientY
+      this.moved = false
     },
-    onDrag(e) {
+    onMove(e) {
       var t = e.touches && e.touches[0]
       if (!t) return
-      this.x = Math.max(0, t.clientX - this.startX)
-      this.y = Math.max(40, t.clientY - this.startY)
+      var dx = t.clientX - this.startX
+      var dy = t.clientY - this.startY
+      if (Math.abs(dx) + Math.abs(dy) > 8) this.moved = true
+      if (this.moved) {
+        this.ox += dx
+        this.oy += dy
+        this.startX = t.clientX
+        this.startY = t.clientY
+      }
+    },
+    onEnd() {
+      if (this.moved) return
+      var keys = ['jump', 'wink', 'lie']
+      var next = keys[Math.floor(Math.random() * keys.length)]
+      this.pose = next
+      this.line = LINES[next]
+      var that = this
+      setTimeout(function () {
+        that.pose = 'sit'
+        that.line = ''
+      }, 1600)
     }
   }
 }
 </script>
+
 <style>
-.pet { position: fixed; left: 0; top: 0; z-index: 90; pointer-events: none; }
-.pet.hide .ball { transform: scale(0.4); opacity: 0.4; }
-.ball {
-  position: absolute; width: 64px; height: 64px;
-  pointer-events: auto; display: flex; align-items: center; justify-content: center;
+.wrap {
+  position: fixed;
+  right: 8rpx;
+  bottom: 190rpx;
+  z-index: 999;
+  pointer-events: none;
 }
-.emoji { font-size: 52px; line-height: 64px; }
-.ball.bounce .emoji { animation: hop 0.45s ease; }
+.pet {
+  pointer-events: auto;
+  width: 160rpx;
+  height: 160rpx;
+  position: relative;
+}
+.pic {
+  width: 160rpx;
+  height: 160rpx;
+  display: block;
+}
+.pic.jump { animation: hop 0.5s ease; }
 @keyframes hop {
-  0% { transform: scale(1); }
-  40% { transform: scale(1.18) translateY(-8px); }
-  100% { transform: scale(1); }
+  0% { transform: translateY(0); }
+  45% { transform: translateY(-18rpx); }
+  100% { transform: translateY(0); }
 }
 .bubble {
-  position: absolute; right: 62px; top: 8px;
-  background: #fff; color: #333; font-size: 24rpx;
-  padding: 8rpx 16rpx; border-radius: 20rpx; white-space: nowrap;
-  box-shadow: 0 4rpx 16rpx rgba(0,0,0,.08);
+  position: absolute;
+  right: 150rpx;
+  top: 16rpx;
+  background: #fff;
+  color: #1e4870;
+  font-size: 24rpx;
+  padding: 10rpx 16rpx;
+  border-radius: 18rpx;
+  box-shadow: 0 6rpx 18rpx rgba(30,72,112,.12);
+  white-space: nowrap;
 }
 </style>
