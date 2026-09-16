@@ -7,7 +7,7 @@
   </view>
 </template>
 <script>
-var LINES = ['要订场吗', '发球！', '嘿嘿～', '歇一会儿', '今天状态不错']
+var LINES = ['要订场吗', '歇一会儿', '嘿嘿～', '发球！', '今天状态不错']
 export default {
   data() {
     return {
@@ -20,11 +20,11 @@ export default {
       hopping: false,
       pose: 0,
       poses: [
-        '/static/images/pet/sit.png',
-        '/static/images/pet/lie.png',
-        '/static/images/pet/jump.png',
-        '/static/images/pet/stand.png',
-        '/static/images/pet/run.png'
+        require('./pet-frame-sit.js'),
+        require('./pet-frame-lie.js'),
+        require('./pet-frame-jump.js'),
+        require('./pet-frame-stand.js'),
+        require('./pet-frame-run.js')
       ]
     }
   },
