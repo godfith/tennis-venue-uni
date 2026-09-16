@@ -3,7 +3,7 @@
     <block v-if="!isLogin">
       <view class="login-box">
         <view class="login-title">成为 Goat 会员</view>
-        <view class="login-desc">登录后可订场、约教练、查看会员卡</view>
+        <view class="login-desc">登录后可订场、查看余额和会员卡</view>
         <button class="login-btn" @tap="goLogin">去登录</button>
       </view>
     </block>
@@ -13,6 +13,19 @@
         <view class="name">{{ nickName }}</view>
         <view class="since" v-if="phone">{{ phone }}</view>
         <view class="since muted">山羊Goat网球馆会员</view>
+      </view>
+
+      <view class="wallet">
+        <view class="w-item">
+          <view class="w-lab">现金余额</view>
+          <view class="w-num">¥{{ Number(balance).toFixed(2) }}</view>
+          <view class="w-tip">订场可直接抵扣</view>
+        </view>
+        <view class="w-item">
+          <view class="w-lab">积分</view>
+          <view class="w-num">{{ points || 0 }}</view>
+          <view class="w-tip">暂不抵扣</view>
+        </view>
       </view>
 
       <view class="triple">
@@ -78,12 +91,15 @@ export default {
       avatarUrl: '',
       nickName: '',
       phone: '',
-      role: 'user'
+      role: 'user',
+      balance: 0,
+      points: 0
     }
   },
   onShow() {
     try { uni.hideTabBar({ animation: false }) } catch (e) {}
     this.checkLoginStatus()
+    if (this.isLogin) this.loadWallet()
   },
   methods: {
     checkLoginStatus() {
@@ -95,9 +111,30 @@ export default {
         this.nickName = nickName || '会员'
         this.phone = phone
         this.role = uni.getStorageSync('role') || 'user'
+        this.balance = Number(uni.getStorageSync('balance') || 0)
+        this.points = Number(uni.getStorageSync('points') || 0)
       } else {
         this.isLogin = false
       }
+    },
+    loadWallet() {
+      var that = this
+      wx.cloud.callFunction({
+        name: 'userApi',
+        data: {
+          action: 'getWallet',
+          userId: uni.getStorageSync('userDocId') || '',
+          phone: that.phone || ''
+        },
+        success: function (res) {
+          var r = res.result || {}
+          if (!r.ok) return
+          that.balance = Number(r.balance) || 0
+          that.points = Number(r.points) || 0
+          uni.setStorageSync('balance', that.balance)
+          uni.setStorageSync('points', that.points)
+        }
+      })
     },
     goLogin() { uni.navigateTo({ url: '/pages/login/login' }) },
     goMyBooking() { uni.navigateTo({ url: '/pages/mybooking/mybooking' }) },
@@ -111,10 +148,12 @@ export default {
         content: '确定要退出登录吗？',
         success: function (res) {
           if (!res.confirm) return
-          ;['avatarUrl','nickName','openid','userId','userDocId','phone','role'].forEach(function (k) {
+          ;['avatarUrl','nickName','openid','userId','userDocId','phone','role','balance','points','venue_id','venue_name'].forEach(function (k) {
             uni.removeStorageSync(k)
           })
           that.isLogin = false
+          that.balance = 0
+          that.points = 0
         }
       })
     }
@@ -133,7 +172,12 @@ export default {
 .name { font-size: 40rpx; font-weight: 700; margin-top: 20rpx; color: #1e4870; }
 .since { font-size: 24rpx; color: #666; margin-top: 8rpx; }
 .since.muted { color: #bbb; }
-.triple { display: flex; background: #fff; padding: 12rpx 0 36rpx; margin-bottom: 16rpx; }
+.wallet { display: flex; gap: 16rpx; margin: 20rpx 24rpx 8rpx; }
+.w-item { flex: 1; background: #1e4870; border-radius: 16rpx; padding: 24rpx; color: #fff; }
+.w-lab { font-size: 22rpx; opacity: .75; }
+.w-num { font-size: 40rpx; font-weight: 700; margin-top: 8rpx; }
+.w-tip { font-size: 20rpx; opacity: .65; margin-top: 8rpx; }
+.triple { display: flex; background: #fff; padding: 12rpx 0 36rpx; margin: 16rpx 0; }
 .t-item { flex: 1; text-align: center; }
 .t-ico { width: 56rpx; height: 56rpx; margin-bottom: 10rpx; }
 .t-n { font-size: 28rpx; font-weight: 700; color: #1e4870; }
