@@ -78,12 +78,14 @@
       </view>
     </view>
     <app-tabbar :current="0" />
+    <pet-widget />
   </view>
 </template>
 <script>
 import AppTabbar from '@/components/app-tabbar.vue'
+import PetWidget from '@/components/pet-widget.vue'
 export default {
-  components: { AppTabbar },
+  components: { AppTabbar, PetWidget },
   data() {
     return {
       venueList: [], venueId: '', venueName: '请选择场馆',
