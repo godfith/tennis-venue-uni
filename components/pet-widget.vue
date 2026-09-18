@@ -8,6 +8,7 @@
 </template>
 <script>
 var LINES = ['要订场吗', '歇一会儿', '嘿嘿～', '发球！']
+var PET_CDN = 'https://cloud1-d3g0pb1qk028e3585-d862bc2-1312769671.tcloudbaseapp.com/pet/'
 export default {
   data() {
     return {
@@ -20,10 +21,10 @@ export default {
       hopping: false,
       pose: 0,
       poses: [
-        require('./pet-frame-sit.js'),
-        require('./pet-frame-lie.js'),
-        require('./pet-frame-jump.js'),
-        require('./pet-frame-stand.js')
+        PET_CDN + 'sit.png',
+        PET_CDN + 'lie.png',
+        PET_CDN + 'jump.png',
+        PET_CDN + 'stand.png'
       ]
     }
   },
