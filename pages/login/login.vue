@@ -8,7 +8,8 @@
       <view class="title">会员登录</view>
       <view class="desc">登录后记录注册场馆，各店仍可订场</view>
       <button class="avatar-btn" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
-        <image class="avatar" :src="avatarUrl || '/static/images/avatar.png'" mode="aspectFill" />
+        <view class="avatar ph" v-if="!avatarUrl"></view>
+        <image v-else class="avatar" :src="avatarUrl" mode="aspectFill" />
         <view class="avatar-tip">选择头像</view>
       </button>
       <view class="field">
@@ -134,6 +135,7 @@ export default {
 .avatar-btn { padding: 0; margin: 0 0 12rpx; background: transparent; width: 160rpx; height: 160rpx; border-radius: 50%; overflow: hidden; position: relative; }
 .avatar-btn::after { border: none; }
 .avatar { width: 160rpx; height: 160rpx; border-radius: 50%; background: #f0f0f0; display: block; }
+.avatar.ph { background: #e6e2dc; }
 .avatar-tip { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(30,72,112,.55); color: #fff; font-size: 22rpx; text-align: center; padding: 6rpx 0; }
 .field { width: 100%; margin-top: 28rpx; }
 .phone-label { font-size: 26rpx; color: #666; margin-bottom: 12rpx; }
