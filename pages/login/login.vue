@@ -6,7 +6,7 @@
     </view>
     <view class="card">
       <view class="title">会员登录</view>
-      <view class="desc">登录后记录注册场馆，各店仍可订场</view>
+      <view class="desc">浏览场馆和时段无需登录，订场时再登录</view>
       <button class="avatar-btn" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
         <view class="avatar ph" v-if="!avatarUrl"></view>
         <image v-else class="avatar" :src="avatarUrl" mode="aspectFill" />
@@ -20,7 +20,7 @@
         <input class="input" type="number" maxlength="11" placeholder="请输入11位手机号" :value="phone" @input="onPhoneInput" />
       </view>
       <button class="submit-btn" :loading="loading" @tap="submit">确认登录</button>
-      <view class="hint">需完成头像、昵称、手机号后才能使用</view>
+      <view class="hint">头像、昵称可选填，订场需填手机号</view>
     </view>
   </view>
 </template>
@@ -31,12 +31,6 @@ export default {
     return { avatarUrl: '', nickName: '', phone: '', openid: '', loading: false }
   },
   onLoad() {
-    const nick = uni.getStorageSync('nickName')
-    const phone = uni.getStorageSync('phone')
-    if (nick && phone) {
-      this.goAfterLogin()
-      return
-    }
     this.avatarUrl = uni.getStorageSync('avatarUrl') || ''
     this.nickName = uni.getStorageSync('nickName') || ''
     this.phone = uni.getStorageSync('phone') || ''
@@ -44,8 +38,9 @@ export default {
   },
   methods: {
     goAfterLogin() {
-      if (!uni.getStorageSync('home_venue_id') && !uni.getStorageSync('venue_id')) {
-        uni.redirectTo({ url: '/pages/venue-select/venue-select' })
+      const pages = getCurrentPages() || []
+      if (pages.length > 1) {
+        uni.navigateBack()
         return
       }
       uni.switchTab({ url: '/pages/index/index' })
@@ -79,9 +74,8 @@ export default {
     onNicknameBlur(e) { this.nickName = (e.detail.value || '').trim() },
     onPhoneInput(e) { this.phone = String(e.detail.value || '').replace(/\D/g, '').slice(0, 11) },
     async submit() {
-      if (!this.avatarUrl) { uni.showToast({ title: '请选择头像', icon: 'none' }); return }
-      if (!this.nickName) { uni.showToast({ title: '请填写昵称', icon: 'none' }); return }
       if (!this.phone || this.phone.length !== 11) { uni.showToast({ title: '请填写11位手机号', icon: 'none' }); return }
+      if (!this.nickName) this.nickName = '球友'
       this.loading = true
       try {
         await this.ensureOpenid()

@@ -1,6 +1,14 @@
 {
 	"pages": [
 		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "山羊Goat",
+				"navigationBarBackgroundColor": "#1e4870",
+				"navigationBarTextStyle": "white"
+			}
+		},
+		{
 			"path": "pages/login/login",
 			"style": {
 				"navigationBarTitleText": "登录",
@@ -12,14 +20,6 @@
 			"style": {
 				"navigationBarTitleText": "选择场馆",
 				"navigationStyle": "custom"
-			}
-		},
-		{
-			"path": "pages/index/index",
-			"style": {
-				"navigationBarTitleText": "山羊Goat",
-				"navigationBarBackgroundColor": "#1e4870",
-				"navigationBarTextStyle": "white"
 			}
 		},
 		{
