@@ -47,12 +47,6 @@
             "urlCheck" : false
         },
         "usingComponents" : true,
-        "permission" : {
-            "scope.userLocation" : {
-                "desc" : "用于推荐距你最近的网球馆"
-            }
-        },
-        "requiredPrivateInfos" : ["getLocation"],
         "plugins" : {},
         "cloudfunctionRoot" : "cloudfunctions/"
     },
