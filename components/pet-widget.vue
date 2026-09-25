@@ -2,7 +2,14 @@
   <view class="wrap">
     <view class="pet" :style="boxStyle" @touchstart="onStart" @touchmove.stop.prevent="onMove" @touchend="onEnd">
       <view class="bubble" v-if="line">{{ line }}</view>
-      <image class="pic" :class="{ hop: hopping }" :src="poses[pose]" mode="aspectFit" />
+      <image
+        v-for="(src, i) in poses"
+        :key="src"
+        class="pic"
+        :class="{ hop: hopping && pose === i, hide: pose !== i }"
+        :src="src"
+        mode="aspectFit"
+      />
     </view>
   </view>
 </template>
@@ -31,7 +38,14 @@ export default {
   computed: {
     boxStyle() { return 'transform:translate(' + this.ox + 'px,' + this.oy + 'px)' }
   },
+  mounted() { this.warmup() },
   methods: {
+    warmup() {
+      var list = this.poses || []
+      list.forEach(function (src) {
+        try { wx.getImageInfo({ src: src }) } catch (e) {}
+      })
+    },
     onStart(e) {
       var t = e.touches && e.touches[0]
       if (!t) return
@@ -69,7 +83,8 @@ export default {
 <style>
 .wrap { position: fixed; right: 8rpx; bottom: 190rpx; z-index: 999; pointer-events: none; }
 .pet { pointer-events: auto; width: 176rpx; height: 176rpx; position: relative; }
-.pic { width: 176rpx; height: 176rpx; display: block; background: transparent; }
+.pic { width: 176rpx; height: 176rpx; display: block; background: transparent; position: absolute; left: 0; top: 0; }
+.pic.hide { opacity: 0; pointer-events: none; }
 .pic.hop { animation: hop 0.45s ease; }
 @keyframes hop {
   0% { transform: translateY(0); }
