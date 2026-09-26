@@ -5,7 +5,9 @@
 			"style": {
 				"navigationBarTitleText": "山羊Goat",
 				"navigationBarBackgroundColor": "#1e4870",
-				"navigationBarTextStyle": "white"
+				"navigationBarTextStyle": "white",
+				"enableShareAppMessage": true,
+				"enableShareTimeline": true
 			}
 		},
 		{
