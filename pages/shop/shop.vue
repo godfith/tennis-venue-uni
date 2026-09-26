@@ -12,8 +12,10 @@
 </template>
 <script>
 import AppTabbar from '@/components/app-tabbar.vue'
+import share from '@/mixins/share.js'
 export default {
   components: { AppTabbar },
+  mixins: [share],
   onShow() { try { uni.hideTabBar({ animation: false }) } catch (e) {} },
   methods: {
     goBook() { uni.switchTab({ url: '/pages/booking/booking' }) }

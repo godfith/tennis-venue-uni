@@ -115,7 +115,9 @@
 		"navigationBarTitleText": "山羊Goat网球馆",
 		"navigationBarBackgroundColor": "#1e4870",
 		"navigationBarTextStyle": "white",
-		"backgroundColor": "#f4f2ee"
+		"backgroundColor": "#f4f2ee",
+		"enableShareAppMessage": true,
+		"enableShareTimeline": true
 	},
 	"subPackages": []
 }
