@@ -105,6 +105,12 @@ export default {
     this.loadCards()
     this.loadWallet()
   },
+  onShareAppMessage() {
+    return { title: '山羊Goat网球馆', path: '/pages/index/index' }
+  },
+  onShareTimeline() {
+    return { title: '山羊Goat网球馆' }
+  },
   methods: {
     loadVenues() {
       var that = this
