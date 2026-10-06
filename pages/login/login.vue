@@ -26,20 +26,10 @@
       </view>
 
       <view class="field">
-        <view class="phone-label">手机号</view>
-        <button class="phone-btn" open-type="getPhoneNumber" @getphonenumber="onGetPhone">微信手机号一键验证</button>
-        <input
-          class="input"
-          type="number"
-          maxlength="11"
-          placeholder="验证后自动填入，也可手动填写"
-          :value="phone"
-          @input="onPhoneInput"
-        />
+        <view class="phone-label">手机号 {{ phone || '未验证' }}</view>
+        <button class="phone-btn" open-type="getPhoneNumber" :loading="loading" @getphonenumber="onGetPhone">微信手机号一键登录</button>
       </view>
-
-      <button class="submit-btn" :loading="loading" @tap="submit">登录 / 注册</button>
-      <view class="hint">昵称可以重名。一个手机号只能有一个账号，已有号码直接登录原账号。</view>
+      <view class="hint">点一次即验证并登录，会消耗 1 次手机号验证额度。已有号码直接进入原账号。</view>
     </view>
   </view>
 </template>
@@ -139,25 +129,16 @@ export default {
           return
         }
         this.phone = String(result.phone).replace(/\D/g, '').slice(-11)
-        uni.showToast({ title: '已验证 ' + this.phone, icon: 'none' })
+        await this.submit()
       } catch (err) {
         uni.showToast({ title: '手机号验证失败', icon: 'none' })
       } finally {
         this.loading = false
       }
     },
-    onPhoneInput(e) {
-      const next = String(e.detail.value || '').replace(/\D/g, '').slice(0, 11)
-      const prevStored = uni.getStorageSync('phone') || ''
-      if (prevStored && next && next !== prevStored) {
-        this.nickName = ''
-        this.avatarUrl = ''
-      }
-      this.phone = next
-    },
     async submit() {
       if (!this.phone || this.phone.length < 8) {
-        uni.showToast({ title: '请填写手机号', icon: 'none' })
+        uni.showToast({ title: '请先用微信验证手机号', icon: 'none' })
         return
       }
       this.loading = true
