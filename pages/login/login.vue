@@ -131,9 +131,8 @@ export default {
         this.phone = String(result.phone).replace(/\D/g, '').slice(-11)
         await this.submit()
       } catch (err) {
-        uni.showToast({ title: '手机号验证失败', icon: 'none' })
-      } finally {
         this.loading = false
+        uni.showToast({ title: '手机号验证失败', icon: 'none' })
       }
     },
     async submit() {
