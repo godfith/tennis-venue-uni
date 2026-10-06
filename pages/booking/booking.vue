@@ -27,7 +27,7 @@
       </scroll-view>
 
       <view class="venue-tip" v-if="courtList.length">{{ venueName }}，共有{{ courtList.length }}个场地，都可以预约</view>
-      <scroll-view class="grid-wrap" scroll-x v-if="courtList.length">
+      <scroll-view class="grid-wrap" scroll-x scroll-y v-if="courtList.length">
         <view class="grid">
           <view class="col" v-for="court in courtList" :key="court.id">
             <view class="col-h">{{ court.name }}</view>
@@ -544,7 +544,7 @@ export default {
 .d-md { font-size: 30rpx; font-weight: 700; }
 .d-wk { font-size: 22rpx; margin-top: 6rpx; }
 .venue-tip { margin: 0 28rpx 18rpx; color: #b0b4b8; font-size: 24rpx; }
-.grid-wrap { white-space: nowrap; height: calc(100vh - 470rpx); }
+.grid-wrap { white-space: nowrap; height: calc(100vh - 420rpx); padding-bottom: 40rpx; }
 .grid { display: inline-flex; padding: 0 20rpx 24rpx; }
 .col { width: 176rpx; margin-right: 16rpx; }
 .col-h { text-align: center; font-size: 30rpx; color: #222; font-weight: 600; margin-bottom: 16rpx; }
