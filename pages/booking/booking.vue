@@ -55,13 +55,14 @@
     </view>
 
     <view class="bar">
-      <view class="picked">{{ currentCourtName || '未选场地' }} {{ currentTime }}</view>
+      <view class="picked">{{ venueName || '未选门店' }} · {{ currentCourtName || '未选场地' }} {{ currentTime }}</view>
       <button class="ok" :disabled="!currentCourtName || !currentTime || booking" :loading="booking" @tap="onBook">立即预定</button>
     </view>
 
     <view class="mask" v-if="cardSheetVisible" @tap="cardSheetVisible = false">
       <view class="sheet" @tap.stop="">
-        <view class="sheet-title">选择支付方式</view>
+        <view class="sheet-title">确认预约</view>
+        <view class="sheet-sub">{{ venueName }}</view>
         <view class="sheet-sub">{{ currentCourtName }} · {{ currentDate }} {{ currentTime }}</view>
         <view class="sheet-price" v-if="currentPrice > 0">场地参考价 ¥{{ currentPrice }}</view>
         <view
@@ -78,8 +79,23 @@
           <view class="co-meta">{{ cardMeta(c) }}</view>
         </view>
         <view v-if="!cardLoading && usableCards.length === 0" class="sheet-empty">暂无可用会员卡</view>
-        <button class="sheet-btn" :loading="booking" @tap="submitBook">确认预约</button>
+        <button class="sheet-btn" :loading="booking" @tap="submitBook">确认预约 {{ venueName }}</button>
         <view class="sheet-cancel" @tap="cardSheetVisible = false">取消</view>
+      </view>
+    </view>
+    <view class="mask" v-if="venueSheetVisible" @tap="venueSheetVisible = false">
+      <view class="sheet" @tap.stop="">
+        <view class="sheet-title">切换门店</view>
+        <view
+          v-for="v in venueList"
+          :key="v.venueId"
+          class="card-option"
+          :class="v.venueId === venueId ? 'on' : ''"
+          @tap="chooseVenue(v)"
+        >
+          <view class="co-name">{{ v.name }}</view>
+        </view>
+        <view class="sheet-cancel" @tap="venueSheetVisible = false">取消</view>
       </view>
     </view>
     <app-tabbar :current="2" />
@@ -95,6 +111,9 @@ export default {
       courtConfig: [],
       dateList: [],
       venueName: '',
+      venueId: '',
+      venueList: [],
+      venueSheetVisible: false,
       courtList: [],
       currentDate: '',
       currentCourtId: '',
@@ -154,6 +173,7 @@ export default {
     try { uni.hideTabBar({ animation: false }) } catch (e) {}
     this.nickName = uni.getStorageSync('nickName') || ''
     this.venueName = uni.getStorageSync('venue_name') || ''
+    this.venueId = uni.getStorageSync('venue_id') || ''
     this.loadCourts()
   },
   methods: {
@@ -163,7 +183,33 @@ export default {
       return s
     },
     goCoach() { uni.navigateTo({ url: '/pages/coach/coach' }) },
-    switchVenue() { uni.switchTab({ url: '/pages/index/index' }) },
+    switchVenue() {
+      var that = this
+      wx.cloud.callFunction({
+        name: 'userApi',
+        data: { action: 'getVenues' },
+        success: function (res) {
+          that.venueList = ((res.result || {}).list) || []
+          that.venueSheetVisible = true
+        },
+        fail: function () { uni.showToast({ title: '门店加载失败', icon: 'none' }) }
+      })
+    },
+    chooseVenue(v) {
+      var id = v.venueId || v._id || ''
+      var name = v.name || ''
+      uni.setStorageSync('venue_id', id)
+      uni.setStorageSync('venue_name', name)
+      uni.setStorageSync('home_venue_id', id)
+      uni.setStorageSync('home_venue_name', name)
+      this.venueId = id
+      this.venueName = name
+      this.currentCourtName = ''
+      this.currentTime = ''
+      this.venueSheetVisible = false
+      this.loadCourts()
+      if (this.currentDate) this.loadCourtStatus(this.currentDate)
+    },
     pickCourt(item) {
       this.currentCourtId = item.id
       this.currentCourtName = item.name
