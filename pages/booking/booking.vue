@@ -278,8 +278,7 @@ export default {
       var that = this
       var venueId = uni.getStorageSync('venue_id') || ''
       var courtConfig = that.courtConfig
-      var availableTimes = that.getAvailableTimes(date)
-      if (availableTimes.length === 0 || !venueId || !courtConfig.length) {
+      if (!venueId || !courtConfig.length) {
         that.courtList = []
         return
       }
@@ -288,7 +287,27 @@ export default {
       if (weekday === 0) weekday = 7
       wx.cloud.callFunction({
         name: 'userApi',
-        data: { action: 'getCourtPrices', venueId: venueId, weekday: weekday }
+        data: { action: 'getVenueHours', venueId: venueId, weekday: weekday }
+      }).then(function (hr) {
+        var result = (hr && hr.result) || {}
+        var slots = (result.byWeekday && result.byWeekday[weekday]) || result.slots || []
+        var availableTimes = (slots.length ? slots : that.allTimes.map(function (x) { return x.time })).map(function (time) {
+          var hour = Number(String(time).slice(0, 2))
+          return { time: time, short: String(time).slice(0, 5), hour: hour }
+        })
+        var now = new Date()
+        var mm = now.getMonth() + 1
+        var dd = now.getDate()
+        var today = now.getFullYear() + '-' + (mm < 10 ? '0' : '') + mm + '-' + (dd < 10 ? '0' : '') + dd
+        availableTimes = availableTimes.filter(function (item) {
+          if (date !== today) return true
+          return item.hour > now.getHours() || (item.hour === now.getHours() && now.getMinutes() === 0)
+        })
+        that._openTimes = availableTimes
+        return wx.cloud.callFunction({
+          name: 'userApi',
+          data: { action: 'getCourtPrices', venueId: venueId, weekday: weekday }
+        })
       }).then(function (pr) {
         var r = ((pr.result || {}).list) || []
         var map = {}
@@ -310,6 +329,7 @@ export default {
         ;(result.groupClasses || []).forEach(function (g) {
           if (g.status === 'open') groupMap[g.court + '_' + g.time] = true
         })
+        var availableTimes = that._openTimes || []
         that.courtList = courtConfig.map(function (court) {
           return {
             id: court.id,
