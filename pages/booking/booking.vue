@@ -54,7 +54,6 @@
       <view class="empty" v-else>请先在首页选择场馆</view>
     </view>
 
-    <view class="promo" @tap="goCards">办卡享更多优惠，立即去办卡 ›</view>
     <view class="bar">
       <view class="picked">{{ currentCourtName || '未选场地' }} {{ currentTime }}</view>
       <button class="ok" :disabled="!currentCourtName || !currentTime || booking" :loading="booking" @tap="onBook">立即预定</button>
@@ -346,7 +345,6 @@ export default {
       this.currentCourtName = courtName
       this.currentTime = time
     },
-    goCards() { uni.switchTab({ url: '/pages/my/my' }) },
     onBook() {
       var nickName = uni.getStorageSync('nickName') || ''
       var phone = uni.getStorageSync('phone') || ''
@@ -508,23 +506,22 @@ export default {
 .tabs { margin: 12rpx 28rpx 8rpx; display: flex; background: #e8e4dc; border-radius: 12rpx; overflow: hidden; }
 .tab { flex: 1; text-align: center; padding: 18rpx 0; font-size: 28rpx; color: #6b6760; }
 .tab.on { background: #fff; color: #1e4870; font-weight: 700; }
-.dates { white-space: nowrap; padding: 12rpx 20rpx 16rpx; }
-.date { display: inline-flex; flex-direction: column; align-items: center; width: 108rpx; padding: 14rpx 0; margin-right: 10rpx; background: #fff; border-radius: 12rpx; }
-.date.on { background: #1aa36a; color: #fff; }
-.d-md { font-size: 24rpx; font-weight: 600; }
-.d-wk { font-size: 20rpx; margin-top: 4rpx; opacity: .75; }
-.venue-tip { margin: 8rpx 24rpx 16rpx; color: #9aa0a6; font-size: 24rpx; }
-.grid-wrap { white-space: nowrap; height: calc(100vh - 520rpx); }
-.grid { display: inline-flex; padding: 0 16rpx 20rpx; }
-.col { width: 168rpx; margin-right: 12rpx; }
-.col-h { text-align: center; font-size: 28rpx; color: #333; margin-bottom: 12rpx; }
-.cell { background: #fff; border-radius: 16rpx; min-height: 132rpx; margin-bottom: 12rpx; padding: 16rpx 8rpx; box-sizing: border-box; border: 2rpx solid #f0f0f0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.cell.full, .cell.group { background: #f3f4f6; }
-.cell.pick { border-color: #1aa36a; }
-.yen { color: #222; font-size: 28rpx; font-weight: 700; }
-.sold { color: #8d9399; font-size: 26rpx; }
-.tm { color: #8d9399; font-size: 20rpx; margin-top: 8rpx; }
-.promo { position: fixed; left: 0; right: 0; bottom: calc(196rpx + env(safe-area-inset-bottom)); background: #e9f8f1; color: #1aa36a; text-align: center; font-size: 26rpx; padding: 16rpx 0; z-index: 70; }
+.dates { white-space: nowrap; padding: 8rpx 24rpx 18rpx; }
+.date { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 112rpx; height: 120rpx; margin-right: 16rpx; background: transparent; border-radius: 18rpx; color: #222; }
+.date.on { background: #18a058; color: #fff; }
+.d-md { font-size: 30rpx; font-weight: 700; }
+.d-wk { font-size: 22rpx; margin-top: 6rpx; }
+.venue-tip { margin: 0 28rpx 18rpx; color: #b0b4b8; font-size: 24rpx; }
+.grid-wrap { white-space: nowrap; height: calc(100vh - 470rpx); }
+.grid { display: inline-flex; padding: 0 20rpx 24rpx; }
+.col { width: 176rpx; margin-right: 16rpx; }
+.col-h { text-align: center; font-size: 30rpx; color: #222; font-weight: 600; margin-bottom: 16rpx; }
+.cell { background: #fff; border-radius: 18rpx; height: 148rpx; margin-bottom: 16rpx; box-sizing: border-box; border: 2rpx solid #eee; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4rpx 12rpx rgba(0,0,0,.03); }
+.cell.full, .cell.group { background: #f5f6f7; border-color: #f5f6f7; box-shadow: none; }
+.cell.pick { border-color: #18a058; background: #f3fbf6; }
+.yen { color: #222; font-size: 30rpx; font-weight: 700; }
+.sold { color: #9aa0a6; font-size: 26rpx; }
+.tm { color: #9aa0a6; font-size: 20rpx; margin-top: 10rpx; }
 .board {
   display: flex;
   height: calc(100vh - 520rpx);
@@ -559,7 +556,7 @@ export default {
 }
 .sum { font-size: 34rpx; font-weight: 700; color: #1e4870; }
 .picked { font-size: 22rpx; color: #8a8680; margin-top: 4rpx; }
-.ok { margin: 0; background: #1aa36a !important; color: #fff !important; font-size: 30rpx; padding: 0 48rpx; border-radius: 12rpx; }
+.ok { margin: 0 0 0 auto; width: 280rpx; height: 84rpx; line-height: 84rpx; background: #18a058 !important; color: #fff !important; font-size: 32rpx; border-radius: 12rpx; }
 .ok[disabled] { background: #d8d4cc !important; color: #9a968f !important; }
 .mask { position: fixed; inset: 0; background: rgba(44,44,44,.4); z-index: 20000; display: flex; align-items: flex-end; }
 .sheet { width: 100%; background: #fff; border-radius: 24rpx 24rpx 0 0; padding: 32rpx 28rpx 48rpx; max-height: 75vh; overflow-y: auto; }
