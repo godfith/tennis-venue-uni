@@ -510,9 +510,21 @@ export default {
 .tab.on { background: #fff; color: #1e4870; font-weight: 700; }
 .dates { white-space: nowrap; padding: 12rpx 20rpx 16rpx; }
 .date { display: inline-flex; flex-direction: column; align-items: center; width: 108rpx; padding: 14rpx 0; margin-right: 10rpx; background: #fff; border-radius: 12rpx; }
-.date.on { background: #1e4870; color: #fff; }
+.date.on { background: #1aa36a; color: #fff; }
 .d-md { font-size: 24rpx; font-weight: 600; }
 .d-wk { font-size: 20rpx; margin-top: 4rpx; opacity: .75; }
+.venue-tip { margin: 8rpx 24rpx 16rpx; color: #9aa0a6; font-size: 24rpx; }
+.grid-wrap { white-space: nowrap; height: calc(100vh - 520rpx); }
+.grid { display: inline-flex; padding: 0 16rpx 20rpx; }
+.col { width: 168rpx; margin-right: 12rpx; }
+.col-h { text-align: center; font-size: 28rpx; color: #333; margin-bottom: 12rpx; }
+.cell { background: #fff; border-radius: 16rpx; min-height: 132rpx; margin-bottom: 12rpx; padding: 16rpx 8rpx; box-sizing: border-box; border: 2rpx solid #f0f0f0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.cell.full, .cell.group { background: #f3f4f6; }
+.cell.pick { border-color: #1aa36a; }
+.yen { color: #222; font-size: 28rpx; font-weight: 700; }
+.sold { color: #8d9399; font-size: 26rpx; }
+.tm { color: #8d9399; font-size: 20rpx; margin-top: 8rpx; }
+.promo { position: fixed; left: 0; right: 0; bottom: calc(196rpx + env(safe-area-inset-bottom)); background: #e9f8f1; color: #1aa36a; text-align: center; font-size: 26rpx; padding: 16rpx 0; z-index: 70; }
 .board {
   display: flex;
   height: calc(100vh - 520rpx);
@@ -547,7 +559,7 @@ export default {
 }
 .sum { font-size: 34rpx; font-weight: 700; color: #1e4870; }
 .picked { font-size: 22rpx; color: #8a8680; margin-top: 4rpx; }
-.ok { background: #1aa36a !important; color: #fff !important;  margin: 0; background: #1e4870 !important; color: #fff !important; font-size: 28rpx; padding: 0 36rpx; border-radius: 12rpx; }
+.ok { margin: 0; background: #1aa36a !important; color: #fff !important; font-size: 30rpx; padding: 0 48rpx; border-radius: 12rpx; }
 .ok[disabled] { background: #d8d4cc !important; color: #9a968f !important; }
 .mask { position: fixed; inset: 0; background: rgba(44,44,44,.4); z-index: 20000; display: flex; align-items: flex-end; }
 .sheet { width: 100%; background: #fff; border-radius: 24rpx 24rpx 0 0; padding: 32rpx 28rpx 48rpx; max-height: 75vh; overflow-y: auto; }
