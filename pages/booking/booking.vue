@@ -11,7 +11,6 @@
 
       <view class="tabs">
         <view class="tab on">订场</view>
-        <view class="tab" @tap="goCoach">私教</view>
       </view>
 
       <scroll-view class="dates" scroll-x enable-flex>
