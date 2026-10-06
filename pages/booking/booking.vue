@@ -44,7 +44,7 @@
                 <view class="sold">团课</view>
               </block>
               <block v-else>
-                <view class="yen">¥{{ cell.price || 0 }}/h</view>
+                <view class="yen" v-if="cell.price">¥{{ cell.price }}/h</view><view class="yen" v-else>可约</view>
               </block>
               <view class="tm">{{ cell.time }}</view>
             </view>
@@ -320,7 +320,19 @@ export default {
               var status = 'available'
               if (groupMap[key]) status = 'group'
               else if (bookedMap[key]) status = 'full'
-              return { time: t.time, short: t.short, status: status, price: Number(that.priceMap[key] || 0) }
+              var price = Number(that.priceMap[key] || 0)
+              if (!price) {
+                var keys = Object.keys(that.priceMap || {})
+                for (var k = 0; k < keys.length; k++) {
+                  if (keys[k].indexOf(t.time) < 0) continue
+                  var courtKey = keys[k].split('_')[0]
+                  if (courtKey === court.name || court.name.indexOf(courtKey) >= 0 || courtKey.indexOf(court.name) >= 0) {
+                    price = Number(that.priceMap[keys[k]] || 0)
+                    break
+                  }
+                }
+              }
+              return { time: t.time, short: t.short, status: status, price: price }
             })
           }
         })
