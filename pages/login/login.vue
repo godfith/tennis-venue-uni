@@ -7,29 +7,13 @@
 
     <view class="card">
       <view class="title">手机号登录</view>
-      <view class="desc">输入手机号即可，新号码会自动注册</view>
-
-      <button class="avatar-btn" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
-        <image class="avatar" :src="avatarUrl || '/static/images/avatar.png'" mode="aspectFill" />
-        <view class="avatar-tip">选择头像</view>
-      </button>
-
-      <view class="field">
-        <input
-          class="input"
-          type="nickname"
-          placeholder="请输入微信昵称"
-          :value="nickName"
-          @blur="onNicknameBlur"
-          @input="onNicknameInput"
-        />
-      </view>
+      <view class="desc">微信手机号一键登录。头像和昵称登录后在个人中心修改</view>
 
       <view class="field">
         <view class="phone-label">手机号 {{ phone || '未验证' }}</view>
         <button class="phone-btn" open-type="getPhoneNumber" :loading="loading" @getphonenumber="onGetPhone">微信手机号一键登录</button>
       </view>
-      <view class="hint">点一次即验证并登录，会消耗 1 次手机号验证额度。已有号码直接进入原账号。</view>
+      <view class="hint">点一次即验证并登录，会消耗 1 次手机号验证额度。头像昵称请到个人中心修改。</view>
     </view>
   </view>
 </template>

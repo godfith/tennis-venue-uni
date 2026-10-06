@@ -13,6 +13,17 @@
         <view class="name">{{ nickName }}</view>
         <view class="since" v-if="phone">{{ phone }}</view>
         <view class="since muted">山羊Goat网球馆会员</view>
+        <view class="edit-btn" @tap="openEdit">修改头像昵称</view>
+      </view>
+      <view class="edit-mask" v-if="editing" @tap="editing=false">
+        <view class="edit-card" @tap.stop>
+          <view class="edit-title">修改资料</view>
+          <button class="avatar-btn" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
+            <image class="avatar" :src="editAvatar || avatarUrl || '/static/images/avatar.png'" mode="aspectFill" />
+          </button>
+          <input class="edit-input" type="nickname" placeholder="输入昵称" :value="editNick" @input="onNick" @blur="onNick" />
+          <button class="save-btn" :loading="saving" @tap="saveProfile">保存</button>
+        </view>
       </view>
 
       <view class="wallet">
@@ -83,6 +94,7 @@
 
 <script>
 import AppTabbar from '@/components/app-tabbar.vue'
+import { callCloud } from '@/utils/api'
 export default {
   components: { AppTabbar },
   data() {
@@ -93,7 +105,11 @@ export default {
       phone: '',
       role: 'user',
       balance: 0,
-      points: 0
+      points: 0,
+      editing: false,
+      editNick: '',
+      editAvatar: '',
+      saving: false
     }
   },
   onShow() {
@@ -141,6 +157,40 @@ export default {
     goMyCards() { uni.navigateTo({ url: '/pages/mycards/mycards' }) },
     goCoachWorkbench() { uni.navigateTo({ url: '/pages/coach-workbench/coach-workbench' }) },
     comingSoon() { uni.showToast({ title: '功能即将上线', icon: 'none' }) },
+
+    openEdit() {
+      this.editNick = this.nickName || ''
+      this.editAvatar = this.avatarUrl || ''
+      this.editing = true
+    },
+    onChooseAvatar(e) { this.editAvatar = (e.detail && e.detail.avatarUrl) || this.editAvatar },
+    onNick(e) { this.editNick = ((e.detail && e.detail.value) || '').trim() },
+    async saveProfile() {
+      if (!this.editNick) { uni.showToast({ title: '请填写昵称', icon: 'none' }); return }
+      this.saving = true
+      try {
+        const res = await callCloud({
+          name: 'login',
+          data: {
+            action: 'register',
+            phone: this.phone,
+            nickName: this.editNick,
+            avatarUrl: this.editAvatar,
+            openid: uni.getStorageSync('openid') || ''
+          }
+        })
+        const result = res.result || {}
+        if (!result.ok) { uni.showToast({ title: result.msg || '保存失败', icon: 'none' }); return }
+        this.nickName = result.nickName || this.editNick
+        this.avatarUrl = result.avatarUrl || this.editAvatar
+        uni.setStorageSync('nickName', this.nickName)
+        uni.setStorageSync('avatarUrl', this.avatarUrl)
+        this.editing = false
+        uni.showToast({ title: '已保存', icon: 'success' })
+      } catch (e) {
+        uni.showToast({ title: '保存失败', icon: 'none' })
+      } finally { this.saving = false }
+    },
     logout() {
       var that = this
       uni.showModal({
@@ -192,5 +242,13 @@ export default {
 .m-name { flex: 1; font-size: 30rpx; color: #222; }
 .en { font-size: 18rpx; color: #c0c4c8; letter-spacing: 1rpx; margin-right: 8rpx; }
 .arrow { font-size: 36rpx; color: #ccc; line-height: 1; }
+.edit-btn { margin-top: 16rpx; font-size: 24rpx; color: #1e4870; }
+.edit-mask { position: fixed; left: 0; right: 0; top: 0; bottom: 0; background: rgba(0,0,0,.45); z-index: 30; display: flex; align-items: center; justify-content: center; }
+.edit-card { width: 560rpx; background: #fff; border-radius: 24rpx; padding: 36rpx; display: flex; flex-direction: column; align-items: center; }
+.edit-title { font-size: 32rpx; font-weight: 700; color: #1e4870; margin-bottom: 24rpx; }
+.avatar-btn { width: 140rpx; height: 140rpx; padding: 0; border-radius: 50%; overflow: hidden; }
+.avatar-btn::after { border: none; }
+.edit-input { width: 100%; height: 80rpx; background: #f4f2ee; border-radius: 12rpx; margin-top: 24rpx; text-align: center; }
+.save-btn { width: 100%; margin-top: 24rpx; background: #1e4870; color: #fff; }
 .logout { margin: 40rpx 36rpx; text-align: center; color: #c45656; font-size: 28rpx; }
 </style>
