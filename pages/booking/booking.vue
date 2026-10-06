@@ -26,40 +26,38 @@
         </view>
       </scroll-view>
 
-      <view class="board" v-if="courtList.length">
-        <view class="left">
-          <view class="left-lab">场地</view>
-          <view
-            v-for="item in courtList"
-            :key="item.id"
-            :class="'l-item ' + (currentCourtName === item.name ? 'on' : '')"
-            @tap="pickCourt(item)"
-          >{{ item.name }}</view>
-        </view>
-        <scroll-view class="right" scroll-y>
-          <view
-            v-for="(cell, i) in activeTimes"
-            :key="i"
-            :class="'slot ' + cls(cell)"
-            @tap="onSelectSlot(activeCourt.id, activeCourt.name, cell.time, cell.status)"
-          >
-            <text>{{ cell.time }}</text>
-            <text v-if="cell.status === 'full'" class="st">已订</text>
-            <text v-else-if="cell.status === 'group'" class="st pink">团课</text>
-            <text v-else-if="cell.price > 0" class="price">¥{{ cell.price }}</text>
+      <view class="venue-tip" v-if="courtList.length">{{ venueName }}，共有{{ courtList.length }}个场地，都可以预约</view>
+      <scroll-view class="grid-wrap" scroll-x v-if="courtList.length">
+        <view class="grid">
+          <view class="col" v-for="court in courtList" :key="court.id">
+            <view class="col-h">{{ court.name }}</view>
+            <view
+              v-for="(cell, i) in court.times"
+              :key="i"
+              :class="'cell ' + cls(cell) + (currentCourtName === court.name && currentTime === cell.time ? ' pick' : '')"
+              @tap="onSelectSlot(court.id, court.name, cell.time, cell.status)"
+            >
+              <block v-if="cell.status === 'full'">
+                <view class="sold">已售</view>
+              </block>
+              <block v-else-if="cell.status === 'group'">
+                <view class="sold">团课</view>
+              </block>
+              <block v-else>
+                <view class="yen">¥{{ cell.price || 0 }}/h</view>
+              </block>
+              <view class="tm">{{ cell.time }}</view>
+            </view>
           </view>
-          <view v-if="!activeTimes.length" class="empty">暂无时段</view>
-        </scroll-view>
-      </view>
+        </view>
+      </scroll-view>
       <view class="empty" v-else>请先在首页选择场馆</view>
     </view>
 
+    <view class="promo" @tap="goCards">办卡享更多优惠，立即去办卡 ›</view>
     <view class="bar">
-      <view>
-        <view class="sum">¥{{ currentPrice || 0 }}</view>
-        <view class="picked">{{ currentCourtName || '未选场地' }} {{ currentTime }}</view>
-      </view>
-      <button class="ok" :disabled="!currentCourtName || !currentTime || booking" :loading="booking" @tap="onBook">确认订场</button>
+      <view class="picked">{{ currentCourtName || '未选场地' }} {{ currentTime }}</view>
+      <button class="ok" :disabled="!currentCourtName || !currentTime || booking" :loading="booking" @tap="onBook">立即预定</button>
     </view>
 
     <view class="mask" v-if="cardSheetVisible" @tap="cardSheetVisible = false">
@@ -247,8 +245,8 @@ export default {
         var dd = day < 10 ? '0' + day : '' + day
         list.push({
           date: y + '-' + mm + '-' + dd,
-          week: i === 0 ? '今天' : weeks[d.getDay()],
-          md: mm + '-' + dd
+          week: i === 0 ? '今天' : ('周' + weeks[d.getDay()]),
+          md: m + '.' + dd
         })
       }
       this.dateList = list
@@ -348,6 +346,7 @@ export default {
       this.currentCourtName = courtName
       this.currentTime = time
     },
+    goCards() { uni.switchTab({ url: '/pages/my/my' }) },
     onBook() {
       var nickName = uni.getStorageSync('nickName') || ''
       var phone = uni.getStorageSync('phone') || ''
@@ -548,7 +547,7 @@ export default {
 }
 .sum { font-size: 34rpx; font-weight: 700; color: #1e4870; }
 .picked { font-size: 22rpx; color: #8a8680; margin-top: 4rpx; }
-.ok { margin: 0; background: #1e4870 !important; color: #fff !important; font-size: 28rpx; padding: 0 36rpx; border-radius: 12rpx; }
+.ok { background: #1aa36a !important; color: #fff !important;  margin: 0; background: #1e4870 !important; color: #fff !important; font-size: 28rpx; padding: 0 36rpx; border-radius: 12rpx; }
 .ok[disabled] { background: #d8d4cc !important; color: #9a968f !important; }
 .mask { position: fixed; inset: 0; background: rgba(44,44,44,.4); z-index: 20000; display: flex; align-items: flex-end; }
 .sheet { width: 100%; background: #fff; border-radius: 24rpx 24rpx 0 0; padding: 32rpx 28rpx 48rpx; max-height: 75vh; overflow-y: auto; }
