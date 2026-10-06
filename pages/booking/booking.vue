@@ -259,6 +259,8 @@ export default {
         that.courtList = []
         return
       }
+      that.courtConfig = []
+      that.courtList = []
       wx.cloud.callFunction({
         name: 'userApi',
         data: { action: 'getCourts', venueId: venueId },
