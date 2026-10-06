@@ -7,6 +7,13 @@
       <view class="hero-name">山羊Goat网球馆</view>
     </view>
     <view class="sheet">
+      <view class="venue-bar" @tap="showVenuePicker">
+        <view>
+          <view class="v-lab">当前场馆</view>
+          <view class="v-name">{{ venueName }}</view>
+        </view>
+        <view class="v-sw">切换场馆</view>
+      </view>
       <view class="hello-row">
         <image class="avatar" :src="avatarUrl || '/static/images/avatar.png'" mode="aspectFill"></image>
         <view class="hello-txt">
@@ -69,23 +76,14 @@
           <view class="action-icon">🏆</view>
         </view>
       </view>
-      <view class="venue-bar" @tap="showVenuePicker">
-        <view>
-          <view class="v-lab">当前场馆</view>
-          <view class="v-name">{{ venueName }}</view>
-        </view>
-        <view class="v-sw">切换场馆</view>
-      </view>
     </view>
     <app-tabbar :current="0" />
-    <pet-widget />
   </view>
 </template>
 <script>
 import AppTabbar from '@/components/app-tabbar.vue'
-import PetWidget from '@/components/pet-widget.vue'
 export default {
-  components: { AppTabbar, PetWidget },
+  components: { AppTabbar },
   data() {
     return {
       venueList: [], venueId: '', venueName: '请选择场馆',
