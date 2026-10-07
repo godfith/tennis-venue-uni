@@ -95,6 +95,12 @@
 			"style": {
 				"navigationBarTitleText": "预约详情"
 			}
+		},
+		{
+			"path": "pages/wallet/wallet",
+			"style": {
+				"navigationBarTitleText": "余额与积分"
+			}
 		}
 	],
 	"tabBar": {

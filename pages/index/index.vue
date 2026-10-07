@@ -26,11 +26,11 @@
         </view>
       </view>
       <view class="wallet-row">
-        <view class="wallet-item">
+        <view class="wallet-item" @tap="goWallet">
           <view class="w-lab">现金余额</view>
           <view class="w-num">¥{{ Number(balance).toFixed(2) }}</view>
         </view>
-        <view class="wallet-item">
+        <view class="wallet-item" @tap="goWallet">
           <view class="w-lab">积分</view>
           <view class="w-num">{{ points || 0 }}</view>
         </view>
@@ -189,6 +189,7 @@ export default {
         }
       })
     },
+    goWallet() { uni.navigateTo({ url: '/pages/wallet/wallet' }) },
     goBooking() { uni.switchTab({ url: '/pages/booking/booking' }) },
     goCoach() { uni.navigateTo({ url: '/pages/coach/coach' }) },
     goGroup() { uni.navigateTo({ url: '/pages/group/group' }) },
