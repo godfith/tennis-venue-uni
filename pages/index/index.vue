@@ -97,6 +97,16 @@ export default {
     this.nickName = uni.getStorageSync('nickName') || ''
     this.phone = uni.getStorageSync('phone') || ''
     this.avatarUrl = uni.getStorageSync('avatarUrl') || ''
+    if (!this.phone) {
+      this.balance = 0
+      this.points = 0
+      this.cardCount = this.coachCount = this.timesCount = this.groupCount = this.timeCount = 0
+      uni.removeStorageSync('balance')
+      uni.removeStorageSync('points')
+      uni.removeStorageSync('userDocId')
+      this.loadVenues()
+      return
+    }
     this.balance = Number(uni.getStorageSync('balance') || 0)
     this.points = Number(uni.getStorageSync('points') || 0)
     this.loadVenues()

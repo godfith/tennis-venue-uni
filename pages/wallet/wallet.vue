@@ -21,9 +21,16 @@ export default {
     return { balance: 0, points: 0, phone: '' }
   },
   onShow() {
+    this.phone = uni.getStorageSync('phone') || ''
+    if (!this.phone) {
+      this.balance = 0
+      this.points = 0
+      uni.removeStorageSync('balance')
+      uni.removeStorageSync('points')
+      return
+    }
     this.balance = Number(uni.getStorageSync('balance') || 0)
     this.points = Number(uni.getStorageSync('points') || 0)
-    this.phone = uni.getStorageSync('phone') || ''
     this.loadWallet()
   },
   methods: {
