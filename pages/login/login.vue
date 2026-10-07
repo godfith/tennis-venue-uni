@@ -6,14 +6,14 @@
     </view>
 
     <view class="card">
-      <view class="title">手机号登录</view>
-      <view class="desc">微信手机号一键登录。头像和昵称登录后在个人中心修改</view>
+      <view class="title">手机号快捷登录</view>
+      <view class="desc">用于订场和查看会员卡。头像昵称可稍后在个人中心修改</view>
 
       <view class="field">
-        <view class="phone-label">手机号 {{ phone || '未验证' }}</view>
-        <button class="phone-btn" open-type="getPhoneNumber" :loading="loading" @getphonenumber="onGetPhone">微信手机号一键登录</button>
+        <button class="phone-btn" open-type="getPhoneNumber" :loading="loading" @getphonenumber="onGetPhone">手机号快捷登录</button>
       </view>
-      <view class="hint">点一次即验证并登录，会消耗 1 次手机号验证额度。头像昵称请到个人中心修改。</view>
+      <button class="skip-btn" @tap="skipLogin">暂不登录，返回浏览</button>
+      <view class="hint">可先浏览场馆和场地。订场时再登录。点快捷登录会验证手机号。</view>
     </view>
   </view>
 </template>
@@ -44,6 +44,14 @@ export default {
     this.ensureOpenid()
   },
   methods: {
+    skipLogin() {
+      const pages = getCurrentPages()
+      if (pages.length > 1) {
+        uni.navigateBack()
+        return
+      }
+      uni.switchTab({ url: '/pages/index/index' })
+    },
     goAfterLogin() {
       if (!uni.getStorageSync('venue_id')) {
         uni.redirectTo({ url: '/pages/venue-select/venue-select' })
@@ -121,7 +129,7 @@ export default {
     },
     async submit() {
       if (!this.phone || this.phone.length < 8) {
-        uni.showToast({ title: '请先用微信验证手机号', icon: 'none' })
+        uni.showToast({ title: '请先完成手机号快捷登录', icon: 'none' })
         return
       }
       this.loading = true
@@ -209,8 +217,10 @@ export default {
   background: rgba(30, 72, 112, 0.55); color: #fff; font-size: 22rpx; text-align: center; padding: 6rpx 0;
 }
 .field { width: 100%; margin-top: 28rpx; }
-.phone-btn { width: 100%; height: 80rpx; line-height: 80rpx; margin-bottom: 16rpx; background: #e8f0e9; color: #1a5c3a; border-radius: 16rpx; font-size: 28rpx; }
+.phone-btn { width: 100%; height: 88rpx; line-height: 88rpx; margin-bottom: 20rpx; background: #1e4870; color: #fff; border-radius: 16rpx; font-size: 30rpx; }
 .phone-btn::after { border: none; }
+.skip-btn { width: 100%; height: 88rpx; line-height: 88rpx; background: #fff; color: #1e4870; border: 2rpx solid #1e4870; border-radius: 16rpx; font-size: 30rpx; }
+.skip-btn::after { border: none; }
 .input {
   width: 100%; height: 88rpx; background: #f4f2ee; border-radius: 16rpx;
   padding: 0 28rpx; box-sizing: border-box; font-size: 30rpx; text-align: center;
