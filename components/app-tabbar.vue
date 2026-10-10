@@ -5,24 +5,20 @@
         <image class="goat-tb-ico" :src="current === 0 ? '/static/images/tab/home-on.png' : '/static/images/tab/home.png'"></image>
         <text :class="current === 0 ? 'goat-tb-lab on' : 'goat-tb-lab'">首页</text>
       </view>
-      <view class="goat-tb-item" @tap="go(1)">
-        <image class="goat-tb-ico" :src="current === 1 ? '/static/images/tab/shop-on.png' : '/static/images/tab/shop.png'"></image>
-        <text :class="current === 1 ? 'goat-tb-lab on' : 'goat-tb-lab'">商城</text>
-      </view>
-      <view class="goat-tb-item goat-tb-mid" @tap="go(2)">
+      <view class="goat-tb-item goat-tb-mid" @tap="go(1)">
         <view class="goat-tb-hold"></view>
-        <view :class="current === 2 ? 'goat-tb-fab on' : 'goat-tb-fab'">
+        <view :class="current === 1 ? 'goat-tb-fab on' : 'goat-tb-fab'">
           <image class="goat-tb-fab-ico" src="/static/images/tab/book-white.png"></image>
         </view>
-        <text :class="current === 2 ? 'goat-tb-lab on' : 'goat-tb-lab'">订场开打</text>
+        <text :class="current === 1 ? 'goat-tb-lab on' : 'goat-tb-lab'">订场开打</text>
+      </view>
+      <view class="goat-tb-item" @tap="go(2)">
+        <image class="goat-tb-ico" :src="current === 2 ? '/static/images/tab/mine-on.png' : '/static/images/tab/mine.png'"></image>
+        <text :class="current === 2 ? 'goat-tb-lab on' : 'goat-tb-lab'">我的</text>
       </view>
       <view class="goat-tb-item" @tap="go(3)">
-        <image class="goat-tb-ico" :src="current === 3 ? '/static/images/tab/mine-on.png' : '/static/images/tab/mine.png'"></image>
-        <text :class="current === 3 ? 'goat-tb-lab on' : 'goat-tb-lab'">我的</text>
-      </view>
-      <view class="goat-tb-item" @tap="go(4)">
-        <image class="goat-tb-ico" :src="current === 4 ? '/static/images/tab/rank-on.png' : '/static/images/tab/rank.png'"></image>
-        <text :class="current === 4 ? 'goat-tb-lab on' : 'goat-tb-lab'">排名</text>
+        <image class="goat-tb-ico" :src="current === 3 ? '/static/images/tab/rank-on.png' : '/static/images/tab/rank.png'"></image>
+        <text :class="current === 3 ? 'goat-tb-lab on' : 'goat-tb-lab'">排名</text>
       </view>
     </view>
   </view>
@@ -36,7 +32,6 @@ export default {
     go(i) {
       var urls = [
         '/pages/index/index',
-        '/pages/shop/shop',
         '/pages/booking/booking',
         '/pages/my/my',
         '/pages/rank/rank'

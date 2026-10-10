@@ -88,7 +88,7 @@
       </view>
       <view class="logout" @tap="logout">退出登录</view>
     </block>
-    <app-tabbar :current="3" />
+    <app-tabbar :current="2" />
   </view>
 </template>
 

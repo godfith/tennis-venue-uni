@@ -97,7 +97,7 @@
         <view class="sheet-cancel" @tap="venueSheetVisible = false">取消</view>
       </view>
     </view>
-    <app-tabbar :current="2" />
+    <app-tabbar :current="1" />
   </view>
 </template>
 <script>

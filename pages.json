@@ -111,7 +111,6 @@
 		"borderStyle": "white",
 		"list": [
 			{ "pagePath": "pages/index/index", "text": "首页" },
-			{ "pagePath": "pages/shop/shop", "text": "商城" },
 			{ "pagePath": "pages/booking/booking", "text": "订场" },
 			{ "pagePath": "pages/my/my", "text": "我的" },
 			{ "pagePath": "pages/rank/rank", "text": "排名" }

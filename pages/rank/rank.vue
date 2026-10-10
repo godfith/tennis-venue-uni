@@ -3,7 +3,7 @@
     <view class="title">赛事排名</view>
     <view class="sub">TOURNAMENT RANKING</view>
     <view class="empty">排名功能即将上线</view>
-    <app-tabbar :current="4" />
+    <app-tabbar :current="3" />
   </view>
 </template>
 <script>
