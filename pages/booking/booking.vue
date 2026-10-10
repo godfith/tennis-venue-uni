@@ -34,12 +34,9 @@
               v-for="(cell, i) in court.times"
               :key="i"
               :class="'cell ' + cls(cell) + (currentCourtName === court.name && currentTime === cell.time ? ' pick' : '')"
-              @tap="onSelectSlot(court.id, court.name, cell.time, cell.status)"
+              @tap="onSelectSlot(court.id, court.name, cell.time, cell.status, cell.past)"
             >
-              <block v-if="cell.status === 'past'">
-                <view class="sold">已过</view>
-              </block>
-              <block v-else-if="cell.status === 'full'">
+              <block v-if="cell.status === 'full'">
                 <view class="sold">已售</view>
               </block>
               <block v-else-if="cell.status === 'group'">
@@ -392,8 +389,8 @@ export default {
             times: availableTimes.map(function (t) {
               var key = court.name + '_' + t.time
               var status = 'available'
-              if (that._pastMap && that._pastMap[t.time]) status = 'past'
-              else if (groupMap[key]) status = 'group'
+              var past = !!(that._pastMap && that._pastMap[t.time])
+              if (groupMap[key]) status = 'group'
               else if (bookedMap[key]) status = 'full'
               var price = Number(that.priceMap[key] || 0)
               if (!price) {
@@ -407,7 +404,7 @@ export default {
                   }
                 }
               }
-              return { time: t.time, short: t.short, status: status, price: price }
+              return { time: t.time, short: t.short, status: status, past: past, price: price }
             })
           }
         })
@@ -419,8 +416,8 @@ export default {
         console.error('loadCourtStatus', err)
       })
     },
-    onSelectSlot(courtId, courtName, time, status) {
-      if (status === 'past') {
+    onSelectSlot(courtId, courtName, time, status, past) {
+      if (past) {
         uni.showToast({ title: '该时段已过，不能预约', icon: 'none' })
         return
       }
@@ -608,7 +605,7 @@ export default {
 .col { width: 176rpx; margin-right: 16rpx; }
 .col-h { text-align: center; font-size: 30rpx; color: #222; font-weight: 600; margin-bottom: 16rpx; }
 .cell { background: #fff; border-radius: 18rpx; height: 148rpx; margin-bottom: 16rpx; box-sizing: border-box; border: 2rpx solid #eee; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4rpx 12rpx rgba(0,0,0,.03); }
-.cell.full, .cell.group, .cell.past { background: #f5f6f7; border-color: #f5f6f7; box-shadow: none; }
+.cell.full, .cell.group { background: #f5f6f7; border-color: #f5f6f7; box-shadow: none; }
 .cell.pick { border-color: #18a058; background: #f3fbf6; }
 .yen { color: #222; font-size: 30rpx; font-weight: 700; }
 .sold { color: #9aa0a6; font-size: 26rpx; }
