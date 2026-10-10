@@ -229,7 +229,15 @@ export default {
       if (card.type === 'time') {
         var rule = card.timeRule
         if (!rule || rule.mode === 'unlimited' || rule.mode === 'all') return true
-        var d = new Date(String(dateStr).replace(/-/g, '/'))
+        if (rule.mode === 'dates' || (rule.dateRanges && rule.dateRanges.length)) {
+          var ranges = rule.dateRanges || []
+          for (var d = 0; d < ranges.length; d++) {
+            var rg = ranges[d] || {}
+            if (rg.start && rg.end && dateStr >= rg.start && dateStr <= rg.end) return true
+          }
+          return false
+        }
+        var dt = new Date(String(dateStr).replace(/-/g, '/'))
         var weekday = d.getDay()
         if (weekday === 0) weekday = 7
         var slotStart = (timeStr || '').split('-')[0]
