@@ -240,7 +240,7 @@ export default {
           return false
         }
         var dt = new Date(String(dateStr).replace(/-/g, '/'))
-        var weekday = d.getDay()
+        var weekday = dt.getDay()
         if (weekday === 0) weekday = 7
         var slotStart = (timeStr || '').split('-')[0]
         if (rule.mode === 'rules' && Array.isArray(rule.rules)) {
@@ -485,7 +485,11 @@ export default {
       that.cardLoading = true
       wx.cloud.callFunction({
         name: 'userApi',
-        data: { action: 'getMyCards', userId: uni.getStorageSync('userDocId') || '' },
+        data: {
+          action: 'getMyCards',
+          userId: uni.getStorageSync('userDocId') || '',
+          phone: uni.getStorageSync('phone') || ''
+        },
         success: function (res) { that.myCards = (res.result || {}).list || [] },
         fail: function () { that.myCards = [] },
         complete: function () { that.cardLoading = false }
