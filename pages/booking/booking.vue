@@ -10,7 +10,8 @@
       </view>
 
       <view class="tabs">
-        <view class="tab on">订场</view>
+        <view :class="'tab ' + (sport === 'tennis' ? 'on' : '')" @tap="setSport('tennis')">网球</view>
+        <view :class="'tab ' + (sport === 'pickleball' ? 'on' : '')" @tap="setSport('pickleball')">匹克球</view>
       </view>
 
       <scroll-view class="dates" scroll-x enable-flex>
@@ -25,7 +26,7 @@
         </view>
       </scroll-view>
 
-      <view class="venue-tip" v-if="courtList.length">{{ venueName }}，共有{{ courtList.length }}个场地，都可以预约</view>
+      <view class="venue-tip" v-if="courtList.length">{{ venueName }} · {{ sport === 'pickleball' ? '匹克球' : '网球' }}，{{ courtList.length }} 个场地</view>
       <scroll-view class="grid-wrap" scroll-x scroll-y v-if="courtList.length">
         <view class="grid">
           <view class="col" v-for="court in courtList" :key="court.id">
@@ -37,7 +38,7 @@
               @tap="onSelectSlot(court.id, court.name, cell.time, cell.status, cell.past)"
             >
               <block v-if="cell.status === 'full'">
-                <view class="sold">已售</view>
+                <view class="sold">{{ cell.sportText || '已售' }}</view>
               </block>
               <block v-else-if="cell.status === 'group'">
                 <view class="sold">团课</view>
@@ -50,7 +51,7 @@
           </view>
         </view>
       </scroll-view>
-      <view class="empty" v-else>请先在首页选择场馆</view>
+      <view class="empty" v-else>{{ sport === 'pickleball' ? '当前门店没有匹克球场地' : '请先在首页选择场馆' }}</view>
     </view>
 
     <view class="bar">
@@ -112,6 +113,7 @@ export default {
       venueName: '',
       venueId: '',
       venueList: [],
+      sport: 'tennis',
       venueSheetVisible: false,
       courtList: [],
       currentDate: '',
@@ -275,7 +277,7 @@ export default {
           var result = res.result || {}
           if (!result.ok) return
           that.courtConfig = (result.list || []).map(function (item) {
-            return { id: item._id, name: item.name, desc: item.type || '' }
+            return { id: item._id, name: item.name, desc: item.type || '', type: item.type || '' }
           })
           if (that.courtConfig.length && !that.currentCourtName) {
             that.currentCourtId = that.courtConfig[0].id
@@ -307,7 +309,19 @@ export default {
       this.currentDate = list[0].date
       this.loadCourtStatus(list[0].date)
     },
-    onSelectDate(date) {
+    setSport(sport) {
+      this.sport = sport
+      this.currentCourtName = ''
+      this.currentTime = ''
+      if (this.currentDate) this.loadCourtStatus(this.currentDate)
+    },
+    courtSport(court) {
+      var text = String((court && court.type) || '') + String((court && court.name) || '')
+      if (text.indexOf('共用') >= 0) return 'both'
+      if (text.indexOf('匹克') >= 0) return 'pickleball'
+      if (this.venueId === 'venue_zhongda' && text.indexOf('发球机') >= 0) return 'both'
+      return 'tennis'
+    },
       this.currentDate = date
       this.currentTime = ''
       this.loadCourtStatus(date)
@@ -382,14 +396,22 @@ export default {
         var result = res.result || {}
         var bookedMap = {}
         var groupMap = {}
+        var sportMap = {}
         ;(result.bookings || []).forEach(function (item) {
-          if (item.status === 'booked' && !item.groupClassId) bookedMap[item.court + '_' + item.time] = true
+          if (item.status === 'booked' && !item.groupClassId) {
+            bookedMap[item.court + '_' + item.time] = true
+            if (String(item.remark || '').indexOf('匹克') >= 0) sportMap[item.court + '_' + item.time] = '匹克球'
+          }
         })
         ;(result.groupClasses || []).forEach(function (g) {
           if (g.status === 'open') groupMap[g.court + '_' + g.time] = true
         })
         var availableTimes = that._openTimes || []
-        that.courtList = courtConfig.map(function (court) {
+        var courts = courtConfig.filter(function (court) {
+          var s = that.courtSport(court)
+          return s === 'both' || s === that.sport
+        })
+        that.courtList = courts.map(function (court) {
           return {
             id: court.id,
             name: court.name,
@@ -412,7 +434,7 @@ export default {
                   }
                 }
               }
-              return { time: t.time, short: t.short, status: status, past: past, price: price }
+              return { time: t.time, short: t.short, status: status, past: past, price: price, sportText: sportMap[key] || '' }
             })
           }
         })
@@ -510,7 +532,9 @@ export default {
               cardName: sel ? sel.cardName : '',
               cardType: sel ? sel.type : '',
               payOrderNo: payNo || '',
-              outTradeNo: payNo || ''
+              outTradeNo: payNo || '',
+              sport: that.sport,
+              remark: that.sport === 'pickleball' ? '匹克球' : ''
             }
           }
         }).then(function (r) {
