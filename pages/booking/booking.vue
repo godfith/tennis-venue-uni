@@ -231,7 +231,7 @@ export default {
       if (card.type === 'time') {
         var rule = card.timeRule
         if (!rule || rule.mode === 'unlimited' || rule.mode === 'all') return true
-        if (rule.mode === 'dates' || (rule.dateRanges && rule.dateRanges.length)) {
+        if (rule.mode === 'dates') {
           var ranges = rule.dateRanges || []
           for (var d = 0; d < ranges.length; d++) {
             var rg = ranges[d] || {}
@@ -246,7 +246,8 @@ export default {
         if (rule.mode === 'rules' && Array.isArray(rule.rules)) {
           for (var i = 0; i < rule.rules.length; i++) {
             var r = rule.rules[i]
-            if (!(r.weekdays || []).includes(weekday)) continue
+            var days = (r.weekdays || []).map(function (n) { return Number(n) })
+            if (days.indexOf(weekday) < 0) continue
             if (r.unlimited) return true
             var slots = r.timeSlots || []
             for (var j = 0; j < slots.length; j++) {
