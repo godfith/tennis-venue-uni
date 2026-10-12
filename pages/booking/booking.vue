@@ -322,6 +322,7 @@ export default {
       if (this.venueId === 'venue_zhongda' && text.indexOf('发球机') >= 0) return 'both'
       return 'tennis'
     },
+    onSelectDate(date) {
       this.currentDate = date
       this.currentTime = ''
       this.loadCourtStatus(date)
