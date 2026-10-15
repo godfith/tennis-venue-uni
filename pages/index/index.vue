@@ -13,34 +13,23 @@
 
     <view class="sheet">
       <view class="venue-bar" @tap="showVenuePicker">
-        <view>
-          <view class="v-lab">当前场馆</view>
-          <view class="v-name">{{ venueName }}</view>
-        </view>
+        <view class="v-lab">当前场馆</view>
+        <view class="v-name">{{ venueName }}</view>
         <view class="v-sw">切换</view>
       </view>
 
-      <view class="cal">
-        <view class="cal-head">
-          <view class="cal-nav" @tap="changeMonth(-1)">‹</view>
-          <view class="cal-title">{{ calYear }}年{{ calMonth }}月</view>
-          <view class="cal-nav" @tap="changeMonth(1)">›</view>
+      <scroll-view class="dates" scroll-x enable-flex>
+        <view
+          v-for="d in dateRow"
+          :key="d.date"
+          :class="'date ' + (d.date === selectedDate ? 'on' : '')"
+          @tap="pickDate(d.date)"
+        >
+          <view class="d-wk">{{ d.week }}</view>
+          <view class="d-md">{{ d.md }}</view>
+          <view class="d-dot" v-if="hasActivity(d.date)"></view>
         </view>
-        <view class="cal-weeks">
-          <view class="cal-w" v-for="w in weekLabels" :key="w">{{ w }}</view>
-        </view>
-        <view class="cal-grid">
-          <view
-            v-for="(d, i) in calDays"
-            :key="i"
-            :class="'cal-d ' + (d.date === selectedDate ? 'on' : '') + (d.inMonth ? '' : ' out') + (hasActivity(d.date) ? ' has' : '')"
-            @tap="d.inMonth && pickDate(d.date)"
-          >
-            <text>{{ d.day }}</text>
-            <view class="dot" v-if="hasActivity(d.date)"></view>
-          </view>
-        </view>
-      </view>
+      </scroll-view>
 
       <view class="acts">
         <view class="acts-title">{{ selectedDate }} 的活动</view>
@@ -82,8 +71,7 @@ export default {
         { image: '/static/images/index/banner.jpg', title: '订场 · 团课 · 私教' }
       ],
       weekLabels: ['日', '一', '二', '三', '四', '五', '六'],
-      calYear: 2026, calMonth: 10,
-      calDays: [], selectedDate: '',
+      dateRow: [], selectedDate: '',
       activities: []
     }
   },
@@ -102,11 +90,22 @@ export default {
   onShareTimeline() { return { title: '山羊Goat网球馆' } },
   methods: {
     initCal() {
+      var weeks = ['日', '一', '二', '三', '四', '五', '六']
       var now = new Date()
-      this.calYear = now.getFullYear()
-      this.calMonth = now.getMonth() + 1
-      this.selectedDate = this.fmtDate(now)
-      this.buildDays()
+      var list = []
+      for (var i = 0; i < 14; i++) {
+        var d = new Date(now.getTime())
+        d.setDate(now.getDate() + i)
+        var m = d.getMonth() + 1
+        var day = d.getDate()
+        list.push({
+          date: this.fmtDate(d),
+          week: i === 0 ? '今天' : ('周' + weeks[d.getDay()]),
+          md: m + '.' + (day < 10 ? '0' : '') + day
+        })
+      }
+      this.dateRow = list
+      this.selectedDate = list[0].date
       this.loadActivities()
     },
     fmtDate(d) {
@@ -196,22 +195,17 @@ export default {
 .hero-brand { font-size: 24rpx; letter-spacing: 4rpx; opacity: .85; }
 .hero-title { font-size: 44rpx; font-weight: 700; margin-top: 8rpx; }
 .sheet { background: #f4f2ee; border-radius: 32rpx 32rpx 0 0; margin-top: -32rpx; position: relative; padding: 32rpx 28rpx 180rpx; }
-.venue-bar { display: flex; justify-content: space-between; align-items: center; background: #fff; border-radius: 16rpx; padding: 20rpx 24rpx; margin-bottom: 24rpx; }
-.v-lab { font-size: 22rpx; color: #999; }
-.v-name { font-size: 30rpx; font-weight: 600; color: #1a5c3a; margin-top: 4rpx; }
+.venue-bar { display: flex; align-items: center; background: #fff; border-radius: 16rpx; padding: 20rpx 24rpx; margin-bottom: 24rpx; }
+.v-lab { font-size: 22rpx; color: #999; margin-right: 16rpx; }
+.v-name { flex: 1; font-size: 30rpx; font-weight: 600; color: #1a5c3a; }
 .v-sw { font-size: 24rpx; color: #1a5c3a; border: 1rpx solid #1a5c3a; border-radius: 24rpx; padding: 6rpx 20rpx; }
-.cal { background: #fff; border-radius: 16rpx; padding: 20rpx; margin-bottom: 24rpx; }
-.cal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16rpx; }
-.cal-title { font-size: 30rpx; font-weight: 600; color: #333; }
-.cal-nav { width: 56rpx; height: 56rpx; text-align: center; line-height: 56rpx; font-size: 36rpx; color: #1a5c3a; }
-.cal-weeks, .cal-grid { display: flex; flex-wrap: wrap; }
-.cal-w, .cal-d { width: 14.28%; text-align: center; font-size: 24rpx; }
-.cal-w { color: #999; padding: 8rpx 0; }
-.cal-d { height: 72rpx; line-height: 72rpx; position: relative; color: #333; }
-.cal-d.out { color: #ccc; }
-.cal-d.on { background: #1a5c3a; color: #fff; border-radius: 50%; }
-.cal-d.has .dot { position: absolute; bottom: 6rpx; left: 50%; transform: translateX(-50%); width: 8rpx; height: 8rpx; background: #e85d4c; border-radius: 50%; }
-.cal-d.on .dot { background: #fff; }
+.dates { white-space: nowrap; margin-bottom: 24rpx; }
+.date { display: inline-flex; flex-direction: column; align-items: center; width: 100rpx; padding: 16rpx 0; margin-right: 12rpx; background: #fff; border-radius: 12rpx; position: relative; }
+.date.on { background: #1a5c3a; color: #fff; }
+.d-wk { font-size: 22rpx; opacity: .7; }
+.d-md { font-size: 28rpx; font-weight: 600; margin-top: 4rpx; }
+.d-dot { width: 8rpx; height: 8rpx; background: #e85d4c; border-radius: 50%; margin-top: 6rpx; }
+.date.on .d-dot { background: #fff; }
 .acts { background: #fff; border-radius: 16rpx; padding: 20rpx 24rpx; margin-bottom: 24rpx; }
 .acts-title { font-size: 28rpx; font-weight: 600; color: #333; margin-bottom: 16rpx; }
 .acts-empty { text-align: center; color: #999; padding: 32rpx 0; font-size: 26rpx; }
