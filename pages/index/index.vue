@@ -78,25 +78,6 @@
         <view v-else class="acts-empty">这天没有活动或优惠</view>
       </view>
 
-      <view class="stat-row">
-        <view class="stat" @tap="goMyCards">
-          <view class="stat-n">{{ coachCount }}</view>
-          <view class="stat-l">私教卡</view>
-        </view>
-        <view class="stat" @tap="goMyCards">
-          <view class="stat-n">{{ timesCount }}</view>
-          <view class="stat-l">场地次卡</view>
-        </view>
-        <view class="stat" @tap="goMyCards">
-          <view class="stat-n">{{ groupCount }}</view>
-          <view class="stat-l">团课卡</view>
-        </view>
-        <view class="stat" @tap="goMyCards">
-          <view class="stat-n">{{ timeCount }}</view>
-          <view class="stat-l">时间卡</view>
-        </view>
-      </view>
-
       <view class="action-row">
         <view class="action" @tap="goBooking">
           <view class="action-title">立即订场</view>
