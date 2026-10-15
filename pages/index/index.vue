@@ -18,6 +18,14 @@
     </view>
 
     <view class="sheet">
+      <view class="hello-row" @tap="goMyCards">
+        <image class="avatar" :src="avatarUrl || '/static/images/avatar.png'" mode="aspectFill"></image>
+        <view class="hello-txt">
+          <view class="hi">Hi, {{ nickName || '球友' }}</view>
+          <view class="no">{{ phone || '登录后查看会员权益' }}</view>
+        </view>
+      </view>
+
       <view class="wallet-row">
         <view class="wallet-item" @tap="goWallet">
           <view class="w-lab">现金余额</view>
@@ -145,6 +153,7 @@ export default {
       calYear: 2026, calMonth: 10, calDays: [],
       activities: [],
       balance: 0, points: 0, cardCount: 0,
+      nickName: '', phone: '', avatarUrl: '',
       coachCount: 0, timesCount: 0, groupCount: 0, timeCount: 0
     }
   },
@@ -156,6 +165,9 @@ export default {
   },
   onShow() {
     try { uni.hideTabBar({ animation: false }) } catch (e) {}
+    this.nickName = uni.getStorageSync('nickName') || ''
+    this.phone = uni.getStorageSync('phone') || ''
+    this.avatarUrl = uni.getStorageSync('avatarUrl') || ''
     this.loadVenues()
     this.initCal()
     this.loadCards()
@@ -376,7 +388,10 @@ export default {
 .date-zoom { display: flex; align-items: center; background: #1a5c3a; border-radius: 24rpx; padding: 8rpx 20rpx; }
 .zoom-icon { font-size: 28rpx; margin-right: 6rpx; }
 .zoom-txt { font-size: 24rpx; color: #fff; font-weight: 600; }
-.wallet-row { display: flex; gap: 12rpx; margin-bottom: 24rpx; }
+.hello-row { display: flex; align-items: center; background: #fff; border-radius: 16rpx; padding: 20rpx 24rpx; margin-bottom: 24rpx; }
+.avatar { width: 80rpx; height: 80rpx; border-radius: 50%; margin-right: 20rpx; }
+.hi { font-size: 30rpx; font-weight: 600; color: #333; }
+.no { font-size: 24rpx; color: #999; margin-top: 4rpx; }
 .wallet-item { flex: 1; background: #fff; border-radius: 16rpx; padding: 20rpx; text-align: center; box-shadow: 0 2rpx 8rpx rgba(0,0,0,.04); }
 .w-lab { font-size: 22rpx; color: #999; }
 .w-num { font-size: 32rpx; font-weight: 700; color: #1a5c3a; margin-top: 6rpx; }
