@@ -307,10 +307,10 @@ export default {
 .date-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12rpx; }
 .date-label { font-size: 28rpx; font-weight: 600; color: #333; }
 .date-zoom { width: 72rpx; height: 56rpx; background: #1a5c3a; border-radius: 12rpx; text-align: center; line-height: 56rpx; font-size: 36rpx; color: #fff; font-weight: 700; }
-.stat-row { display: flex; background: #fff; border-radius: 16rpx; padding: 20rpx 0; margin-bottom: 24rpx; }
-.stat { flex: 1; text-align: center; }
-.stat-n { font-size: 36rpx; font-weight: 700; color: #1a5c3a; }
-.stat-l { font-size: 22rpx; color: #999; margin-top: 4rpx; }
+.stat-row { display: flex; gap: 12rpx; margin-bottom: 24rpx; }
+.stat { flex: 1; background: #fff; border-radius: 16rpx; padding: 24rpx 0; text-align: center; box-shadow: 0 2rpx 8rpx rgba(0,0,0,.04); }
+.stat-n { font-size: 40rpx; font-weight: 700; color: #1a5c3a; }
+.stat-l { font-size: 22rpx; color: #888; margin-top: 6rpx; }
 .mask { position: fixed; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,.45); z-index: 100; display: flex; align-items: center; justify-content: center; }
 .cal-pop { background: #fff; border-radius: 20rpx; padding: 24rpx; width: 640rpx; }
 .cal-head { display: flex; align-items: center; margin-bottom: 16rpx; }
@@ -340,7 +340,7 @@ export default {
 .act-name { font-size: 28rpx; color: #333; }
 .act-meta { font-size: 22rpx; color: #999; margin-top: 4rpx; }
 .action-row { display: flex; gap: 16rpx; }
-.action { flex: 1; background: #1a5c3a; color: #fff; border-radius: 16rpx; padding: 28rpx 24rpx; }
+.action { flex: 1; background: linear-gradient(135deg, #1a5c3a, #2d8a5e); color: #fff; border-radius: 16rpx; padding: 32rpx 24rpx; box-shadow: 0 4rpx 12rpx rgba(26,92,58,.25); }
 .action-title { font-size: 32rpx; font-weight: 700; }
-.action-en { font-size: 20rpx; opacity: .7; margin-top: 4rpx; }
+.action-en { font-size: 20rpx; opacity: .75; margin-top: 6rpx; letter-spacing: 1rpx; }
 </style>
