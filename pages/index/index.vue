@@ -23,11 +23,12 @@
           <view class="date-label">活动日历</view>
           <view class="date-zoom" @tap="openCal">⤢</view>
         </view>
-        <scroll-view class="dates" scroll-x enable-flex>
+        <scroll-view class="dates" scroll-x enable-flex :scroll-into-view="scrollTo">
           <view
             v-for="d in dateRow"
             :key="d.date"
             :class="'date ' + (d.date === selectedDate ? 'on' : '')"
+            :id="'d' + d.date"
             @tap="pickDate(d.date)"
           >
             <view class="d-wk">{{ d.week }}</view>
@@ -122,7 +123,7 @@ export default {
         { image: '/static/images/index/banner.jpg', title: '订场 · 团课 · 私教' }
       ],
       weekLabels: ['日', '一', '二', '三', '四', '五', '六'],
-      dateRow: [], selectedDate: '', calOpen: false,
+      dateRow: [], selectedDate: '', scrollTo: '', calOpen: false,
       calYear: 2026, calMonth: 10, calDays: [],
       activities: [],
       coachCount: 0, timesCount: 0, groupCount: 0, timeCount: 0
@@ -217,7 +218,33 @@ export default {
     hasActivity(date) {
       return this.activities.some(function (a) { return a.date === date })
     },
-    pickDate(date) { this.selectedDate = date },
+    pickDate(date) {
+      this.selectedDate = date
+      var exists = this.dateRow.some(function (d) { return d.date === date })
+      if (!exists) this.buildRowAround(date)
+      this.scrollTo = ''
+      var that = this
+      setTimeout(function () { that.scrollTo = 'd' + date }, 50)
+    },
+    buildRowAround(center) {
+      var weeks = ['日', '一', '二', '三', '四', '五', '六']
+      var base = new Date(center.replace(/-/g, '/'))
+      var list = []
+      for (var i = -3; i < 11; i++) {
+        var d = new Date(base.getTime())
+        d.setDate(base.getDate() + i)
+        var m = d.getMonth() + 1
+        var day = d.getDate()
+        var ds = this.fmtDate(d)
+        list.push({
+          date: ds,
+          week: ds === this.fmtDate(new Date()) ? '今天' : ('周' + weeks[d.getDay()]),
+          md: m + '.' + (day < 10 ? '0' : '') + day,
+          holiday: this.holidayName(ds)
+        })
+      }
+      this.dateRow = list
+    },
     openCal() {
       var d = this.selectedDate ? new Date(this.selectedDate.replace(/-/g, '/')) : new Date()
       this.calYear = d.getFullYear()
