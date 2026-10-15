@@ -256,7 +256,7 @@ export default {
 .date.on .d-hol { color: #ffd; }
 .date-head { display: flex; align-items: center; margin-bottom: 24rpx; }
 .dates { flex: 1; white-space: nowrap; }
-.date-zoom { width: 64rpx; height: 64rpx; background: #fff; border-radius: 12rpx; text-align: center; line-height: 64rpx; font-size: 32rpx; color: #1a5c3a; margin-left: 12rpx; }
+.date-zoom { width: 88rpx; height: 88rpx; background: #1a5c3a; border-radius: 16rpx; text-align: center; line-height: 88rpx; font-size: 44rpx; color: #fff; margin-left: 16rpx; font-weight: 700; }
 .mask { position: fixed; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,.45); z-index: 100; display: flex; align-items: center; justify-content: center; }
 .cal-pop { background: #fff; border-radius: 20rpx; padding: 24rpx; width: 640rpx; }
 .cal-head { display: flex; align-items: center; margin-bottom: 16rpx; }
