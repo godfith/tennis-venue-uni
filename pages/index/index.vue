@@ -12,12 +12,6 @@
     </swiper>
 
     <view class="sheet">
-      <view class="venue-bar" @tap="showVenuePicker">
-        <view class="v-lab">当前场馆</view>
-        <view class="v-name">{{ venueName }}</view>
-        <view class="v-sw">切换</view>
-      </view>
-
       <scroll-view class="dates" scroll-x enable-flex>
         <view
           v-for="d in dateRow"
@@ -101,7 +95,8 @@ export default {
         list.push({
           date: this.fmtDate(d),
           week: i === 0 ? '今天' : ('周' + weeks[d.getDay()]),
-          md: m + '.' + (day < 10 ? '0' : '') + day
+          md: m + '.' + (day < 10 ? '0' : '') + day,
+          holiday: this.holidayName(this.fmtDate(d))
         })
       }
       this.dateRow = list
@@ -143,7 +138,15 @@ export default {
       this.calMonth = m
       this.buildDays()
     },
-    pickDate(date) { this.selectedDate = date },
+    holidayName(date) {
+      var map = {
+        '2026-01-01': '元旦', '2026-02-17': '春节', '2026-04-05': '清明',
+        '2026-05-01': '劳动节', '2026-06-19': '端午', '2026-09-25': '中秋',
+        '2026-10-01': '国庆', '2026-10-02': '国庆', '2026-10-03': '国庆',
+        '2026-10-04': '国庆', '2026-10-05': '国庆', '2026-10-06': '国庆', '2026-10-07': '国庆'
+      }
+      return map[date] || ''
+    },
     hasActivity(date) {
       return this.activities.some(function (a) { return a.date === date })
     },
@@ -195,10 +198,11 @@ export default {
 .hero-brand { font-size: 24rpx; letter-spacing: 4rpx; opacity: .85; }
 .hero-title { font-size: 44rpx; font-weight: 700; margin-top: 8rpx; }
 .sheet { background: #f4f2ee; border-radius: 32rpx 32rpx 0 0; margin-top: -32rpx; position: relative; padding: 32rpx 28rpx 180rpx; }
-.venue-bar { display: flex; align-items: center; background: #fff; border-radius: 16rpx; padding: 20rpx 24rpx; margin-bottom: 24rpx; }
-.v-lab { font-size: 22rpx; color: #999; margin-right: 16rpx; }
-.v-name { flex: 1; font-size: 30rpx; font-weight: 600; color: #1a5c3a; }
-.v-sw { font-size: 24rpx; color: #1a5c3a; border: 1rpx solid #1a5c3a; border-radius: 24rpx; padding: 6rpx 20rpx; }
+.venue-top { position: absolute; top: 0; left: 0; right: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; padding: 24rpx 28rpx; background: linear-gradient(rgba(0,0,0,.35), transparent); }
+.vt-name { color: #fff; font-size: 30rpx; font-weight: 600; }
+.vt-sw { color: #fff; font-size: 24rpx; border: 1rpx solid rgba(255,255,255,.6); border-radius: 24rpx; padding: 6rpx 18rpx; }
+.d-hol { font-size: 18rpx; color: #e85d4c; margin-top: 2rpx; }
+.date.on .d-hol { color: #ffd; }
 .dates { white-space: nowrap; margin-bottom: 24rpx; }
 .date { display: inline-flex; flex-direction: column; align-items: center; width: 100rpx; padding: 16rpx 0; margin-right: 12rpx; background: #fff; border-radius: 12rpx; position: relative; }
 .date.on { background: #1a5c3a; color: #fff; }
