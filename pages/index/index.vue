@@ -266,7 +266,16 @@ export default {
       this.calOpen = true
     },
     loadActivities() {
-      this.activities = []
+      var that = this
+      var dates = that.dateRow.map(function (d) { return d.date })
+      if (!dates.length) return
+      wx.cloud.callFunction({
+        name: 'userApi',
+        data: { action: 'getActivities', startDate: dates[0], endDate: dates[dates.length - 1] },
+        success: function (res) {
+          that.activities = (res.result || {}).list || []
+        }
+      })
     },
     loadBanners() {
       var that = this
