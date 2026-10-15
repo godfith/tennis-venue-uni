@@ -18,10 +18,28 @@
     </view>
 
     <view class="sheet">
+      <view class="wallet-row">
+        <view class="wallet-item" @tap="goWallet">
+          <view class="w-lab">现金余额</view>
+          <view class="w-num">¥{{ Number(balance).toFixed(2) }}</view>
+        </view>
+        <view class="wallet-item" @tap="goWallet">
+          <view class="w-lab">积分</view>
+          <view class="w-num">{{ points || 0 }}</view>
+        </view>
+        <view class="wallet-item" @tap="goMyCards">
+          <view class="w-lab">持卡</view>
+          <view class="w-num">{{ cardCount }}</view>
+        </view>
+      </view>
+
       <view class="date-block">
         <view class="date-top">
           <view class="date-label">活动日历</view>
-          <view class="date-zoom" @tap="openCal">⤢</view>
+          <view class="date-zoom" @tap="openCal">
+            <view class="zoom-icon">📅</view>
+            <view class="zoom-txt">月历</view>
+          </view>
         </view>
         <scroll-view class="dates" scroll-x enable-flex :scroll-into-view="scrollTo">
           <view
@@ -126,6 +144,7 @@ export default {
       dateRow: [], selectedDate: '', scrollTo: '', calOpen: false,
       calYear: 2026, calMonth: 10, calDays: [],
       activities: [],
+      balance: 0, points: 0, cardCount: 0,
       coachCount: 0, timesCount: 0, groupCount: 0, timeCount: 0
     }
   },
@@ -140,6 +159,7 @@ export default {
     this.loadVenues()
     this.initCal()
     this.loadCards()
+    this.loadWallet()
   },
   onShareAppMessage() { return { title: '山羊Goat网球馆', path: '/pages/index/index' } },
   onShareTimeline() { return { title: '山羊Goat网球馆' } },
@@ -292,6 +312,25 @@ export default {
       if (!uni.getStorageSync('phone')) { uni.navigateTo({ url: '/pages/login/login' }); return }
       uni.navigateTo({ url: '/pages/mycards/mycards' })
     },
+    goWallet() {
+      if (!uni.getStorageSync('phone')) { uni.navigateTo({ url: '/pages/login/login' }); return }
+      uni.navigateTo({ url: '/pages/wallet/wallet' })
+    },
+    loadWallet() {
+      var that = this
+      var userId = uni.getStorageSync('userDocId') || ''
+      if (!userId) { that.balance = 0; that.points = 0; return }
+      wx.cloud.callFunction({
+        name: 'userApi',
+        data: { action: 'getWallet', userId: userId, phone: uni.getStorageSync('phone') || '' },
+        success: function (res) {
+          var r = res.result || {}
+          if (!r.ok) return
+          that.balance = Number(r.balance) || 0
+          that.points = Number(r.points) || 0
+        }
+      })
+    },
     loadCards() {
       var that = this
       var userId = uni.getStorageSync('userDocId') || ''
@@ -302,6 +341,7 @@ export default {
         success: function (res) {
           var list = ((res.result || {}).list || []).filter(function (c) { return c.status === 'active' })
           that.coachCount = that.timesCount = that.groupCount = that.timeCount = 0
+          that.cardCount = list.length
           list.forEach(function (c) {
             if (c.type === 'coach') that.coachCount += 1
             else if (c.type === 'times') that.timesCount += 1
@@ -333,7 +373,13 @@ export default {
 .dates { white-space: nowrap; }
 .date-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12rpx; }
 .date-label { font-size: 28rpx; font-weight: 600; color: #333; }
-.date-zoom { width: 72rpx; height: 56rpx; background: #1a5c3a; border-radius: 12rpx; text-align: center; line-height: 56rpx; font-size: 36rpx; color: #fff; font-weight: 700; }
+.date-zoom { display: flex; align-items: center; background: #1a5c3a; border-radius: 24rpx; padding: 8rpx 20rpx; }
+.zoom-icon { font-size: 28rpx; margin-right: 6rpx; }
+.zoom-txt { font-size: 24rpx; color: #fff; font-weight: 600; }
+.wallet-row { display: flex; gap: 12rpx; margin-bottom: 24rpx; }
+.wallet-item { flex: 1; background: #fff; border-radius: 16rpx; padding: 20rpx; text-align: center; box-shadow: 0 2rpx 8rpx rgba(0,0,0,.04); }
+.w-lab { font-size: 22rpx; color: #999; }
+.w-num { font-size: 32rpx; font-weight: 700; color: #1a5c3a; margin-top: 6rpx; }
 .stat-row { display: flex; gap: 12rpx; margin-bottom: 24rpx; }
 .stat { flex: 1; background: #fff; border-radius: 16rpx; padding: 24rpx 0; text-align: center; box-shadow: 0 2rpx 8rpx rgba(0,0,0,.04); }
 .stat-n { font-size: 40rpx; font-weight: 700; color: #1a5c3a; }
