@@ -18,26 +18,25 @@
     </view>
 
     <view class="sheet">
-      <view class="hello-row" @tap="goMyCards">
-        <image class="avatar" :src="avatarUrl || '/static/images/avatar.png'" mode="aspectFill"></image>
-        <view class="hello-txt">
+      <view class="hello-row">
+        <image class="avatar" :src="avatarUrl || '/static/images/avatar.png'" mode="aspectFill" @tap="goMyCards"></image>
+        <view class="hello-txt" @tap="goMyCards">
           <view class="hi">Hi, {{ nickName || '球友' }}</view>
-          <view class="no">{{ phone || '登录后查看会员权益' }}</view>
+          <view class="no">{{ phone || '登录后查看' }}</view>
         </view>
-      </view>
-
-      <view class="wallet-row">
-        <view class="wallet-item" @tap="goWallet">
-          <view class="w-lab">现金余额</view>
-          <view class="w-num">¥{{ Number(balance).toFixed(2) }}</view>
-        </view>
-        <view class="wallet-item" @tap="goWallet">
-          <view class="w-lab">积分</view>
-          <view class="w-num">{{ points || 0 }}</view>
-        </view>
-        <view class="wallet-item" @tap="goMyCards">
-          <view class="w-lab">持卡</view>
-          <view class="w-num">{{ cardCount }}</view>
+        <view class="wallet-inline" @tap="goWallet">
+          <view class="wi-item">
+            <view class="wi-num">¥{{ Number(balance).toFixed(0) }}</view>
+            <view class="wi-lab">余额</view>
+          </view>
+          <view class="wi-item">
+            <view class="wi-num">{{ points || 0 }}</view>
+            <view class="wi-lab">积分</view>
+          </view>
+          <view class="wi-item" @tap.stop="goMyCards">
+            <view class="wi-num">{{ cardCount }}</view>
+            <view class="wi-lab">持卡</view>
+          </view>
         </view>
       </view>
 
@@ -389,13 +388,14 @@ export default {
 .zoom-icon { font-size: 28rpx; margin-right: 6rpx; }
 .zoom-txt { font-size: 24rpx; color: #fff; font-weight: 600; }
 .hello-row { display: flex; align-items: center; background: #fff; border-radius: 16rpx; padding: 20rpx 24rpx; margin-bottom: 24rpx; }
-.avatar { width: 80rpx; height: 80rpx; border-radius: 50%; margin-right: 20rpx; }
-.hi { font-size: 30rpx; font-weight: 600; color: #333; }
-.no { font-size: 24rpx; color: #999; margin-top: 4rpx; }
-.wallet-row { display: flex; flex-direction: row; gap: 12rpx; margin-bottom: 24rpx; }
-.wallet-item { flex: 1; background: #fff; border-radius: 16rpx; padding: 16rpx 0; text-align: center; box-shadow: 0 2rpx 8rpx rgba(0,0,0,.04); }
-.w-lab { font-size: 22rpx; color: #999; }
-.w-num { font-size: 32rpx; font-weight: 700; color: #1a5c3a; margin-top: 6rpx; }
+.avatar { width: 72rpx; height: 72rpx; border-radius: 50%; margin-right: 16rpx; flex-shrink: 0; }
+.hello-txt { flex: 1; min-width: 0; }
+.hi { font-size: 28rpx; font-weight: 600; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.no { font-size: 22rpx; color: #999; margin-top: 4rpx; }
+.wallet-inline { display: flex; gap: 20rpx; }
+.wi-item { text-align: center; }
+.wi-num { font-size: 28rpx; font-weight: 700; color: #1a5c3a; }
+.wi-lab { font-size: 20rpx; color: #999; margin-top: 2rpx; }
 .stat-row { display: flex; gap: 12rpx; margin-bottom: 24rpx; }
 .stat { flex: 1; background: #fff; border-radius: 16rpx; padding: 24rpx 0; text-align: center; box-shadow: 0 2rpx 8rpx rgba(0,0,0,.04); }
 .stat-n { font-size: 40rpx; font-weight: 700; color: #1a5c3a; }
