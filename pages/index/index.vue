@@ -18,19 +18,22 @@
     </view>
 
     <view class="sheet">
-      <scroll-view class="dates" scroll-x enable-flex>
-        <view
-          v-for="d in dateRow"
-          :key="d.date"
-          :class="'date ' + (d.date === selectedDate ? 'on' : '')"
-          @tap="pickDate(d.date)"
-        >
-          <view class="d-wk">{{ d.week }}</view>
-          <view class="d-md">{{ d.md }}</view>
-          <view class="d-hol" v-if="d.holiday">{{ d.holiday }}</view>
-          <view class="d-dot" v-if="hasActivity(d.date)"></view>
-        </view>
-      </scroll-view>
+      <view class="date-head">
+        <scroll-view class="dates" scroll-x enable-flex>
+          <view
+            v-for="d in dateRow"
+            :key="d.date"
+            :class="'date ' + (d.date === selectedDate ? 'on' : '')"
+            @tap="pickDate(d.date)"
+          >
+            <view class="d-wk">{{ d.week }}</view>
+            <view class="d-md">{{ d.md }}</view>
+            <view class="d-hol" v-if="d.holiday">{{ d.holiday }}</view>
+            <view class="d-dot" v-if="hasActivity(d.date)"></view>
+          </view>
+        </scroll-view>
+        <view class="date-zoom" @tap="openCal">⤢</view>
+      </view>
 
       <view class="acts">
         <view class="acts-title">{{ selectedDate }} 的活动</view>
@@ -57,7 +60,31 @@
         </view>
       </view>
     </view>
-    <app-tabbar :current="0" />
+    <view class="mask" v-if="calOpen" @tap="calOpen = false">
+      <view class="cal-pop" @tap.stop="">
+        <view class="cal-head">
+          <view class="cal-nav" @tap="changeMonth(-1)">‹</view>
+          <view class="cal-title">{{ calYear }}年{{ calMonth }}月</view>
+          <view class="cal-nav" @tap="changeMonth(1)">›</view>
+          <view class="cal-close" @tap="calOpen = false">✕</view>
+        </view>
+        <view class="cal-weeks">
+          <view class="cal-w" v-for="w in weekLabels" :key="w">{{ w }}</view>
+        </view>
+        <view class="cal-grid">
+          <view
+            v-for="(d, i) in calDays"
+            :key="i"
+            :class="'cal-d ' + (d.date === selectedDate ? 'on' : '') + (d.inMonth ? '' : ' out')"
+            @tap="d.inMonth && (pickDate(d.date), calOpen = false)"
+          >
+            <text>{{ d.day }}</text>
+            <view class="cal-hol" v-if="d.holiday">{{ d.holiday }}</view>
+            <view class="cal-dot" v-if="hasActivity(d.date)"></view>
+          </view>
+        </view>
+      </view>
+    </view>
   </view>
 </template>
 <script>
@@ -72,7 +99,8 @@ export default {
         { image: '/static/images/index/banner.jpg', title: '订场 · 团课 · 私教' }
       ],
       weekLabels: ['日', '一', '二', '三', '四', '五', '六'],
-      dateRow: [], selectedDate: '',
+      dateRow: [], selectedDate: '', calOpen: false,
+      calYear: 2026, calMonth: 10, calDays: [],
       activities: []
     }
   },
@@ -128,7 +156,7 @@ export default {
       }
       for (var d = 1; d <= days; d++) {
         var cur = new Date(y, m - 1, d)
-        list.push({ day: d, date: this.fmtDate(cur), inMonth: true })
+        list.push({ day: d, date: this.fmtDate(cur), inMonth: true, holiday: this.holidayName(this.fmtDate(cur)) })
       }
       while (list.length % 7) {
         var next = new Date(y, m, list.length - start - days + 1)
@@ -163,6 +191,14 @@ export default {
     },
     hasActivity(date) {
       return this.activities.some(function (a) { return a.date === date })
+    },
+    pickDate(date) { this.selectedDate = date },
+    openCal() {
+      var d = this.selectedDate ? new Date(this.selectedDate.replace(/-/g, '/')) : new Date()
+      this.calYear = d.getFullYear()
+      this.calMonth = d.getMonth() + 1
+      this.buildDays()
+      this.calOpen = true
     },
     loadActivities() {
       this.activities = []
@@ -218,7 +254,24 @@ export default {
 .vt-sw { color: #fff; font-size: 24rpx; }
 .d-hol { font-size: 18rpx; color: #e85d4c; margin-top: 2rpx; }
 .date.on .d-hol { color: #ffd; }
-.dates { white-space: nowrap; margin-bottom: 24rpx; }
+.date-head { display: flex; align-items: center; margin-bottom: 24rpx; }
+.dates { flex: 1; white-space: nowrap; }
+.date-zoom { width: 64rpx; height: 64rpx; background: #fff; border-radius: 12rpx; text-align: center; line-height: 64rpx; font-size: 32rpx; color: #1a5c3a; margin-left: 12rpx; }
+.mask { position: fixed; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,.45); z-index: 100; display: flex; align-items: center; justify-content: center; }
+.cal-pop { background: #fff; border-radius: 20rpx; padding: 24rpx; width: 640rpx; }
+.cal-head { display: flex; align-items: center; margin-bottom: 16rpx; }
+.cal-title { flex: 1; text-align: center; font-size: 32rpx; font-weight: 600; }
+.cal-nav, .cal-close { width: 56rpx; height: 56rpx; text-align: center; line-height: 56rpx; font-size: 36rpx; color: #1a5c3a; }
+.cal-weeks, .cal-grid { display: flex; flex-wrap: wrap; }
+.cal-w, .cal-d { width: 14.28%; text-align: center; font-size: 24rpx; }
+.cal-w { color: #999; padding: 8rpx 0; }
+.cal-d { height: 80rpx; position: relative; color: #333; padding-top: 12rpx; }
+.cal-d.out { color: #ccc; }
+.cal-d.on { background: #1a5c3a; color: #fff; border-radius: 8rpx; }
+.cal-hol { font-size: 16rpx; color: #e85d4c; }
+.cal-d.on .cal-hol { color: #ffd; }
+.cal-dot { position: absolute; bottom: 4rpx; left: 50%; transform: translateX(-50%); width: 8rpx; height: 8rpx; background: #e85d4c; border-radius: 50%; }
+.cal-d.on .cal-dot { background: #fff; }
 .date { display: inline-flex; flex-direction: column; align-items: center; width: 100rpx; padding: 16rpx 0; margin-right: 12rpx; background: #fff; border-radius: 12rpx; position: relative; }
 .date.on { background: #1a5c3a; color: #fff; }
 .d-wk { font-size: 22rpx; opacity: .7; }
