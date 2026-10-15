@@ -392,7 +392,8 @@ export default {
 .avatar { width: 80rpx; height: 80rpx; border-radius: 50%; margin-right: 20rpx; }
 .hi { font-size: 30rpx; font-weight: 600; color: #333; }
 .no { font-size: 24rpx; color: #999; margin-top: 4rpx; }
-.wallet-item { flex: 1; background: #fff; border-radius: 16rpx; padding: 20rpx; text-align: center; box-shadow: 0 2rpx 8rpx rgba(0,0,0,.04); }
+.wallet-row { display: flex; flex-direction: row; gap: 12rpx; margin-bottom: 24rpx; }
+.wallet-item { flex: 1; background: #fff; border-radius: 16rpx; padding: 16rpx 0; text-align: center; box-shadow: 0 2rpx 8rpx rgba(0,0,0,.04); }
 .w-lab { font-size: 22rpx; color: #999; }
 .w-num { font-size: 32rpx; font-weight: 700; color: #1a5c3a; margin-top: 6rpx; }
 .stat-row { display: flex; gap: 12rpx; margin-bottom: 24rpx; }
