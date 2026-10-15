@@ -18,7 +18,11 @@
     </view>
 
     <view class="sheet">
-      <view class="date-head">
+      <view class="date-block">
+        <view class="date-top">
+          <view class="date-label">活动日历</view>
+          <view class="date-zoom" @tap="openCal">⤢</view>
+        </view>
         <scroll-view class="dates" scroll-x enable-flex>
           <view
             v-for="d in dateRow"
@@ -32,7 +36,6 @@
             <view class="d-dot" v-if="hasActivity(d.date)"></view>
           </view>
         </scroll-view>
-        <view class="date-zoom" @tap="openCal">⤢</view>
       </view>
 
       <view class="acts">
@@ -47,6 +50,25 @@
           </view>
         </view>
         <view v-else class="acts-empty">这天没有活动或优惠</view>
+      </view>
+
+      <view class="stat-row">
+        <view class="stat" @tap="goMyCards">
+          <view class="stat-n">{{ coachCount }}</view>
+          <view class="stat-l">私教卡</view>
+        </view>
+        <view class="stat" @tap="goMyCards">
+          <view class="stat-n">{{ timesCount }}</view>
+          <view class="stat-l">场地次卡</view>
+        </view>
+        <view class="stat" @tap="goMyCards">
+          <view class="stat-n">{{ groupCount }}</view>
+          <view class="stat-l">团课卡</view>
+        </view>
+        <view class="stat" @tap="goMyCards">
+          <view class="stat-n">{{ timeCount }}</view>
+          <view class="stat-l">时间卡</view>
+        </view>
       </view>
 
       <view class="action-row">
@@ -85,6 +107,7 @@
         </view>
       </view>
     </view>
+    <app-tabbar :current="0" />
   </view>
 </template>
 <script>
@@ -101,7 +124,8 @@ export default {
       weekLabels: ['日', '一', '二', '三', '四', '五', '六'],
       dateRow: [], selectedDate: '', calOpen: false,
       calYear: 2026, calMonth: 10, calDays: [],
-      activities: []
+      activities: [],
+      coachCount: 0, timesCount: 0, groupCount: 0, timeCount: 0
     }
   },
   computed: {
@@ -114,6 +138,7 @@ export default {
     try { uni.hideTabBar({ animation: false }) } catch (e) {}
     this.loadVenues()
     this.initCal()
+    this.loadCards()
   },
   onShareAppMessage() { return { title: '山羊Goat网球馆', path: '/pages/index/index' } },
   onShareTimeline() { return { title: '山羊Goat网球馆' } },
@@ -235,7 +260,30 @@ export default {
       })
     },
     goBooking() { uni.switchTab({ url: '/pages/booking/booking' }) },
-    goGroup() { uni.navigateTo({ url: '/pages/group/group' }) }
+    goGroup() { uni.navigateTo({ url: '/pages/group/group' }) },
+    goMyCards() {
+      if (!uni.getStorageSync('phone')) { uni.navigateTo({ url: '/pages/login/login' }); return }
+      uni.navigateTo({ url: '/pages/mycards/mycards' })
+    },
+    loadCards() {
+      var that = this
+      var userId = uni.getStorageSync('userDocId') || ''
+      if (!userId) { that.coachCount = that.timesCount = that.groupCount = that.timeCount = 0; return }
+      wx.cloud.callFunction({
+        name: 'userApi',
+        data: { action: 'getMyCards', userId: userId, phone: uni.getStorageSync('phone') || '' },
+        success: function (res) {
+          var list = ((res.result || {}).list || []).filter(function (c) { return c.status === 'active' })
+          that.coachCount = that.timesCount = that.groupCount = that.timeCount = 0
+          list.forEach(function (c) {
+            if (c.type === 'coach') that.coachCount += 1
+            else if (c.type === 'times') that.timesCount += 1
+            else if (c.type === 'group') that.groupCount += 1
+            else if (c.type === 'time') that.timeCount += 1
+          })
+        }
+      })
+    }
   }
 }
 </script>
@@ -254,9 +302,15 @@ export default {
 .vt-sw { color: #fff; font-size: 24rpx; }
 .d-hol { font-size: 18rpx; color: #e85d4c; margin-top: 2rpx; }
 .date.on .d-hol { color: #ffd; }
-.date-head { display: flex; align-items: center; margin-bottom: 24rpx; }
-.dates { flex: 1; white-space: nowrap; }
-.date-zoom { width: 88rpx; height: 88rpx; background: #1a5c3a; border-radius: 16rpx; text-align: center; line-height: 88rpx; font-size: 44rpx; color: #fff; margin-left: 16rpx; font-weight: 700; }
+.date-block { margin-bottom: 24rpx; }
+.dates { white-space: nowrap; }
+.date-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12rpx; }
+.date-label { font-size: 28rpx; font-weight: 600; color: #333; }
+.date-zoom { width: 72rpx; height: 56rpx; background: #1a5c3a; border-radius: 12rpx; text-align: center; line-height: 56rpx; font-size: 36rpx; color: #fff; font-weight: 700; }
+.stat-row { display: flex; background: #fff; border-radius: 16rpx; padding: 20rpx 0; margin-bottom: 24rpx; }
+.stat { flex: 1; text-align: center; }
+.stat-n { font-size: 36rpx; font-weight: 700; color: #1a5c3a; }
+.stat-l { font-size: 22rpx; color: #999; margin-top: 4rpx; }
 .mask { position: fixed; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,.45); z-index: 100; display: flex; align-items: center; justify-content: center; }
 .cal-pop { background: #fff; border-radius: 20rpx; padding: 24rpx; width: 640rpx; }
 .cal-head { display: flex; align-items: center; margin-bottom: 16rpx; }
