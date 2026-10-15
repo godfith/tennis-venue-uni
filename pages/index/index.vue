@@ -1,15 +1,21 @@
 <template>
   <view class="page">
-    <swiper class="hero" indicator-dots autoplay circular indicator-color="rgba(255,255,255,.4)" indicator-active-color="#fff">
-      <swiper-item v-for="(b, i) in banners" :key="i">
-        <image class="hero-img" :src="b.image" mode="aspectFill"></image>
-        <view class="hero-mask"></view>
-        <view class="hero-txt">
-          <view class="hero-brand">GOAT TENNIS</view>
-          <view class="hero-title">{{ b.title }}</view>
-        </view>
-      </swiper-item>
-    </swiper>
+    <view class="hero-wrap">
+      <swiper class="hero" indicator-dots autoplay circular indicator-color="rgba(255,255,255,.4)" indicator-active-color="#fff">
+        <swiper-item v-for="(b, i) in banners" :key="i">
+          <image class="hero-img" :src="b.image" mode="aspectFill"></image>
+          <view class="hero-mask"></view>
+          <view class="hero-txt">
+            <view class="hero-brand">GOAT TENNIS</view>
+            <view class="hero-title">{{ b.title }}</view>
+          </view>
+        </swiper-item>
+      </swiper>
+      <view class="venue-top" @tap="showVenuePicker">
+        <view class="vt-name">{{ venueName }}</view>
+        <view class="vt-sw">切换场馆 ›</view>
+      </view>
+    </view>
 
     <view class="sheet">
       <scroll-view class="dates" scroll-x enable-flex>
@@ -21,6 +27,7 @@
         >
           <view class="d-wk">{{ d.week }}</view>
           <view class="d-md">{{ d.md }}</view>
+          <view class="d-hol" v-if="d.holiday">{{ d.holiday }}</view>
           <view class="d-dot" v-if="hasActivity(d.date)"></view>
         </view>
       </scroll-view>
@@ -140,8 +147,15 @@ export default {
     },
     holidayName(date) {
       var map = {
-        '2026-01-01': '元旦', '2026-02-17': '春节', '2026-04-05': '清明',
-        '2026-05-01': '劳动节', '2026-06-19': '端午', '2026-09-25': '中秋',
+        '2026-01-01': '元旦', '2026-01-02': '元旦', '2026-01-03': '元旦',
+        '2026-02-15': '除夕', '2026-02-16': '春节', '2026-02-17': '春节',
+        '2026-02-18': '春节', '2026-02-19': '春节', '2026-02-20': '春节',
+        '2026-02-21': '春节', '2026-02-22': '春节', '2026-02-23': '春节',
+        '2026-04-04': '清明', '2026-04-05': '清明', '2026-04-06': '清明',
+        '2026-05-01': '劳动节', '2026-05-02': '劳动节', '2026-05-03': '劳动节',
+        '2026-05-04': '劳动节', '2026-05-05': '劳动节',
+        '2026-06-19': '端午', '2026-06-20': '端午', '2026-06-21': '端午',
+        '2026-09-25': '中秋', '2026-09-26': '中秋', '2026-09-27': '中秋',
         '2026-10-01': '国庆', '2026-10-02': '国庆', '2026-10-03': '国庆',
         '2026-10-04': '国庆', '2026-10-05': '国庆', '2026-10-06': '国庆', '2026-10-07': '国庆'
       }
@@ -191,16 +205,17 @@ export default {
 </script>
 <style>
 .page { min-height: 100vh; background: #f4f2ee; }
-.hero { height: 66vh; position: relative; }
+.hero-wrap { position: relative; height: 66vh; }
+.hero { height: 66vh; }
 .hero-img { width: 100%; height: 100%; }
 .hero-mask { position: absolute; left: 0; right: 0; bottom: 0; height: 200rpx; background: linear-gradient(transparent, rgba(0,0,0,.45)); }
 .hero-txt { position: absolute; left: 40rpx; bottom: 48rpx; color: #fff; }
 .hero-brand { font-size: 24rpx; letter-spacing: 4rpx; opacity: .85; }
 .hero-title { font-size: 44rpx; font-weight: 700; margin-top: 8rpx; }
 .sheet { background: #f4f2ee; border-radius: 32rpx 32rpx 0 0; margin-top: -32rpx; position: relative; padding: 32rpx 28rpx 180rpx; }
-.venue-top { position: absolute; top: 0; left: 0; right: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; padding: 24rpx 28rpx; background: linear-gradient(rgba(0,0,0,.35), transparent); }
-.vt-name { color: #fff; font-size: 30rpx; font-weight: 600; }
-.vt-sw { color: #fff; font-size: 24rpx; border: 1rpx solid rgba(255,255,255,.6); border-radius: 24rpx; padding: 6rpx 18rpx; }
+.venue-top { position: absolute; top: 24rpx; left: 28rpx; right: 28rpx; z-index: 20; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,.35); border-radius: 12rpx; padding: 16rpx 20rpx; }
+.vt-name { color: #fff; font-size: 28rpx; font-weight: 600; }
+.vt-sw { color: #fff; font-size: 24rpx; }
 .d-hol { font-size: 18rpx; color: #e85d4c; margin-top: 2rpx; }
 .date.on .d-hol { color: #ffd; }
 .dates { white-space: nowrap; margin-bottom: 24rpx; }
