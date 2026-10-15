@@ -1,79 +1,69 @@
 <template>
   <view class="page">
-    <view class="hero">
-      <image class="hero-image" src="/static/images/index/banner.jpg" mode="aspectFill"></image>
-      <view class="hero-mask"></view>
-      <view class="hero-brand">GOAT TENNIS</view>
-      <view class="hero-name">山羊Goat网球馆</view>
-    </view>
+    <swiper class="hero" indicator-dots autoplay circular indicator-color="rgba(255,255,255,.4)" indicator-active-color="#fff">
+      <swiper-item v-for="(b, i) in banners" :key="i">
+        <image class="hero-img" :src="b.image" mode="aspectFill"></image>
+        <view class="hero-mask"></view>
+        <view class="hero-txt">
+          <view class="hero-brand">GOAT TENNIS</view>
+          <view class="hero-title">{{ b.title }}</view>
+        </view>
+      </swiper-item>
+    </swiper>
+
     <view class="sheet">
       <view class="venue-bar" @tap="showVenuePicker">
         <view>
           <view class="v-lab">当前场馆</view>
           <view class="v-name">{{ venueName }}</view>
         </view>
-        <view class="v-sw">切换场馆</view>
+        <view class="v-sw">切换</view>
       </view>
-      <view class="hello-row">
-        <image class="avatar" :src="avatarUrl || '/static/images/avatar.png'" mode="aspectFill"></image>
-        <view class="hello-txt">
-          <view class="hi">Hi, {{ nickName || '球友' }}</view>
-          <view class="no">{{ phone ? phone : '登录后查看会员权益' }}</view>
+
+      <view class="cal">
+        <view class="cal-head">
+          <view class="cal-nav" @tap="changeMonth(-1)">‹</view>
+          <view class="cal-title">{{ calYear }}年{{ calMonth }}月</view>
+          <view class="cal-nav" @tap="changeMonth(1)">›</view>
         </view>
-        <view class="points" @tap="goMyCards">
-          <view class="p-lab">持卡张数</view>
-          <view class="p-num">{{ cardCount }}</view>
+        <view class="cal-weeks">
+          <view class="cal-w" v-for="w in weekLabels" :key="w">{{ w }}</view>
         </view>
-      </view>
-      <view class="wallet-row">
-        <view class="wallet-item" @tap="goWallet">
-          <view class="w-lab">现金余额</view>
-          <view class="w-num">¥{{ Number(balance).toFixed(2) }}</view>
-        </view>
-        <view class="wallet-item" @tap="goWallet">
-          <view class="w-lab">积分</view>
-          <view class="w-num">{{ points || 0 }}</view>
-        </view>
-      </view>
-      <view class="member-card" @tap="goMyCards">
-        <view class="mc-left">
-          <view class="mc-kicker">MEMBERSHIP</view>
-          <view class="mc-level">Goat Member</view>
-          <view class="mc-tip">点击查看全部会员卡</view>
-        </view>
-        <view class="mc-badge">
-          <view class="mc-club">Goat Clubhouse</view>
-          <view class="mc-sub">TENNIS</view>
+        <view class="cal-grid">
+          <view
+            v-for="(d, i) in calDays"
+            :key="i"
+            :class="'cal-d ' + (d.date === selectedDate ? 'on' : '') + (d.inMonth ? '' : ' out') + (hasActivity(d.date) ? ' has' : '')"
+            @tap="d.inMonth && pickDate(d.date)"
+          >
+            <text>{{ d.day }}</text>
+            <view class="dot" v-if="hasActivity(d.date)"></view>
+          </view>
         </view>
       </view>
-      <view class="stat-row">
-        <view class="stat" @tap="goMyCards">
-          <view class="stat-n">{{ coachCount }}<text class="unit">张</text></view>
-          <view class="stat-l">私教卡</view>
+
+      <view class="acts">
+        <view class="acts-title">{{ selectedDate }} 的活动</view>
+        <view v-if="dayActivities.length" class="act-list">
+          <view class="act" v-for="(a, i) in dayActivities" :key="i">
+            <view class="act-tag">{{ a.type }}</view>
+            <view class="act-body">
+              <view class="act-name">{{ a.title }}</view>
+              <view class="act-meta">{{ a.time }} · {{ a.venue }}</view>
+            </view>
+          </view>
         </view>
-        <view class="stat" @tap="goMyCards">
-          <view class="stat-n">{{ timesCount }}<text class="unit">张</text></view>
-          <view class="stat-l">场地次卡</view>
-        </view>
-        <view class="stat" @tap="goGroup">
-          <view class="stat-n">{{ groupCount }}<text class="unit">张</text></view>
-          <view class="stat-l">团课卡</view>
-        </view>
-        <view class="stat" @tap="goMyCards">
-          <view class="stat-n">{{ timeCount }}<text class="unit">张</text></view>
-          <view class="stat-l">时间卡</view>
-        </view>
+        <view v-else class="acts-empty">这天没有活动或优惠</view>
       </view>
+
       <view class="action-row">
         <view class="action" @tap="goBooking">
           <view class="action-title">立即订场</view>
           <view class="action-en">BOOK A COURT</view>
-          <view class="action-icon">🎾</view>
         </view>
         <view class="action" @tap="goGroup">
           <view class="action-title">团课报名</view>
           <view class="action-en">GROUP CLASS</view>
-          <view class="action-icon">🏆</view>
         </view>
       </view>
     </view>
@@ -87,39 +77,80 @@ export default {
   data() {
     return {
       venueList: [], venueId: '', venueName: '请选择场馆',
-      nickName: '', phone: '', avatarUrl: '',
-      balance: 0, points: 0, cardCount: 0,
-      coachCount: 0, timesCount: 0, groupCount: 0, timeCount: 0
+      banners: [
+        { image: '/static/images/index/banner.jpg', title: '山羊Goat网球馆' },
+        { image: '/static/images/index/banner.jpg', title: '订场 · 团课 · 私教' }
+      ],
+      weekLabels: ['日', '一', '二', '三', '四', '五', '六'],
+      calYear: 2026, calMonth: 10,
+      calDays: [], selectedDate: '',
+      activities: []
+    }
+  },
+  computed: {
+    dayActivities() {
+      var d = this.selectedDate
+      return this.activities.filter(function (a) { return a.date === d })
     }
   },
   onShow() {
     try { uni.hideTabBar({ animation: false }) } catch (e) {}
-    this.nickName = uni.getStorageSync('nickName') || ''
-    this.phone = uni.getStorageSync('phone') || ''
-    this.avatarUrl = uni.getStorageSync('avatarUrl') || ''
-    if (!this.phone) {
-      this.balance = 0
-      this.points = 0
-      this.cardCount = this.coachCount = this.timesCount = this.groupCount = this.timeCount = 0
-      uni.removeStorageSync('balance')
-      uni.removeStorageSync('points')
-      uni.removeStorageSync('userDocId')
-      this.loadVenues()
-      return
-    }
-    this.balance = Number(uni.getStorageSync('balance') || 0)
-    this.points = Number(uni.getStorageSync('points') || 0)
     this.loadVenues()
-    this.loadCards()
-    this.loadWallet()
+    this.initCal()
   },
-  onShareAppMessage() {
-    return { title: '山羊Goat网球馆', path: '/pages/index/index' }
-  },
-  onShareTimeline() {
-    return { title: '山羊Goat网球馆' }
-  },
+  onShareAppMessage() { return { title: '山羊Goat网球馆', path: '/pages/index/index' } },
+  onShareTimeline() { return { title: '山羊Goat网球馆' } },
   methods: {
+    initCal() {
+      var now = new Date()
+      this.calYear = now.getFullYear()
+      this.calMonth = now.getMonth() + 1
+      this.selectedDate = this.fmtDate(now)
+      this.buildDays()
+      this.loadActivities()
+    },
+    fmtDate(d) {
+      var m = d.getMonth() + 1
+      var day = d.getDate()
+      return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day
+    },
+    buildDays() {
+      var y = this.calYear
+      var m = this.calMonth
+      var first = new Date(y, m - 1, 1)
+      var start = first.getDay()
+      var days = new Date(y, m, 0).getDate()
+      var list = []
+      for (var i = 0; i < start; i++) {
+        var prev = new Date(y, m - 1, -start + i + 1)
+        list.push({ day: prev.getDate(), date: this.fmtDate(prev), inMonth: false })
+      }
+      for (var d = 1; d <= days; d++) {
+        var cur = new Date(y, m - 1, d)
+        list.push({ day: d, date: this.fmtDate(cur), inMonth: true })
+      }
+      while (list.length % 7) {
+        var next = new Date(y, m, list.length - start - days + 1)
+        list.push({ day: next.getDate(), date: this.fmtDate(next), inMonth: false })
+      }
+      this.calDays = list
+    },
+    changeMonth(delta) {
+      var m = this.calMonth + delta
+      var y = this.calYear
+      if (m < 1) { m = 12; y-- }
+      if (m > 12) { m = 1; y++ }
+      this.calYear = y
+      this.calMonth = m
+      this.buildDays()
+    },
+    pickDate(date) { this.selectedDate = date },
+    hasActivity(date) {
+      return this.activities.some(function (a) { return a.date === date })
+    },
+    loadActivities() {
+      this.activities = []
+    },
     loadVenues() {
       var that = this
       wx.cloud.callFunction({
@@ -133,48 +164,7 @@ export default {
           if (found) {
             that.venueId = found.venueId || found._id
             that.venueName = found.name
-          } else {
-            that.venueId = ''
-            that.venueName = '请选择场馆'
           }
-        }
-      })
-    },
-    loadWallet() {
-      var that = this
-      wx.cloud.callFunction({
-        name: 'userApi',
-        data: { action: 'getWallet', userId: uni.getStorageSync('userDocId') || '', phone: uni.getStorageSync('phone') || '' },
-        success: function (res) {
-          var r = res.result || {}
-          if (!r.ok) return
-          that.balance = Number(r.balance) || 0
-          that.points = Number(r.points) || 0
-          uni.setStorageSync('balance', that.balance)
-          uni.setStorageSync('points', that.points)
-        }
-      })
-    },
-    loadCards() {
-      var that = this
-      var userId = uni.getStorageSync('userDocId') || ''
-      if (!userId && !uni.getStorageSync('openid')) {
-        that.cardCount = that.coachCount = that.timesCount = that.groupCount = that.timeCount = 0
-        return
-      }
-      wx.cloud.callFunction({
-        name: 'userApi',
-        data: { action: 'getMyCards', userId: userId, phone: uni.getStorageSync('phone') || '' },
-        success: function (res) {
-          var list = ((res.result || {}).list || []).filter(function (c) { return c.status === 'active' })
-          that.cardCount = list.length
-          that.coachCount = that.timesCount = that.groupCount = that.timeCount = 0
-          list.forEach(function (c) {
-            if (c.type === 'coach') that.coachCount += 1
-            else if (c.type === 'times') that.timesCount += 1
-            else if (c.type === 'group') that.groupCount += 1
-            else if (c.type === 'time') that.timeCount += 1
-          })
         }
       })
     },
@@ -185,72 +175,52 @@ export default {
         itemList: that.venueList.map(function (v) { return v.name }),
         success: function (res) {
           var v = that.venueList[res.tapIndex]
-          uni.showModal({
-            title: '切换当前场馆',
-            content: '订场和约教练将记到「' + v.name + '」？',
-            success: function (r) {
-              if (!r.confirm) return
-              that.venueId = v.venueId || v._id
-              that.venueName = v.name
-              uni.setStorageSync('venue_id', that.venueId)
-              uni.setStorageSync('venue_name', v.name)
-            }
-          })
+          that.venueId = v.venueId || v._id
+          that.venueName = v.name
+          uni.setStorageSync('venue_id', that.venueId)
+          uni.setStorageSync('venue_name', v.name)
         }
       })
     },
-    goWallet() { uni.navigateTo({ url: '/pages/wallet/wallet' }) },
     goBooking() { uni.switchTab({ url: '/pages/booking/booking' }) },
-    goCoach() { uni.navigateTo({ url: '/pages/coach/coach' }) },
-    goGroup() { uni.navigateTo({ url: '/pages/group/group' }) },
-    goMyCards() {
-      if (!this.nickName && !this.phone) { uni.navigateTo({ url: '/pages/login/login' }); return }
-      uni.navigateTo({ url: '/pages/mycards/mycards' })
-    }
+    goGroup() { uni.navigateTo({ url: '/pages/group/group' }) }
   }
 }
 </script>
 <style>
-.page { min-height: 100vh; background: #f4f2ee; padding-bottom: 160rpx; }
-.hero { height: 280rpx; position: relative; }
-.hero-image { width: 100%; height: 100%; display: block; }
-.hero-mask { position: absolute; left: 0; right: 0; top: 0; bottom: 0; background: linear-gradient(180deg, rgba(30,72,112,.08), rgba(30,72,112,.42)); }
-.hero-brand { position: absolute; left: 32rpx; bottom: 64rpx; color: #fff; letter-spacing: 6rpx; font-size: 22rpx; font-weight: 600; }
-.hero-name { position: absolute; left: 32rpx; bottom: 22rpx; color: #fff; font-size: 36rpx; font-weight: 700; }
-.sheet { margin-top: -20rpx; background: #f4f2ee; border-radius: 24rpx 24rpx 0 0; padding: 20rpx 24rpx 28rpx; position: relative; }
-.venue-bar { background: #fff; border-radius: 16rpx; padding: 18rpx 24rpx; margin-bottom: 16rpx; display: flex; align-items: center; justify-content: space-between; }
-.hello-row { display: flex; align-items: center; margin-bottom: 16rpx; }
-.avatar { width: 76rpx; height: 76rpx; border-radius: 50%; margin-right: 16rpx; background: #ddd; }
-.hello-txt { flex: 1; }
-.hi { font-size: 34rpx; font-weight: 700; color: #1e4870; }
-.no { font-size: 24rpx; color: #999; margin-top: 4rpx; }
-.points { text-align: right; }
-.p-lab { font-size: 22rpx; color: #999; }
-.p-num { font-size: 36rpx; font-weight: 700; color: #1e4870; }
-.wallet-row { display: flex; gap: 12rpx; margin-bottom: 16rpx; }
-.wallet-item { flex: 1; background: #fff; border-radius: 16rpx; padding: 18rpx 20rpx; }
-.w-lab { font-size: 22rpx; color: #999; }
-.w-num { font-size: 32rpx; font-weight: 700; color: #1e4870; margin-top: 4rpx; }
-.member-card { background: #1e4870; border-radius: 16rpx; padding: 24rpx; display: flex; color: #fff; margin-bottom: 16rpx; }
-.mc-left { flex: 1; }
-.mc-kicker { font-size: 20rpx; letter-spacing: 3rpx; opacity: .7; }
-.mc-level { font-size: 36rpx; font-weight: 700; margin: 8rpx 0 10rpx; }
-.mc-tip { font-size: 24rpx; opacity: .75; }
-.mc-badge { width: 200rpx; background: rgba(255,255,255,.08); border-radius: 14rpx; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.mc-club { font-size: 24rpx; font-weight: 600; }
-.mc-sub { font-size: 20rpx; letter-spacing: 4rpx; opacity: .6; margin-top: 6rpx; }
-.stat-row { background: #fff; border-radius: 16rpx; display: flex; padding: 20rpx 0; margin-bottom: 16rpx; }
-.stat { flex: 1; text-align: center; border-right: 1rpx solid #eee; }
-.stat:last-child { border-right: none; }
-.stat-n { font-size: 34rpx; font-weight: 700; color: #111; }
-.unit { font-size: 20rpx; font-weight: 600; color: #888; margin-left: 2rpx; }
-.stat-l { font-size: 22rpx; color: #999; margin-top: 6rpx; }
-.action-row { display: flex; gap: 12rpx; margin-bottom: 8rpx; }
-.action { flex: 1; background: #fff; border-radius: 16rpx; padding: 22rpx; min-height: 132rpx; position: relative; }
-.action-title { font-size: 32rpx; font-weight: 700; color: #1e4870; }
-.action-en { font-size: 20rpx; color: #aaa; letter-spacing: 2rpx; margin-top: 6rpx; }
-.action-icon { position: absolute; right: 20rpx; bottom: 16rpx; font-size: 36rpx; }
+.page { min-height: 100vh; background: #f4f2ee; }
+.hero { height: 66vh; position: relative; }
+.hero-img { width: 100%; height: 100%; }
+.hero-mask { position: absolute; left: 0; right: 0; bottom: 0; height: 200rpx; background: linear-gradient(transparent, rgba(0,0,0,.45)); }
+.hero-txt { position: absolute; left: 40rpx; bottom: 48rpx; color: #fff; }
+.hero-brand { font-size: 24rpx; letter-spacing: 4rpx; opacity: .85; }
+.hero-title { font-size: 44rpx; font-weight: 700; margin-top: 8rpx; }
+.sheet { background: #f4f2ee; border-radius: 32rpx 32rpx 0 0; margin-top: -32rpx; position: relative; padding: 32rpx 28rpx 180rpx; }
+.venue-bar { display: flex; justify-content: space-between; align-items: center; background: #fff; border-radius: 16rpx; padding: 20rpx 24rpx; margin-bottom: 24rpx; }
 .v-lab { font-size: 22rpx; color: #999; }
-.v-name { font-size: 30rpx; font-weight: 600; color: #1e4870; margin-top: 4rpx; }
-.v-sw { font-size: 24rpx; color: #1e4870; font-weight: 600; }
+.v-name { font-size: 30rpx; font-weight: 600; color: #1a5c3a; margin-top: 4rpx; }
+.v-sw { font-size: 24rpx; color: #1a5c3a; border: 1rpx solid #1a5c3a; border-radius: 24rpx; padding: 6rpx 20rpx; }
+.cal { background: #fff; border-radius: 16rpx; padding: 20rpx; margin-bottom: 24rpx; }
+.cal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16rpx; }
+.cal-title { font-size: 30rpx; font-weight: 600; color: #333; }
+.cal-nav { width: 56rpx; height: 56rpx; text-align: center; line-height: 56rpx; font-size: 36rpx; color: #1a5c3a; }
+.cal-weeks, .cal-grid { display: flex; flex-wrap: wrap; }
+.cal-w, .cal-d { width: 14.28%; text-align: center; font-size: 24rpx; }
+.cal-w { color: #999; padding: 8rpx 0; }
+.cal-d { height: 72rpx; line-height: 72rpx; position: relative; color: #333; }
+.cal-d.out { color: #ccc; }
+.cal-d.on { background: #1a5c3a; color: #fff; border-radius: 50%; }
+.cal-d.has .dot { position: absolute; bottom: 6rpx; left: 50%; transform: translateX(-50%); width: 8rpx; height: 8rpx; background: #e85d4c; border-radius: 50%; }
+.cal-d.on .dot { background: #fff; }
+.acts { background: #fff; border-radius: 16rpx; padding: 20rpx 24rpx; margin-bottom: 24rpx; }
+.acts-title { font-size: 28rpx; font-weight: 600; color: #333; margin-bottom: 16rpx; }
+.acts-empty { text-align: center; color: #999; padding: 32rpx 0; font-size: 26rpx; }
+.act { display: flex; align-items: center; padding: 16rpx 0; border-top: 1rpx solid #f0f0f0; }
+.act-tag { background: #e8f5e9; color: #1a5c3a; font-size: 22rpx; padding: 6rpx 14rpx; border-radius: 8rpx; margin-right: 16rpx; }
+.act-name { font-size: 28rpx; color: #333; }
+.act-meta { font-size: 22rpx; color: #999; margin-top: 4rpx; }
+.action-row { display: flex; gap: 16rpx; }
+.action { flex: 1; background: #1a5c3a; color: #fff; border-radius: 16rpx; padding: 28rpx 24rpx; }
+.action-title { font-size: 32rpx; font-weight: 700; }
+.action-en { font-size: 20rpx; opacity: .7; margin-top: 4rpx; }
 </style>
