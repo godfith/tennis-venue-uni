@@ -11,7 +11,7 @@
 
       <view class="tabs">
         <view :class="'tab ' + (sport === 'tennis' ? 'on' : '')" @tap="setSport('tennis')">网球</view>
-        <view :class="'tab ' + (sport === 'pickleball' ? 'on' : '')" @tap="setSport('pickleball')">匹克球</view>
+        <view v-if="hasPickleball" :class="'tab ' + (sport === 'pickleball' ? 'on' : '')" @tap="setSport('pickleball')">匹克球</view>
       </view>
 
       <scroll-view class="dates" scroll-x enable-flex>
@@ -109,6 +109,7 @@ export default {
     return {
       nickName: '',
       courtConfig: [],
+      hasPickleball: false,
       dateList: [],
       venueName: '',
       venueId: '',
@@ -280,6 +281,11 @@ export default {
           that.courtConfig = (result.list || []).map(function (item) {
             return { id: item._id, name: item.name, desc: item.type || '', type: item.type || '' }
           })
+          that.hasPickleball = that.courtConfig.some(function (c) {
+            var s = that.courtSport(c)
+            return s === 'pickleball' || s === 'both'
+          })
+          if (!that.hasPickleball && that.sport === 'pickleball') that.sport = 'tennis'
           if (that.courtConfig.length && !that.currentCourtName) {
             that.currentCourtId = that.courtConfig[0].id
             that.currentCourtName = that.courtConfig[0].name
