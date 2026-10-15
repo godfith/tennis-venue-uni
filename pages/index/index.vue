@@ -148,6 +148,7 @@ export default {
     this.nickName = uni.getStorageSync('nickName') || ''
     this.phone = uni.getStorageSync('phone') || ''
     this.avatarUrl = uni.getStorageSync('avatarUrl') || ''
+    this.loadBanners()
     this.loadVenues()
     this.initCal()
     this.loadCards()
@@ -266,6 +267,17 @@ export default {
     },
     loadActivities() {
       this.activities = []
+    },
+    loadBanners() {
+      var that = this
+      wx.cloud.callFunction({
+        name: 'userApi',
+        data: { action: 'getBanners' },
+        success: function (res) {
+          var list = (res.result || {}).list || []
+          if (list.length) that.banners = list
+        }
+      })
     },
     loadVenues() {
       var that = this
