@@ -36,9 +36,9 @@ export default {
   },
   methods: {
     async load() {
-      const user = uni.getStorageSync('user') || {}
-      if (!user.id) { uni.showToast({ title: '请先登录', icon: 'none' }); return }
-      const r = await api('/userApi', { action: 'getMyEvaluations', userId: user.id })
+      const userId = uni.getStorageSync('userDocId') || uni.getStorageSync('userId') || ''
+      if (!userId) { uni.showToast({ title: '请先登录', icon: 'none' }); return }
+      const r = await api('/userApi', { action: 'getMyEvaluations', userId })
       if (r && r.ok) {
         this.list = r.list || []
         this.latest = this.list[0] || null
