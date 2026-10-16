@@ -101,6 +101,12 @@
 			"style": {
 				"navigationBarTitleText": "余额与积分"
 			}
+		},
+		{
+			"path": "pages/my-eval/my-eval",
+			"style": {
+				"navigationBarTitleText": "我的评测"
+			}
 		}
 	],
 	"tabBar": {

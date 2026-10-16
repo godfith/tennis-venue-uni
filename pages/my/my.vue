@@ -61,6 +61,12 @@
           <text class="en">MY ORDERS</text>
           <text class="arrow">›</text>
         </view>
+        <view class="menu-row" @tap="goMyEval">
+          <image class="m-ico" src="/static/images/tab/rank-on.png"></image>
+          <text class="m-name">我的评测</text>
+          <text class="en">MY EVALUATION</text>
+          <text class="arrow">›</text>
+        </view>
         <view class="menu-row" @tap="goMyCards">
           <image class="m-ico" src="/static/images/tab/shop-on.png"></image>
           <text class="m-name">我的会员卡</text>
@@ -154,6 +160,7 @@ export default {
     },
     goLogin() { uni.navigateTo({ url: '/pages/login/login' }) },
     goMyBooking() { uni.navigateTo({ url: '/pages/mybooking/mybooking' }) },
+    goMyEval() { uni.navigateTo({ url: '/pages/my-eval/my-eval' }) },
     goMyCards() { uni.navigateTo({ url: '/pages/mycards/mycards' }) },
     goCoachWorkbench() { uni.navigateTo({ url: '/pages/coach-workbench/coach-workbench' }) },
     comingSoon() { uni.showToast({ title: '功能即将上线', icon: 'none' }) },
