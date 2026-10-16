@@ -26,7 +26,7 @@
   </view>
 </template>
 <script>
-import { api } from '@/utils/api.js'
+import { callCloud } from '@/utils/api.js'
 export default {
   data() {
     return { list: [], latest: null }
@@ -38,7 +38,8 @@ export default {
     async load() {
       const userId = uni.getStorageSync('userDocId') || uni.getStorageSync('userId') || ''
       if (!userId) { uni.showToast({ title: '请先登录', icon: 'none' }); return }
-      const r = await api('/userApi', { action: 'getMyEvaluations', userId })
+      const res = await callCloud({ name: 'userApi', data: { action: 'getMyEvaluations', userId } })
+      const r = res.result || res
       if (r && r.ok) {
         this.list = r.list || []
         this.latest = this.list[0] || null
