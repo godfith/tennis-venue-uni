@@ -406,7 +406,7 @@ export default {
         var groupMap = {}
         var sportMap = {}
         ;(result.bookings || []).forEach(function (item) {
-          if (item.status === 'booked' && !item.groupClassId) {
+          if ((item.status === 'booked' || item.status === 'locked') && !item.groupClassId) {
             bookedMap[item.court + '_' + item.time] = true
             if (String(item.remark || '').indexOf('匹克') >= 0) sportMap[item.court + '_' + item.time] = '匹克球'
           }
