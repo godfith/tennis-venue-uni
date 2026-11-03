@@ -163,7 +163,7 @@ async function writeLedger(conn, row) {
     console.warn('finance_ledger write skip:', e.message)
   }
 }
-const FN_VER = 'userApi-20260916b'
+const FN_VER = 'userApi-20261103a'
 const HOUR_FALLBACK = [
   '08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00',
   '14:00-15:00', '15:00-16:00', '16:00-17:00', '17:00-18:00',
@@ -280,13 +280,16 @@ exports.main = async (rawEvent) => {
           return { ok: false, msg: '该时段为团课，无法普通预约' }
         }
         const [busy] = await conn.query(
-          `SELECT id FROM bookings
-           WHERE venue_id=? AND date=? AND time=? AND court=? AND status='booked' LIMIT 1`,
+          `SELECT id, status, source, user_name FROM bookings
+           WHERE venue_id=? AND date=? AND time=? AND court=?
+             AND (status IN ('booked','locked') OR source='lock' OR user_name='锁场')
+           LIMIT 1`,
           [data.venueId, dateYmd, data.time, data.court]
         )
         if (busy.length) {
           await conn.rollback()
-          return { ok: false, msg: '该时段已被预约' }
+          const locked = busy[0].status === 'locked' || busy[0].source === 'lock' || busy[0].user_name === '锁场'
+          return { ok: false, msg: locked ? '该时段已锁场' : '该时段已被预约', fnVer: FN_VER }
         }
         if (coachIdVal) {
           const [coachBusy] = await conn.query(
