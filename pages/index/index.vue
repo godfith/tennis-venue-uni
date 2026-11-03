@@ -1,5 +1,9 @@
 <template>
   <view class="page">
+    <view class="venue-fixed" @tap="showVenuePicker">
+      <view class="vt-name">{{ venueName }}</view>
+      <view class="vt-sw">切换场馆 ›</view>
+    </view>
     <view class="hero-wrap">
       <swiper class="hero" indicator-dots autoplay circular indicator-color="rgba(255,255,255,.4)" indicator-active-color="#fff">
         <swiper-item v-for="(b, i) in banners" :key="i">
@@ -11,10 +15,6 @@
           </view>
         </swiper-item>
       </swiper>
-      <view class="venue-top" @tap="showVenuePicker">
-        <view class="vt-name">{{ venueName }}</view>
-        <view class="vt-sw">切换场馆 ›</view>
-      </view>
     </view>
 
     <view class="sheet">
@@ -368,7 +368,23 @@ export default {
 }
 </script>
 <style>
-.page { min-height: 100vh; background: #f4f2ee; }
+.page { min-height: 100vh; background: #f4f2ee; padding-top: calc(108rpx + env(safe-area-inset-top)); }
+.venue-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(26, 92, 58, 0.96);
+  padding: 20rpx 32rpx;
+  padding-top: calc(20rpx + env(safe-area-inset-top));
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,.18);
+}
+.vt-name { color: #fff; font-size: 36rpx; font-weight: 700; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.vt-sw { color: #fff; font-size: 28rpx; background: rgba(255,255,255,.22); padding: 10rpx 24rpx; border-radius: 28rpx; margin-left: 16rpx; flex-shrink: 0; }
 .hero-wrap { position: relative; height: 66vh; }
 .hero { height: 66vh; }
 .hero-img { width: 100%; height: 100%; }
@@ -377,9 +393,6 @@ export default {
 .hero-brand { font-size: 24rpx; letter-spacing: 4rpx; opacity: .85; }
 .hero-title { font-size: 44rpx; font-weight: 700; margin-top: 8rpx; }
 .sheet { background: #f4f2ee; border-radius: 32rpx 32rpx 0 0; margin-top: -32rpx; position: relative; padding: 32rpx 28rpx 180rpx; }
-.venue-top { position: absolute; top: 24rpx; left: 28rpx; right: 28rpx; z-index: 20; display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,.35); border-radius: 12rpx; padding: 16rpx 20rpx; }
-.vt-name { color: #fff; font-size: 28rpx; font-weight: 600; }
-.vt-sw { color: #fff; font-size: 24rpx; }
 .d-hol { font-size: 18rpx; color: #e85d4c; margin-top: 2rpx; }
 .date.on .d-hol { color: #ffd; }
 .date-block { margin-bottom: 24rpx; }
