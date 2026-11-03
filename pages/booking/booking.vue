@@ -79,7 +79,15 @@
           <view class="co-meta">{{ cardMeta(c) }}</view>
         </view>
         <view v-if="!cardLoading && usableCards.length === 0" class="sheet-empty">暂无可用会员卡</view>
-        <button class="sheet-btn" :loading="booking" @tap="submitBook">确认预约 {{ venueName }}</button>
+        <view class="notice-box" v-if="notice && notice.content">
+          <view class="notice-title">{{ notice.title || '预约注意事项' }}</view>
+          <view class="notice-content">{{ notice.content }}</view>
+          <view class="notice-agree" @tap="agreed = !agreed">
+            <view class="notice-check" :class="agreed ? 'on' : ''">{{ agreed ? '✓' : '' }}</view>
+            <text>我已阅读并同意以上注意事项</text>
+          </view>
+        </view>
+        <button class="sheet-btn" :loading="booking" :disabled="notice && notice.content && !agreed" @tap="submitBook">确认预约 {{ venueName }}</button>
         <view class="sheet-cancel" @tap="cardSheetVisible = false">取消</view>
       </view>
     </view>
@@ -122,6 +130,8 @@ export default {
       currentCourtName: '',
       currentTime: '',
       booking: false,
+      notice: null,
+      agreed: false,
       cardSheetVisible: false,
       cardLoading: false,
       myCards: [],
@@ -471,7 +481,22 @@ export default {
       this.currentCourtName = courtName
       this.currentTime = time
     },
+    loadNotice() {
+      var that = this
+      var venueId = uni.getStorageSync('venue_id') || ''
+      wx.cloud.callFunction({
+        name: 'userApi',
+        data: { action: 'getNotice', venueId: venueId }
+      }).then(function (res) {
+        var r = res.result || {}
+        that.notice = r.notice || null
+        that.agreed = false
+      }).catch(function () {
+        that.notice = null
+      })
+    },
     onBook() {
+      this.loadNotice()
       var nickName = uni.getStorageSync('nickName') || ''
       var phone = uni.getStorageSync('phone') || ''
       if (!nickName || !phone) {
@@ -624,6 +649,13 @@ export default {
 }
 </script>
 <style>
+.notice-box { background: #fff8e6; border-radius: 12rpx; padding: 20rpx; margin: 16rpx 0; }
+.notice-title { font-size: 28rpx; font-weight: 700; color: #333; margin-bottom: 8rpx; }
+.notice-content { font-size: 24rpx; color: #666; white-space: pre-wrap; line-height: 1.6; }
+.notice-agree { display: flex; align-items: center; margin-top: 16rpx; font-size: 24rpx; color: #333; }
+.notice-check { width: 32rpx; height: 32rpx; border: 2rpx solid #ccc; border-radius: 6rpx; margin-right: 12rpx; display: flex; align-items: center; justify-content: center; font-size: 22rpx; color: #fff; }
+.notice-check.on { background: #1a5c3a; border-color: #1a5c3a; }
+
 .root { min-height: 100vh; background: #f3f1ec; }
 .page {
   min-height: 100vh;
