@@ -368,7 +368,7 @@ export default {
 }
 </script>
 <style>
-.page { min-height: 100vh; background: #f4f2ee; padding-top: calc(108rpx + env(safe-area-inset-top)); }
+.page { min-height: 100vh; background: #f4f2ee; padding-top: calc(100rpx + env(safe-area-inset-top)); }
 .venue-fixed {
   position: fixed;
   top: 0;
@@ -378,13 +378,12 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(26, 92, 58, 0.96);
-  padding: 20rpx 32rpx;
-  padding-top: calc(20rpx + env(safe-area-inset-top));
-  box-shadow: 0 4rpx 16rpx rgba(0,0,0,.18);
+  background: rgba(0,0,0,.35);
+  padding: 18rpx 28rpx;
+  padding-top: calc(18rpx + env(safe-area-inset-top));
 }
 .vt-name { color: #fff; font-size: 36rpx; font-weight: 700; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.vt-sw { color: #fff; font-size: 28rpx; background: rgba(255,255,255,.22); padding: 10rpx 24rpx; border-radius: 28rpx; margin-left: 16rpx; flex-shrink: 0; }
+.vt-sw { color: #fff; font-size: 28rpx; margin-left: 16rpx; flex-shrink: 0; }
 .hero-wrap { position: relative; height: 66vh; }
 .hero { height: 66vh; }
 .hero-img { width: 100%; height: 100%; }
