@@ -59,6 +59,15 @@
       <button class="ok" :disabled="!currentCourtName || !currentTime || booking" :loading="booking" @tap="onBook">立即预定</button>
     </view>
 
+    <view class="mask" v-if="noticeVisible" @tap.stop="">
+      <view class="sheet" @tap.stop="">
+        <view class="sheet-title">{{ notice && notice.title ? notice.title : '预约注意事项' }}</view>
+        <view class="notice-content" style="padding:20rpx 0;white-space:pre-wrap;line-height:1.7;color:#333;font-size:28rpx">{{ notice && notice.content ? notice.content : '暂无注意事项' }}</view>
+        <button class="sheet-btn" @tap="confirmNotice">我已阅读，继续预约</button>
+        <view class="sheet-cancel" @tap="noticeVisible = false">取消</view>
+      </view>
+    </view>
+
     <view class="mask" v-if="cardSheetVisible" @tap="cardSheetVisible = false">
       <view class="sheet" @tap.stop="">
         <view class="sheet-title">确认预约</view>
@@ -79,15 +88,7 @@
           <view class="co-meta">{{ cardMeta(c) }}</view>
         </view>
         <view v-if="!cardLoading && usableCards.length === 0" class="sheet-empty">暂无可用会员卡</view>
-        <view class="notice-box" v-if="notice && notice.content">
-          <view class="notice-title">{{ notice.title || '预约注意事项' }}</view>
-          <view class="notice-content">{{ notice.content }}</view>
-          <view class="notice-agree" @tap="agreed = !agreed">
-            <view class="notice-check" :class="agreed ? 'on' : ''">{{ agreed ? '✓' : '' }}</view>
-            <text>我已阅读并同意以上注意事项</text>
-          </view>
-        </view>
-        <button class="sheet-btn" :loading="booking" :disabled="notice && notice.content && !agreed" @tap="submitBook">确认预约 {{ venueName }}</button>
+        <button class="sheet-btn" :loading="booking" @tap="submitBook">确认预约 {{ venueName }}</button>
         <view class="sheet-cancel" @tap="cardSheetVisible = false">取消</view>
       </view>
     </view>
@@ -131,7 +132,7 @@ export default {
       currentTime: '',
       booking: false,
       notice: null,
-      agreed: false,
+      noticeVisible: false,
       cardSheetVisible: false,
       cardLoading: false,
       myCards: [],
@@ -490,13 +491,17 @@ export default {
       }).then(function (res) {
         var r = res.result || {}
         that.notice = r.notice || null
-        that.agreed = false
+        if (that.notice && that.notice.content) {
+          that.noticeVisible = true
+        } else {
+          that.openCardSheet()
+        }
       }).catch(function () {
         that.notice = null
+        that.openCardSheet()
       })
     },
     onBook() {
-      this.loadNotice()
       var nickName = uni.getStorageSync('nickName') || ''
       var phone = uni.getStorageSync('phone') || ''
       if (!nickName || !phone) {
@@ -508,6 +513,13 @@ export default {
         uni.showToast({ title: '请选择场地和时间', icon: 'none' })
         return
       }
+      this.loadNotice()
+    },
+    confirmNotice() {
+      this.noticeVisible = false
+      this.openCardSheet()
+    },
+    openCardSheet() {
       this.selectedCardId = ''
       this.payWay = this.currentPrice > 0 ? 'wx' : 'card'
       this.cardSheetVisible = true
