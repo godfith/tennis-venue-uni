@@ -89,6 +89,22 @@
         </view>
       </view>
     </view>
+
+    <view class="mask" v-if="remindVisible" @tap="remindVisible = false">
+      <view class="remind-pop" @tap.stop="">
+        <view class="remind-title">预约提醒</view>
+        <view class="remind-sub">您近3天有以下预约</view>
+        <view class="remind-list">
+          <view class="remind-item" v-for="(b, i) in remindList" :key="i">
+            <view class="remind-main">{{ b.date }} {{ b.time }}</view>
+            <view class="remind-sub2">{{ b.venueName }} · {{ b.court }}</view>
+          </view>
+        </view>
+        <view class="remind-notice" v-if="remindNotice">{{ remindNotice }}</view>
+        <view class="remind-btn" @tap="remindVisible = false">我知道了</view>
+      </view>
+    </view>
+
     <view class="mask" v-if="calOpen" @tap="calOpen = false">
       <view class="cal-pop" @tap.stop="">
         <view class="cal-head">
@@ -134,7 +150,8 @@ export default {
       activities: [],
       balance: 0, points: 0, cardCount: 0,
       nickName: '', phone: '', avatarUrl: '',
-      coachCount: 0, timesCount: 0, groupCount: 0, timeCount: 0
+      coachCount: 0, timesCount: 0, groupCount: 0, timeCount: 0,
+      remindVisible: false, remindList: [], remindNotice: '', remindChecked: false
     }
   },
   computed: {
@@ -153,10 +170,49 @@ export default {
     this.initCal()
     this.loadCards()
     this.loadWallet()
+    this.checkRecentBookings()
   },
   onShareAppMessage() { return { title: '山羊Goat网球馆', path: '/pages/index/index' } },
   onShareTimeline() { return { title: '山羊Goat网球馆' } },
   methods: {
+    checkRecentBookings() {
+      if (this.remindChecked) return
+      var phone = uni.getStorageSync('phone') || ''
+      var userId = uni.getStorageSync('userDocId') || ''
+      if (!phone && !userId) return
+      this.remindChecked = true
+      var that = this
+      wx.cloud.callFunction({
+        name: 'userApi',
+        data: { action: 'getMyBookings', userId: userId, phone: phone, pageSize: 20 }
+      }).then(function (res) {
+        var list = ((res.result || {}).list) || []
+        var today = new Date()
+        today.setHours(0, 0, 0, 0)
+        var from = new Date(today.getTime() - 3 * 86400000)
+        var to = new Date(today.getTime() + 3 * 86400000)
+        var recent = list.filter(function (b) {
+          if (!b.date || b.status === 'cancelled') return false
+          var d = new Date(String(b.date).replace(/-/g, '/'))
+          return d >= from && d <= to
+        })
+        if (!recent.length) return
+        that.remindList = recent.slice(0, 5)
+        that.remindVisible = true
+        that.loadRemindNotice()
+      }).catch(function () {})
+    },
+    loadRemindNotice() {
+      var that = this
+      var venueId = uni.getStorageSync('venue_id') || ''
+      wx.cloud.callFunction({
+        name: 'userApi',
+        data: { action: 'getNotice', venueId: venueId }
+      }).then(function (res) {
+        var n = (res.result || {}).notice
+        if (n && n.content) that.remindNotice = n.content
+      }).catch(function () {})
+    },
     initCal() {
       var weeks = ['日', '一', '二', '三', '四', '五', '六']
       var now = new Date()
@@ -368,6 +424,15 @@ export default {
 }
 </script>
 <style>
+.remind-pop { position: fixed; left: 40rpx; right: 40rpx; top: 30%; background: #fff; border-radius: 16rpx; padding: 32rpx; z-index: 200; }
+.remind-title { font-size: 34rpx; font-weight: 700; color: #333; text-align: center; }
+.remind-sub { font-size: 24rpx; color: #999; text-align: center; margin: 8rpx 0 20rpx; }
+.remind-item { padding: 16rpx 0; border-bottom: 1rpx solid #f0f0f0; }
+.remind-main { font-size: 28rpx; font-weight: 600; color: #1a5c3a; }
+.remind-sub2 { font-size: 24rpx; color: #666; margin-top: 4rpx; }
+.remind-notice { background: #fff8e6; border-radius: 8rpx; padding: 16rpx; margin-top: 16rpx; font-size: 24rpx; color: #666; white-space: pre-wrap; }
+.remind-btn { margin-top: 24rpx; background: #1a5c3a; color: #fff; text-align: center; border-radius: 8rpx; padding: 20rpx; font-size: 28rpx; }
+
 .page { min-height: 100vh; background: #f4f2ee; padding-top: calc(100rpx + env(safe-area-inset-top)); }
 .venue-fixed {
   position: fixed;
