@@ -190,6 +190,12 @@ export default {
     this.loadCourts()
   },
   methods: {
+    normCourt(c) {
+      return String(c || '').trim().replace(/场$/u, '')
+    },
+    slotKey(court, time) {
+      return this.normCourt(court) + '_' + String(time || '')
+    },
     cls(cell) {
       var s = cell.status === 'available' ? '' : 'off'
       if (this.currentTime === cell.time) s += ' sel'
@@ -418,12 +424,13 @@ export default {
         var sportMap = {}
         ;(result.bookings || []).forEach(function (item) {
           if ((item.status === 'booked' || item.status === 'locked') && !item.groupClassId) {
-            bookedMap[item.court + '_' + item.time] = true
-            if (String(item.remark || '').indexOf('匹克') >= 0) sportMap[item.court + '_' + item.time] = '匹克球'
+            var bkey = that.slotKey(item.court, item.time)
+            bookedMap[bkey] = true
+            if (String(item.remark || '').indexOf('匹克') >= 0) sportMap[bkey] = '匹克球'
           }
         })
         ;(result.groupClasses || []).forEach(function (g) {
-          if (g.status === 'open') groupMap[g.court + '_' + g.time] = true
+          if (g.status === 'open') groupMap[that.slotKey(g.court, g.time)] = true
         })
         var availableTimes = that._openTimes || []
         var courts = courtConfig.filter(function (court) {
@@ -436,18 +443,18 @@ export default {
             name: court.name,
             desc: court.desc,
             times: availableTimes.map(function (t) {
-              var key = court.name + '_' + t.time
+              var key = that.slotKey(court.name, t.time)
               var status = 'available'
               var past = !!(that._pastMap && that._pastMap[t.time])
               if (groupMap[key]) status = 'group'
               else if (bookedMap[key]) status = 'full'
-              var price = Number(that.priceMap[key] || 0)
+              var price = Number(that.priceMap[court.name + '_' + t.time] || 0)
               if (!price) {
                 var keys = Object.keys(that.priceMap || {})
                 for (var k = 0; k < keys.length; k++) {
                   if (keys[k].indexOf(t.time) < 0) continue
                   var courtKey = keys[k].split('_')[0]
-                  if (courtKey === court.name || court.name.indexOf(courtKey) >= 0 || courtKey.indexOf(court.name) >= 0) {
+                  if (courtKey === court.name || that.normCourt(courtKey) === that.normCourt(court.name) || court.name.indexOf(courtKey) >= 0 || courtKey.indexOf(court.name) >= 0) {
                     price = Number(that.priceMap[keys[k]] || 0)
                     break
                   }
