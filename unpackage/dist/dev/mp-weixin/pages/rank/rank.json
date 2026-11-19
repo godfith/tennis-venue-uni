@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "排名",
+  "usingComponents": {
+    "app-tabbar": "/components/app-tabbar"
+  }
+}

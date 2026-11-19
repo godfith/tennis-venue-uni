@@ -1,165 +1,169 @@
 
-.page {
-    min-height: 100vh;
-    background: #f5f6f8;
-    padding-bottom: 40rpx;
-    box-sizing: border-box;
+.remind-pop { position: fixed; left: 40rpx; right: 40rpx; top: 30%; background: #fff; border-radius: 16rpx; padding: 32rpx; z-index: 200;
 }
-
-/* ===== 英雄区 ===== */
-.hero {
-    height: 420rpx;
-    width: 100%;
-    overflow: hidden;
+.remind-title { font-size: 34rpx; font-weight: 700; color: #333; text-align: center;
 }
-.hero-image {
-    width: 100%;
-    height: 100%;
-    display: block;
+.remind-sub { font-size: 24rpx; color: #999; text-align: center; margin: 8rpx 0 20rpx;
 }
-
-/* ===== 通用区块 ===== */
-.block {
-    margin: 36rpx 30rpx 0;
+.remind-item { padding: 16rpx 0; border-bottom: 1rpx solid #f0f0f0;
 }
-.block-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 24rpx;
+.remind-main { font-size: 28rpx; font-weight: 600; color: #1a5c3a;
 }
-.block-title {
-    font-size: 32rpx;
-    font-weight: 700;
-    color: #1a1a1a;
+.remind-sub2 { font-size: 24rpx; color: #666; margin-top: 4rpx;
 }
-.more {
-    font-size: 26rpx;
-    color: #999;
+.remind-notice { background: #fff8e6; border-radius: 8rpx; padding: 16rpx; margin-top: 16rpx; font-size: 24rpx; color: #666; white-space: pre-wrap;
 }
-
-/* ===== 赛事卡片 ===== */
-.event-list {
-    white-space: nowrap;
-    width: 100%;
+.remind-btn { margin-top: 24rpx; background: #1a5c3a; color: #fff; text-align: center; border-radius: 8rpx; padding: 20rpx; font-size: 28rpx;
 }
-.event-item {
-    display: inline-block;
-    width: 400rpx;
-    height: 200rpx;
-    border-radius: 20rpx;
-    margin-right: 24rpx;
-    padding: 28rpx;
-    box-sizing: border-box;
-    position: relative;
-    vertical-align: top;
-    color: #fff;
+.page { min-height: 100vh; background: #f4f2ee; padding-top: 0;
 }
-.event-blue {
-    background: linear-gradient(135deg, #1e4a6e, #2c6a9e);
-}
-.event-green {
-    background: linear-gradient(135deg, #1a5c45, #2d8a6a);
-}
-.event-tag {
-    position: absolute;
-    top: 20rpx;
-    right: 20rpx;
-    background: #e6a23c;
-    font-size: 20rpx;
-    padding: 4rpx 14rpx;
-    border-radius: 16rpx;
-}
-.event-tag.green {
-    background: #07c160;
-}
-.event-name {
-    font-size: 30rpx;
-    font-weight: 600;
-    margin-top: 60rpx;
-    margin-bottom: 8rpx;
-}
-.event-date {
-    font-size: 24rpx;
-    opacity: 0.85;
-}
-
-/* ===== 场馆服务 ===== */
-.service-box {
-    background: #fff;
-    border-radius: 20rpx;
-    padding: 36rpx 10rpx;
-    display: flex;
-    box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.03);
-}
-.service-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-.icon-wrap {
-    width: 88rpx;
-    height: 88rpx;
-    background: #f0f4f8;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 40rpx;
-    margin-bottom: 14rpx;
-}
-.service-item text {
-    font-size: 24rpx;
-    color: #333;
-}
-
-/* ===== 场馆风采 ===== */
-.gallery {
-    white-space: nowrap;
-    width: 100%;
-}
-.gallery-item {
-    display: inline-block;
-    width: 260rpx;
-    height: 160rpx;
-    border-radius: 16rpx;
-    margin-right: 20rpx;
-}
-.g1 {
-    background: linear-gradient(135deg, #1a5276, #2980b9);
-}
-.g2 {
-    background: linear-gradient(135deg, #1a3a5c, #2c3e50);
-}
-.g3 {
-    background: linear-gradient(135deg, #0e6655, #148f77);
-}
-.safe-bottom {
-    height: 30rpx;
-}
-.venue-bar {
-  margin: 24rpx 30rpx 0;
-  padding: 24rpx 28rpx;
-  background: #fff;
-  border-radius: 16rpx;
+.venue-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+  background: rgba(0,0,0,.35);
+  padding: 18rpx 28rpx;
+  padding-top: calc(18rpx + env(safe-area-inset-top));
 }
-.venue-label {
-  font-size: 24rpx;
-  color: #999;
-  margin-right: 16rpx;
+.vt-name { color: #fff; font-size: 36rpx; font-weight: 700; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.venue-name {
-  flex: 1;
-  font-size: 28rpx;
-  font-weight: 600;
-  color: #1a5c3a;
+.vt-sw { color: #fff; font-size: 28rpx; margin-left: 16rpx; flex-shrink: 0;
 }
-.venue-arrow {
-  font-size: 26rpx;
-  color: #07c160;
+.hero-wrap { position: relative; height: 66vh;
+}
+.hero { height: 66vh;
+}
+.hero-img { width: 100%; height: 100%;
+}
+.hero-mask { position: absolute; left: 0; right: 0; bottom: 0; height: 200rpx; background: linear-gradient(transparent, rgba(0,0,0,.45)); pointer-events: none;
+}
+.hero-txt { position: absolute; left: 40rpx; right: 40rpx; bottom: 48rpx; color: #fff; z-index: 2;
+}
+.hero-brand { font-size: 24rpx; letter-spacing: 4rpx; opacity: .85;
+}
+.hero-title { font-size: 44rpx; font-weight: 700; margin-top: 8rpx;
+}
+.sheet { background: #f4f2ee; border-radius: 32rpx 32rpx 0 0; margin-top: 0; position: relative; z-index: 3; padding: 32rpx 28rpx 180rpx;
+}
+.d-hol { font-size: 18rpx; color: #e85d4c; margin-top: 2rpx;
+}
+.date.on .d-hol { color: #ffd;
+}
+.date-block { margin-bottom: 24rpx;
+}
+.dates { white-space: nowrap;
+}
+.date-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12rpx;
+}
+.date-label { font-size: 28rpx; font-weight: 600; color: #333;
+}
+.date-zoom { display: flex; align-items: center; background: #1a5c3a; border-radius: 24rpx; padding: 8rpx 20rpx;
+}
+.zoom-icon { font-size: 28rpx; margin-right: 6rpx;
+}
+.zoom-txt { font-size: 24rpx; color: #fff; font-weight: 600;
+}
+.hello-row { display: flex; align-items: center; background: #fff; border-radius: 20rpx; padding: 20rpx 24rpx; margin-bottom: 24rpx; box-shadow: 0 8rpx 28rpx rgba(0,0,0,.06);
+}
+.avatar { width: 72rpx; height: 72rpx; border-radius: 50%; margin-right: 16rpx; flex-shrink: 0;
+}
+.hello-txt { flex: 1; min-width: 0;
+}
+.hi { font-size: 28rpx; font-weight: 600; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.no { font-size: 22rpx; color: #999; margin-top: 4rpx;
+}
+.wallet-inline { display: flex; gap: 32rpx; padding-left: 16rpx;
+}
+.wi-item { text-align: center; min-width: 72rpx;
+}
+.wi-num { font-size: 32rpx; font-weight: 700; color: #1a5c3a;
+}
+.wi-lab { font-size: 22rpx; color: #999; margin-top: 4rpx;
+}
+.stat-row { display: flex; gap: 12rpx; margin-bottom: 24rpx;
+}
+.stat { flex: 1; background: #fff; border-radius: 16rpx; padding: 24rpx 0; text-align: center; box-shadow: 0 2rpx 8rpx rgba(0,0,0,.04);
+}
+.stat-n { font-size: 40rpx; font-weight: 700; color: #1a5c3a;
+}
+.stat-l { font-size: 22rpx; color: #888; margin-top: 6rpx;
+}
+.mask { position: fixed; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,.45); z-index: 100; display: flex; align-items: center; justify-content: center;
+}
+.cal-pop { background: #fff; border-radius: 20rpx; padding: 24rpx; width: 640rpx;
+}
+.cal-head { display: flex; align-items: center; margin-bottom: 16rpx;
+}
+.cal-title { flex: 1; text-align: center; font-size: 32rpx; font-weight: 600;
+}
+.cal-nav, .cal-close { width: 56rpx; height: 56rpx; text-align: center; line-height: 56rpx; font-size: 36rpx; color: #1a5c3a;
+}
+.cal-weeks, .cal-grid { display: flex; flex-wrap: wrap;
+}
+.cal-w, .cal-d { width: 14.28%; text-align: center; font-size: 24rpx;
+}
+.cal-w { color: #999; padding: 8rpx 0;
+}
+.cal-d { height: 80rpx; position: relative; color: #333; padding-top: 12rpx;
+}
+.cal-d.out { color: #ccc;
+}
+.cal-d.on { background: #1a5c3a; color: #fff; border-radius: 8rpx;
+}
+.cal-hol { font-size: 16rpx; color: #e85d4c;
+}
+.cal-d.on .cal-hol { color: #ffd;
+}
+.cal-dot { position: absolute; bottom: 4rpx; left: 50%; -webkit-transform: translateX(-50%); transform: translateX(-50%); width: 8rpx; height: 8rpx; background: #e85d4c; border-radius: 50%;
+}
+.cal-d.on .cal-dot { background: #fff;
+}
+.date { display: inline-flex; flex-direction: column; align-items: center; width: 100rpx; padding: 16rpx 0; margin-right: 12rpx; background: #fff; border-radius: 12rpx; position: relative;
+}
+.date.on { background: #1a5c3a; color: #fff;
+}
+.d-wk { font-size: 22rpx; opacity: .7;
+}
+.d-md { font-size: 28rpx; font-weight: 600; margin-top: 4rpx;
+}
+.d-dot { width: 8rpx; height: 8rpx; background: #e85d4c; border-radius: 50%; margin-top: 6rpx;
+}
+.date.on .d-dot { background: #fff;
+}
+.acts { background: #fff; border-radius: 16rpx; padding: 20rpx 24rpx; margin-bottom: 24rpx;
+}
+.acts-title { font-size: 28rpx; font-weight: 600; color: #333; margin-bottom: 16rpx;
+}
+.acts-empty { text-align: center; color: #999; padding: 32rpx 0; font-size: 26rpx;
+}
+.act { display: flex; align-items: center; padding: 16rpx 0; border-top: 1rpx solid #f0f0f0;
+}
+.act.disabled { opacity: 0.55;
+}
+.act-tag { background: #e8f5e9; color: #1a5c3a; font-size: 22rpx; padding: 6rpx 14rpx; border-radius: 8rpx; margin-right: 16rpx;
+}
+.act-name { font-size: 28rpx; color: #333;
+}
+.act-meta { font-size: 22rpx; color: #999; margin-top: 4rpx;
+}
+.act-body { flex: 1; min-width: 0;
+}
+.act-arrow { font-size: 22rpx; color: #1a5c3a; margin-left: 12rpx; flex-shrink: 0;
+}
+.act-state { font-size: 22rpx; color: #999; margin-left: 12rpx; flex-shrink: 0;
+}
+.action-row { display: flex; gap: 16rpx;
+}
+.action { flex: 1; background: linear-gradient(135deg, #1a5c3a, #2d8a5e); color: #fff; border-radius: 16rpx; padding: 32rpx 24rpx; box-shadow: 0 4rpx 12rpx rgba(26,92,58,.25);
+}
+.action-title { font-size: 32rpx; font-weight: 700;
+}
+.action-en { font-size: 20rpx; opacity: .75; margin-top: 6rpx; letter-spacing: 1rpx;
 }
 

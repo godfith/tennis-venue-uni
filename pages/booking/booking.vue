@@ -27,10 +27,10 @@
       </scroll-view>
 
       <view class="venue-tip" v-if="courtList.length">{{ venueName }} · {{ sport === 'pickleball' ? '匹克球' : '网球' }}，{{ courtList.length }} 个场地</view>
-      <scroll-view class="grid-wrap" scroll-x scroll-y v-if="courtList.length">
+      <scroll-view class="grid-wrap" scroll-x scroll-y v-if="courtList.length && hasOpenSlots">
         <view class="grid">
           <view class="col" v-for="court in courtList" :key="court.id">
-            <view class="col-h">{{ court.name }}</view>
+            <view class="col-h">{{ court.name }}<text v-if="court.desc === '共用' || court.desc === '匹克球'" class="col-type"> · {{ court.desc }}</text></view>
             <view
               v-for="(cell, i) in court.times"
               :key="i"
@@ -43,6 +43,9 @@
               <block v-else-if="cell.status === 'group'">
                 <view class="sold">团课</view>
               </block>
+              <block v-else-if="cell.status === 'noprice' || cell.past">
+                <view class="sold">{{ cell.past ? '已过' : '未标价' }}</view>
+              </block>
               <block v-else>
                 <view class="yen" v-if="cell.price">¥{{ cell.price }}/h</view><view class="yen" v-else>可约</view>
               </block>
@@ -51,7 +54,8 @@
           </view>
         </view>
       </scroll-view>
-      <view class="empty" v-else>{{ sport === 'pickleball' ? '当前门店没有匹克球场地' : '请先在首页选择场馆' }}</view>
+      <view class="empty" v-else-if="courtList.length">今日可约时段已过，请换一天</view>
+      <view class="empty" v-else>{{ emptyHint }}</view>
     </view>
 
     <view class="bar">
@@ -83,11 +87,21 @@
           <view class="co-name">微信支付</view>
           <view class="co-meta">在线支付 ¥{{ currentPrice }}</view>
         </view>
+        <view
+          v-if="currentPrice > 0"
+          class="card-option"
+          :class="payWay === 'balance' ? 'on' : (walletBalance + 0.001 < currentPrice ? 'off' : '')"
+          @tap="pickBalancePay"
+        >
+          <view class="co-name">现金余额</view>
+          <view class="co-meta" v-if="walletBalance + 0.001 >= currentPrice">余额 ¥{{ Number(walletBalance).toFixed(2) }}，本场扣 ¥{{ currentPrice }}</view>
+          <view class="co-meta" v-else>余额 ¥{{ Number(walletBalance).toFixed(2) }}，不足本场 ¥{{ currentPrice }}</view>
+        </view>
         <view v-for="c in usableCards" :key="c._id" class="card-option" :class="payWay === 'card' && selectedCardId === c._id ? 'on' : ''" @tap="pickCardPay(c._id)">
           <view class="co-name">{{ c.cardName }}</view>
           <view class="co-meta">{{ cardMeta(c) }}</view>
         </view>
-        <view v-if="!cardLoading && usableCards.length === 0" class="sheet-empty">暂无可用会员卡</view>
+        <view v-if="!cardLoading && usableCards.length === 0" class="sheet-empty">{{ noUsableCardText }}</view>
         <button class="sheet-btn" :loading="booking" @tap="submitBook">确认预约 {{ venueName }}</button>
         <view class="sheet-cancel" @tap="cardSheetVisible = false">取消</view>
       </view>
@@ -138,6 +152,7 @@ export default {
       myCards: [],
       selectedCardId: '',
       payWay: 'wx',
+      walletBalance: 0,
       priceMap: {},
       allTimes: [
         { time: '08:00-09:00', short: '08:00', hour: 8 },
@@ -150,20 +165,44 @@ export default {
         { time: '17:00-18:00', short: '17:00', hour: 17 },
         { time: '18:00-19:00', short: '18:00', hour: 18 },
         { time: '19:00-20:00', short: '19:00', hour: 19 },
-        { time: '20:00-21:00', short: '20:00', hour: 20 }
+        { time: '20:00-21:00', short: '20:00', hour: 20 },
+        { time: '21:00-22:00', short: '21:00', hour: 21 }
       ]
     }
   },
   computed: {
+    hasOpenSlots() {
+      var list = this.courtList || []
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].times && list[i].times.length) return true
+      }
+      return false
+    },
+    emptyHint() {
+      if (!this.venueId) return '请先在首页选择场馆'
+      if (this.sport === 'pickleball') return '当前门店没有匹克球场地'
+      if (!(this.courtConfig && this.courtConfig.length)) return '当前门店暂无可预约场地（场地可能尚未开放）'
+      return '当前门店没有可预约的网球场地'
+    },
     currentPrice() {
       if (!this.currentCourtName || !this.currentTime) return 0
-      return Number(this.priceMap[this.currentCourtName + '_' + this.currentTime] || 0)
+      return this.lookupPrice(this.currentCourtName, this.currentTime)
     },
     usableCards() {
       var that = this
       return (this.myCards || []).filter(function (c) {
+        var typ = String(c.type || '')
+        var name = String(c.cardName || c.card_name || '')
+        if (typ === 'stored' || typ === '储值' || typ === 'wallet' || name.indexOf('储值') >= 0) return false
         return that.isCardUsable(c, that.currentDate, that.currentTime)
       })
+    },
+    noUsableCardText() {
+      var court = this.lookupCurrentCourt()
+      if (this.isPureTennisCourt(court) && this.hasMachineOnlyCards()) {
+        return '这块场已标为纯网球、没有发球机，发球机卡不能约'
+      }
+      return '暂无可用次卡或期限卡，可用现金余额或微信支付'
     },
     activeCourt() {
       var name = this.currentCourtName
@@ -187,21 +226,63 @@ export default {
     this.nickName = uni.getStorageSync('nickName') || ''
     this.venueName = uni.getStorageSync('venue_name') || ''
     this.venueId = uni.getStorageSync('venue_id') || ''
-    this.loadCourts()
+    this.ensureBookableVenue()
   },
   methods: {
     normCourt(c) {
-      return String(c || '').trim().replace(/场$/u, '')
+      return String(c || '').trim().replace(/^发球机/u, '').replace(/场$/u, '')
     },
     slotKey(court, time) {
       return this.normCourt(court) + '_' + String(time || '')
     },
+    lookupPrice(courtName, time) {
+      var direct = Number(this.priceMap[courtName + '_' + time] || 0)
+      if (direct) return direct
+      var keys = Object.keys(this.priceMap || {})
+      var want = this.normCourt(courtName)
+      for (var k = 0; k < keys.length; k++) {
+        if (keys[k].indexOf(time) < 0) continue
+        var courtKey = keys[k].split('_')[0]
+        if (courtKey === courtName || this.normCourt(courtKey) === want || courtName.indexOf(courtKey) >= 0 || courtKey.indexOf(courtName) >= 0) {
+          var price = Number(this.priceMap[keys[k]] || 0)
+          if (price) return price
+        }
+      }
+      return 0
+    },
     cls(cell) {
-      var s = cell.status === 'available' ? '' : 'off'
-      if (this.currentTime === cell.time) s += ' sel'
+      var off = cell.status !== 'available' || cell.past || cell.status === 'noprice'
+      var s = off ? 'off' : ''
+      if (this.currentTime === cell.time && this.currentCourtName) s += ' sel'
       return s
     },
     goCoach() { uni.navigateTo({ url: '/pages/coach/coach' }) },
+    ensureBookableVenue() {
+      var that = this
+      wx.cloud.callFunction({
+        name: 'userApi',
+        data: { action: 'getVenues' },
+        success: function (res) {
+          var list = ((res.result || {}).list) || []
+          that.venueList = list
+          var id = that.venueId || uni.getStorageSync('venue_id') || ''
+          var found = list.find(function (v) { return (v.venueId || v._id) === id })
+          if (found) {
+            that.loadCourts()
+            return
+          }
+          if (id) {
+            that.venueId = ''
+            that.venueName = '请先选择场馆'
+            uni.showToast({ title: '请选择可订场的门店', icon: 'none' })
+            if (list.length) that.venueSheetVisible = true
+            return
+          }
+          that.loadCourts()
+        },
+        fail: function () { that.loadCourts() }
+      })
+    },
     switchVenue() {
       var that = this
       wx.cloud.callFunction({
@@ -240,14 +321,109 @@ export default {
       if (c.type === 'times' || c.type === 'coach') return t + ' · 剩' + (c.remainingTimes || 0) + '次'
       return t
     },
+
+    parseCardTimeRule(card) {
+      var rule = card && (card.timeRule || card.time_rule)
+      if (!rule) return null
+      if (typeof rule === 'object') return rule
+      try { return JSON.parse(rule) } catch (e) { return null }
+    },
+    inferCourtTypesFromName(name, cardType) {
+      var typ = String(cardType || '')
+      var n = String(name || '')
+      if (typ === 'stored' || typ === '储值' || typ === 'wallet' || n.indexOf('储值') >= 0) return []
+      if (n.indexOf('匹克') >= 0 || n.indexOf('丁克') >= 0) return ['匹克球']
+      if (n.indexOf('发球机') >= 0) return ['发球机']
+      return ['网球']
+    },
+    resolveCardCourtTypes(card) {
+      var name = (card && (card.cardName || card.card_name || card.name)) || ''
+      var typ = (card && card.type) || ''
+      var rule = this.parseCardTimeRule(card)
+      if (rule && Array.isArray(rule.courtTypes)) {
+        var out = []
+        for (var i = 0; i < rule.courtTypes.length; i++) {
+          var t = String(rule.courtTypes[i] || '').trim()
+          if (t === '不限' || t === '*' || t === 'all') return []
+          if ((t === '网球' || t === '匹克球' || t === '发球机') && out.indexOf(t) < 0) out.push(t)
+        }
+        return out
+      }
+      return this.inferCourtTypesFromName(name, typ)
+    },
+    inferCourtTypeFromCourt(court) {
+      var typ = String((court && court.type) || '').trim()
+      var name = String((court && (court.name || court.court)) || '')
+      if (typ === '网球' || typ === '匹克球' || typ === '发球机' || typ === '共用') return typ
+      if (name.indexOf('匹克') >= 0 || name.indexOf('丁克') >= 0) return '匹克球'
+      if (!typ && name && (name.indexOf('发球机') === 0 || name.indexOf('发球机') >= 0)) return '发球机'
+      return '网球'
+    },
+    isPureTennisCourt(court) {
+      if (!court || typeof court !== 'object') return false
+      var v = court.pureTennis != null ? court.pureTennis : court.pure_tennis
+      return v === true || v === 1 || v === '1'
+    },
+    isMachineOnlyCard(card) {
+      var typ = String((card && card.type) || '')
+      if (typ === 'coach') return false
+      var allowed = this.resolveCardCourtTypes(card)
+      if (!allowed.length) return false
+      return allowed.length === 1 && allowed[0] === '发球机'
+    },
+    hasMachineOnlyCards() {
+      var list = this.myCards || []
+      for (var i = 0; i < list.length; i++) {
+        if (this.isMachineOnlyCard(list[i])) return true
+      }
+      return false
+    },
+    lookupCurrentCourt() {
+      var court = this.activeCourt || { name: this.currentCourtName, type: '' }
+      var lists = [this.courtConfig || [], this.courtList || []]
+      if ((!court || !court.name || (court.pureTennis == null && court.pure_tennis == null) || !court.type) && this.currentCourtName) {
+        for (var a = 0; a < lists.length; a++) {
+          var list = lists[a]
+          for (var i = 0; i < list.length; i++) {
+            if (list[i].name === this.currentCourtName) {
+              court = Object.assign({}, court || {}, list[i])
+              break
+            }
+          }
+        }
+        if (!court || !court.name) court = { name: this.currentCourtName, type: '' }
+      }
+      return court
+    },
+    cardAllowsCurrentCourt(card) {
+      var court = this.lookupCurrentCourt()
+      if (this.isPureTennisCourt(court) && this.isMachineOnlyCard(card)) return false
+      var allowed = this.resolveCardCourtTypes(card)
+      if (!allowed.length) return true
+      if (!court || !court.name) return true
+      var courtType = this.inferCourtTypeFromCourt(court)
+      var required
+      if (courtType === '共用') {
+        required = this.sport === 'pickleball' ? ['匹克球'] : ['网球', '发球机']
+      } else if (courtType === '发球机' || courtType === '网球') {
+        required = ['网球', '发球机']
+      } else {
+        required = [courtType]
+      }
+      for (var j = 0; j < required.length; j++) {
+        if (allowed.indexOf(required[j]) >= 0) return true
+      }
+      return false
+    },
     isCardUsable(card, dateStr, timeStr) {
       if (!card || card.status !== 'active') return false
-      if (card.type === 'group' || card.type === 'coach') return false
+      if (card.type === 'group' || card.type === 'coach' || card.type === 'stored' || card.type === '储值') return false
       if (card.validFrom && dateStr < card.validFrom) return false
       if (card.validTo && dateStr > card.validTo) return false
+      if (!this.cardAllowsCurrentCourt(card)) return false
       if (card.type === 'times') return (card.remainingTimes || 0) > 0
       if (card.type === 'time') {
-        var rule = card.timeRule
+        var rule = this.parseCardTimeRule(card) || card.timeRule
         if (!rule || rule.mode === 'unlimited' || rule.mode === 'all') return true
         if (rule.mode === 'dates') {
           var ranges = rule.dateRanges || []
@@ -296,7 +472,14 @@ export default {
           var result = res.result || {}
           if (!result.ok) return
           that.courtConfig = (result.list || []).map(function (item) {
-            return { id: item._id, name: item.name, desc: item.type || '', type: item.type || '' }
+            return {
+              id: item._id,
+              name: item.name,
+              desc: item.type || '',
+              type: item.type || '',
+              remark: item.remark || '',
+              pureTennis: item.pureTennis === 1 || item.pureTennis === true || item.pure_tennis === 1 || item.pure_tennis === '1' ? 1 : 0
+            }
           })
           that.hasPickleball = that.courtConfig.some(function (c) {
             var s = that.courtSport(c)
@@ -340,10 +523,18 @@ export default {
       if (this.currentDate) this.loadCourtStatus(this.currentDate)
     },
     courtSport(court) {
-      var text = String((court && court.type) || '') + String((court && court.name) || '')
-      if (text.indexOf('共用') >= 0) return 'both'
-      if (text.indexOf('匹克') >= 0) return 'pickleball'
-      if (this.venueId === 'venue_zhongda' && text.indexOf('发球机') >= 0) return 'both'
+      var typ = String((court && court.type) || '').trim()
+      var name = String((court && (court.name || court.court)) || '')
+      var remark = String((court && court.remark) || '')
+      if (typ === '共用') return 'both'
+      if (typ === '匹克球') return 'pickleball'
+      if (typ === '网球' || typ === '发球机') return 'tennis'
+      var text = typ + name + remark
+      var hasShare = text.indexOf('共用') >= 0
+      var hasPickle = text.indexOf('匹克') >= 0 || text.indexOf('丁克') >= 0
+      var hasTennisish = text.indexOf('网球') >= 0 || text.indexOf('发球机') >= 0
+      if (hasShare || (hasPickle && hasTennisish)) return 'both'
+      if (hasPickle) return 'pickleball'
       return 'tennis'
     },
     onSelectDate(date) {
@@ -423,7 +614,7 @@ export default {
         var groupMap = {}
         var sportMap = {}
         ;(result.bookings || []).forEach(function (item) {
-          if ((item.status === 'booked' || item.status === 'locked') && !item.groupClassId) {
+          if ((item.status === 'booked' || item.status === 'locked' || item.status === 'pending_pay') && !item.groupClassId) {
             var bkey = that.slotKey(item.court, item.time)
             bookedMap[bkey] = true
             if (String(item.remark || '').indexOf('匹克') >= 0) sportMap[bkey] = '匹克球'
@@ -432,7 +623,14 @@ export default {
         ;(result.groupClasses || []).forEach(function (g) {
           if (g.status === 'open') groupMap[that.slotKey(g.court, g.time)] = true
         })
-        var availableTimes = that._openTimes || []
+        var availableTimes = (that._openTimes || []).filter(function (t) {
+          return !(that._pastMap && that._pastMap[t.time])
+        })
+        if (that.currentTime && that._pastMap && that._pastMap[that.currentTime]) {
+          that.currentTime = ''
+          that.currentCourtId = ''
+          that.currentCourtName = ''
+        }
         var courts = courtConfig.filter(function (court) {
           var s = that.courtSport(court)
           return s === 'both' || s === that.sport
@@ -442,24 +640,16 @@ export default {
             id: court.id,
             name: court.name,
             desc: court.desc,
+            type: court.type || court.desc,
+            remark: court.remark || '',
             times: availableTimes.map(function (t) {
               var key = that.slotKey(court.name, t.time)
               var status = 'available'
               var past = !!(that._pastMap && that._pastMap[t.time])
               if (groupMap[key]) status = 'group'
               else if (bookedMap[key]) status = 'full'
-              var price = Number(that.priceMap[court.name + '_' + t.time] || 0)
-              if (!price) {
-                var keys = Object.keys(that.priceMap || {})
-                for (var k = 0; k < keys.length; k++) {
-                  if (keys[k].indexOf(t.time) < 0) continue
-                  var courtKey = keys[k].split('_')[0]
-                  if (courtKey === court.name || that.normCourt(courtKey) === that.normCourt(court.name) || court.name.indexOf(courtKey) >= 0 || courtKey.indexOf(court.name) >= 0) {
-                    price = Number(that.priceMap[keys[k]] || 0)
-                    break
-                  }
-                }
-              }
+              var price = that.lookupPrice(court.name, t.time)
+              if (status === 'available' && !price) status = 'noprice'
               return { time: t.time, short: t.short, status: status, past: past, price: price, sportText: sportMap[key] || '' }
             })
           }
@@ -483,6 +673,10 @@ export default {
       }
       if (status === 'group') {
         uni.showToast({ title: '该时段为团课，请从团课入口报名', icon: 'none' })
+        return
+      }
+      if (status === 'noprice') {
+        uni.showToast({ title: '该时段暂未标价，无法预约', icon: 'none' })
         return
       }
       this.currentCourtId = courtId
@@ -528,9 +722,31 @@ export default {
     },
     openCardSheet() {
       this.selectedCardId = ''
-      this.payWay = this.currentPrice > 0 ? 'wx' : 'card'
+      this.walletBalance = Number(uni.getStorageSync('balance') || 0)
+      this.payWay = (this.currentPrice > 0 && this.walletBalance + 0.001 >= this.currentPrice) ? 'balance' : (this.currentPrice > 0 ? 'wx' : 'card')
       this.cardSheetVisible = true
       this.loadMyCards()
+      this.loadWallet()
+    },
+    loadWallet() {
+      var that = this
+      wx.cloud.callFunction({
+        name: 'userApi',
+        data: {
+          action: 'getWallet',
+          userId: uni.getStorageSync('userDocId') || '',
+          phone: uni.getStorageSync('phone') || ''
+        },
+        success: function (res) {
+          var r = res.result || {}
+          if (!r.ok) return
+          that.walletBalance = Number(r.balance) || 0
+          uni.setStorageSync('balance', that.walletBalance)
+          if (that.cardSheetVisible && that.currentPrice > 0 && that.payWay !== 'card' && that.payWay !== 'wx') {
+            if (that.walletBalance + 0.001 >= that.currentPrice) that.payWay = 'balance'
+          }
+        }
+      })
     },
     loadMyCards() {
       var that = this
@@ -551,6 +767,14 @@ export default {
       this.payWay = 'wx'
       this.selectedCardId = ''
     },
+    pickBalancePay() {
+      if (this.walletBalance + 0.001 < this.currentPrice) {
+        uni.showToast({ title: '现金余额不足', icon: 'none' })
+        return
+      }
+      this.payWay = 'balance'
+      this.selectedCardId = ''
+    },
     pickCardPay(id) {
       this.payWay = 'card'
       this.selectedCardId = id
@@ -568,6 +792,10 @@ export default {
           uni.showToast({ title: '请重新选择会员卡', icon: 'none' })
           return
         }
+      }
+      if (that.payWay === 'card' && !sel && !(that.currentPrice > 0)) {
+        uni.showToast({ title: '该时段暂未标价，请选择会员卡或更换时段', icon: 'none' })
+        return
       }
       that.booking = true
       function doCreate(payNo) {
@@ -609,6 +837,56 @@ export default {
           that.booking = false
         })
       }
+      if (that.payWay === 'balance') {
+        if (!(that.currentPrice > 0)) {
+          uni.showToast({ title: '该时段暂未标价，无法用余额支付', icon: 'none' })
+          that.booking = false
+          return
+        }
+        if (that.walletBalance + 0.001 < that.currentPrice) {
+          uni.showToast({ title: '现金余额不足（当前 ¥' + Number(that.walletBalance).toFixed(2) + '）', icon: 'none' })
+          that.booking = false
+          return
+        }
+        wx.cloud.callFunction({
+          name: 'userApi',
+          data: {
+            action: 'createBooking',
+            data: {
+              court: that.currentCourtName,
+              date: that.currentDate,
+              time: that.currentTime,
+              venueId: uni.getStorageSync('venue_id') || '',
+              venueName: uni.getStorageSync('venue_name') || '',
+              userName: nickName,
+              phone: phone,
+              userId: userDocId,
+              payWay: 'balance',
+              sport: that.sport,
+              remark: that.sport === 'pickleball' ? '匹克球' : ''
+            }
+          }
+        }).then(function (r) {
+          var result = r.result || {}
+          if (!result.ok) {
+            uni.showToast({ title: result.msg || '预约失败', icon: 'none' })
+            return
+          }
+          var left = that.walletBalance - that.currentPrice
+          if (left < 0) left = 0
+          that.walletBalance = Math.round(left * 100) / 100
+          uni.setStorageSync('balance', that.walletBalance)
+          uni.showToast({ title: '预约成功', icon: 'success' })
+          that.cardSheetVisible = false
+          that.currentTime = ''
+          that.loadCourtStatus(that.currentDate)
+        }).catch(function () {
+          uni.showToast({ title: '预约失败', icon: 'none' })
+        }).finally(function () {
+          that.booking = false
+        })
+        return
+      }
       if (that.payWay !== 'card') {
         that.payWay = 'wx'
         if (!(that.currentPrice > 0)) {
@@ -634,7 +912,8 @@ export default {
             openid: openid,
             userId: userDocId,
             userName: nickName,
-            phone: phone
+            phone: phone,
+            sport: that.sport
           }
         }).then(function (r) {
           var result = r.result || {}
@@ -644,16 +923,61 @@ export default {
             return
           }
           var p = result.payParams
+          var tradeNo = result.outTradeNo || ''
           uni.requestPayment({
             timeStamp: p.timeStamp,
             nonceStr: p.nonceStr,
             package: p.package,
             signType: p.signType,
             paySign: p.paySign,
-            success: function () { doCreate(result.outTradeNo) },
+            success: function () {
+              // 订场只在 payNotify/confirmCourtPay 落 booked，不再单独 createBooking
+              function pollConfirm(left) {
+                wx.cloud.callFunction({
+                  name: 'pay',
+                  data: { action: 'confirmCourtPay', outTradeNo: tradeNo }
+                }).then(function (cr) {
+                  var c = (cr && cr.result) || {}
+                  if (c.ok) {
+                    uni.showToast({ title: '预约成功', icon: 'success' })
+                    that.cardSheetVisible = false
+                    that.currentTime = ''
+                    that.loadCourtStatus(that.currentDate)
+                    that.booking = false
+                    return
+                  }
+                  if (c.waiting && left > 0) {
+                    setTimeout(function () { pollConfirm(left - 1) }, 1000)
+                    return
+                  }
+                  uni.showToast({ title: '支付成功，预约确认中', icon: 'none' })
+                  that.cardSheetVisible = false
+                  that.currentTime = ''
+                  that.loadCourtStatus(that.currentDate)
+                  that.booking = false
+                }).catch(function () {
+                  if (left > 0) {
+                    setTimeout(function () { pollConfirm(left - 1) }, 1000)
+                  } else {
+                    uni.showToast({ title: '支付成功，请稍后在我的预约查看', icon: 'none' })
+                    that.cardSheetVisible = false
+                    that.loadCourtStatus(that.currentDate)
+                    that.booking = false
+                  }
+                })
+              }
+              pollConfirm(8)
+            },
             fail: function () {
+              if (tradeNo) {
+                wx.cloud.callFunction({
+                  name: 'pay',
+                  data: { action: 'cancelCourtPay', outTradeNo: tradeNo }
+                })
+              }
               uni.showToast({ title: '已取消支付', icon: 'none' })
               that.booking = false
+              that.loadCourtStatus(that.currentDate)
             }
           })
         }).catch(function () {
@@ -748,9 +1072,11 @@ export default {
 .sheet-price { text-align: center; color: #b87333; font-weight: 600; margin-bottom: 16rpx; }
 .card-option { border: 2rpx solid #ece8e1; border-radius: 12rpx; padding: 22rpx; margin-bottom: 12rpx; }
 .card-option.on { border-color: #1e4870; background: #e8eef5; }
+.card-option.off { opacity: 0.45; }
 .co-name { font-size: 28rpx; font-weight: 600; }
 .co-meta { font-size: 24rpx; color: #1e4870; margin-top: 6rpx; }
 .sheet-empty { text-align: center; color: #8a8680; padding: 16rpx 0; }
 .sheet-btn { margin-top: 8rpx; background: #1e4870 !important; color: #fff !important; border-radius: 12rpx; }
 .sheet-cancel { text-align: center; color: #8a8680; margin-top: 18rpx; padding: 10rpx; }
+.col-type{font-size:20rpx;font-weight:400;opacity:.75}
 </style>

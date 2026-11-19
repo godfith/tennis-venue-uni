@@ -5,6 +5,7 @@
     <view class="tabs">
       <view :class="tab === 'all' ? 'tab on' : 'tab'" @tap="tab = 'all'">全部</view>
       <view :class="tab === 'booked' ? 'tab on' : 'tab'" @tap="tab = 'booked'">已预约</view>
+      <view :class="tab === 'pending_pay' ? 'tab on' : 'tab'" @tap="tab = 'pending_pay'">确认中</view>
       <view :class="tab === 'cancelled' ? 'tab on' : 'tab'" @tap="tab = 'cancelled'">已取消</view>
     </view>
 
@@ -17,16 +18,20 @@
       <view class="card" v-for="(item, index) in filtered" :key="index">
         <view class="card-top">
           <view class="court">{{ item.court || '场地' }}</view>
-          <view :class="item.status === 'booked' ? 'tag ok' : 'tag off'">
-            {{ item.status === 'booked' ? '已预约' : '已取消' }}
+          <view :class="statusTagClass(item)">
+            {{ statusText(item) }}
           </view>
         </view>
         <view class="venue" v-if="item.venueName">{{ item.venueName }}</view>
         <view class="when">{{ fmtDate(item.date) }}  {{ item.time }}</view>
         <view class="meta" v-if="item.coachName">教练 {{ item.coachName }}</view>
         <view class="meta" v-if="item.cardName">卡券 {{ item.cardName }}</view>
+        <view class="meta tip" v-if="item.status === 'pending_pay'">支付确认中，成功后自动生效；如未扣款可取消占位</view>
         <view class="card-bot" v-if="item.status === 'booked'">
-          <button class="cancel-btn" @tap.stop="onCancel(item._id)">取消预约</button>
+          <button class="cancel-btn" :loading="cancellingId === item._id" @tap.stop="onCancel(item)">取消预约</button>
+        </view>
+        <view class="card-bot" v-else-if="item.status === 'pending_pay'">
+          <button class="cancel-btn" :loading="cancellingId === item._id" @tap.stop="onCancelPending(item)">取消占位</button>
         </view>
       </view>
     </view>
@@ -49,12 +54,16 @@ export default {
       pageSize: 10,
       total: 0,
       totalPage: 1,
-      loading: false
+      loading: false,
+      cancellingId: ''
     }
   },
   computed: {
     filtered() {
       if (this.tab === 'all') return this.list
+      if (this.tab === 'booked') {
+        return (this.list || []).filter((i) => i.status === 'booked' || i.status === 'pending_pay')
+      }
       return (this.list || []).filter((i) => i.status === this.tab)
     }
   },
@@ -120,8 +129,21 @@ export default {
       var diffHours = (bookingTime.getTime() - Date.now()) / 3600000
       return diffHours >= 6
     },
-    onCancel(id) {
-      var booking = this.list.find(function (item) { return item._id === id })
+    statusText(item) {
+      if (!item) return ''
+      if (item.statusLabel) return item.statusLabel
+      if (item.status === 'pending_pay') return '待支付确认'
+      if (item.status === 'booked') return '已预约'
+      if (item.status === 'cancelled') return '已取消'
+      return item.status || ''
+    },
+    statusTagClass(item) {
+      if (item && item.status === 'booked') return 'tag ok'
+      if (item && item.status === 'pending_pay') return 'tag pending'
+      return 'tag off'
+    },
+    onCancel(item) {
+      var booking = typeof item === 'object' ? item : this.list.find(function (x) { return x._id === item })
       if (!booking) return
       if (!this.canCancel(booking)) {
         uni.showModal({
@@ -134,16 +156,19 @@ export default {
       var that = this
       uni.showModal({
         title: '确认取消',
-        content: '确定要取消这个预约吗？',
+        content: booking.amount > 0 || booking.payOrderId
+          ? '取消后将尝试原路退回微信支付，确定取消吗？'
+          : '确定要取消这个预约吗？',
         success: function (res) {
           if (!res.confirm) return
+          that.cancellingId = booking._id
           wx.cloud.callFunction({
             name: 'userApi',
-            data: { action: 'cancelBooking', id: id }
+            data: { action: 'cancelBooking', id: booking._id }
           }).then(function (r) {
             var result = r.result || {}
             if (!result.ok) {
-              uni.showToast({ title: result.msg || '取消失败', icon: 'none' })
+              uni.showToast({ title: result.msg || '取消失败', icon: 'none', duration: 3000 })
               return
             }
             uni.showToast({ title: '已取消', icon: 'success' })
@@ -151,6 +176,40 @@ export default {
           }).catch(function (err) {
             console.error(err)
             uni.showToast({ title: '取消失败', icon: 'none' })
+          }).finally(function () {
+            that.cancellingId = ''
+          })
+        }
+      })
+    },
+    onCancelPending(item) {
+      if (!item) return
+      var that = this
+      uni.showModal({
+        title: '取消占位',
+        content: '将释放该时段占位。若微信已扣款，系统稍后查单仍会确认预约；未扣款则直接取消。',
+        success: function (res) {
+          if (!res.confirm) return
+          if (!item.outTradeNo) {
+            uni.showToast({ title: '缺少支付单号', icon: 'none' })
+            return
+          }
+          that.cancellingId = item._id
+          wx.cloud.callFunction({
+            name: 'pay',
+            data: { action: 'cancelCourtPay', outTradeNo: item.outTradeNo }
+          }).then(function (r) {
+            var result = r.result || {}
+            if (!result.ok) {
+              uni.showToast({ title: result.msg || '取消失败', icon: 'none' })
+              return
+            }
+            uni.showToast({ title: '已取消占位', icon: 'success' })
+            that.loadMyBookings()
+          }).catch(function () {
+            uni.showToast({ title: '取消失败', icon: 'none' })
+          }).finally(function () {
+            that.cancellingId = ''
           })
         }
       })
@@ -197,9 +256,11 @@ export default {
 .court { font-size: 32rpx; font-weight: 700; color: #222; }
 .tag { font-size: 22rpx; padding: 4rpx 14rpx; border-radius: 8rpx; }
 .tag.ok { background: #e8f0f8; color: #1e4870; }
+.tag.pending { background: #fff3cd; color: #8a6d3b; }
 .tag.off { background: #f0f0f0; color: #999; }
 .venue { font-size: 24rpx; color: #1e4870; margin-top: 10rpx; }
 .when { font-size: 26rpx; color: #555; margin-top: 8rpx; }
+.meta.tip { color: #8a6d3b; font-size: 22rpx; }
 .meta { font-size: 24rpx; color: #888; margin-top: 6rpx; }
 .card-bot { margin-top: 18rpx; text-align: right; }
 .cancel-btn {

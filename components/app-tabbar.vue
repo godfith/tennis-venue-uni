@@ -16,10 +16,6 @@
         <image class="goat-tb-ico" :src="current === 2 ? '/static/images/tab/mine-on.png' : '/static/images/tab/mine.png'"></image>
         <text :class="current === 2 ? 'goat-tb-lab on' : 'goat-tb-lab'">我的</text>
       </view>
-      <view class="goat-tb-item" @tap="go(3)">
-        <image class="goat-tb-ico" :src="current === 3 ? '/static/images/tab/rank-on.png' : '/static/images/tab/rank.png'"></image>
-        <text :class="current === 3 ? 'goat-tb-lab on' : 'goat-tb-lab'">排名</text>
-      </view>
     </view>
   </view>
 </template>
@@ -33,8 +29,7 @@ export default {
       var urls = [
         '/pages/index/index',
         '/pages/booking/booking',
-        '/pages/my/my',
-        '/pages/rank/rank'
+        '/pages/my/my'
       ]
       if (i === this.current) return
       uni.switchTab({ url: urls[i] })

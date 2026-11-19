@@ -1,71 +1,48 @@
 
-.page {
-    min-height: 100vh;
-    background: #f5f6f8;
-    padding: 30rpx;
-    box-sizing: border-box;
+.page { min-height: 100vh; background: #f4f2ee;
 }
-.header {
-    font-size: 36rpx;
-    font-weight: 700;
-    color: #222;
-    margin-bottom: 30rpx;
+.top { padding: 28rpx 32rpx 8rpx;
 }
-.coach-card {
-    background: #fff;
-    border-radius: 20rpx;
-    padding: 30rpx;
-    margin-bottom: 24rpx;
-    display: flex;
-    align-items: center;
-    box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.03);
+.hello { font-size: 36rpx; font-weight: 700; color: #1e4870;
 }
-.avatar {
-    width: 120rpx;
-    height: 120rpx;
-    border-radius: 50%;
-    margin-right: 24rpx;
-    background: #f0f0f0;
-    flex-shrink: 0;
+.venue { font-size: 24rpx; color: #8a8680; margin-top: 6rpx;
 }
-.info {
-    flex: 1;
-    overflow: hidden;
+.tabs { margin: 16rpx 28rpx 24rpx; display: flex; background: #e8e4dc; border-radius: 12rpx; overflow: hidden;
 }
-.name {
-    font-size: 32rpx;
-    font-weight: 600;
-    color: #222;
-    margin-bottom: 6rpx;
+.tab { flex: 1; text-align: center; padding: 18rpx 0; font-size: 28rpx; color: #6b6760;
 }
-.title {
-    font-size: 24rpx;
-    color: #07c160;
-    margin-bottom: 8rpx;
+.tab.on { background: #fff; color: #1e4870; font-weight: 700;
+}
+.loading, .empty { text-align: center; color: #8a8680; padding: 80rpx 0;
+}
+.list { padding: 0 24rpx 40rpx;
+}
+.card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  margin-bottom: 16rpx;
+  display: flex;
+  align-items: center;
+}
+.photo {
+  width: 132rpx; height: 132rpx; border-radius: 16rpx; overflow: hidden;
+  background: #ece8e1; flex-shrink: 0; margin-right: 20rpx;
+}
+.avatar { width: 132rpx; height: 132rpx;
+}
+.info { flex: 1; min-width: 0;
+}
+.name { font-size: 32rpx; font-weight: 700; color: #222;
+}
+.title { font-size: 22rpx; color: #1e4870; margin: 6rpx 0;
 }
 .desc {
-    font-size: 24rpx;
-    color: #888;
-    margin-bottom: 12rpx;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  font-size: 22rpx; color: #8a8680;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
-.tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10rpx;
-}
-.tag {
-    font-size: 20rpx;
-    background: #f0f9f4;
-    color: #07c160;
-    padding: 4rpx 14rpx;
-    border-radius: 8rpx;
-}
-.arrow {
-    font-size: 36rpx;
-    color: #ccc;
-    margin-left: 10rpx;
+.cta {
+  margin-left: 12rpx; background: #1e4870; color: #fff;
+  font-size: 24rpx; padding: 12rpx 22rpx; border-radius: 10rpx; flex-shrink: 0;
 }
 

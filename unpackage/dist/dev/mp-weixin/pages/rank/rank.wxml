@@ -1,0 +1,1 @@
+<view class="page"><view class="title">赛事排名</view><view class="sub">TOURNAMENT RANKING</view><view class="empty">排名功能即将上线</view><app-tabbar vue-id="749c3d80-1" current="{{3}}" bind:__l="__l"></app-tabbar></view>

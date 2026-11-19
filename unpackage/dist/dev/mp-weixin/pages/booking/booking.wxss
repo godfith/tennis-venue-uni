@@ -1,153 +1,147 @@
 
-.sub-title {
-	  font-size: 26rpx;
-	  color: #888;
-	  margin-top: 8rpx;
+.notice-box { background: #fff8e6; border-radius: 12rpx; padding: 20rpx; margin: 16rpx 0;
 }
-.container {
-    padding-bottom: 160rpx;
-    background: #f7f8fa;
-    min-height: 100vh;
+.notice-title { font-size: 28rpx; font-weight: 700; color: #333; margin-bottom: 8rpx;
 }
-.header {
-    padding: 30rpx 30rpx 10rpx;
-    background: #fff;
+.notice-content { font-size: 24rpx; color: #666; white-space: pre-wrap; line-height: 1.6;
 }
-.title {
-    font-size: 40rpx;
-    font-weight: bold;
-    color: #222;
+.notice-agree { display: flex; align-items: center; margin-top: 16rpx; font-size: 24rpx; color: #333;
 }
-/* 日期横向滚动 */
-.date-scroll {
-    background: #fff;
-    padding: 20rpx 20rpx 30rpx;
-    white-space: nowrap;
+.notice-check { width: 32rpx; height: 32rpx; border: 2rpx solid #ccc; border-radius: 6rpx; margin-right: 12rpx; display: flex; align-items: center; justify-content: center; font-size: 22rpx; color: #fff;
 }
-.date-item {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 110rpx;
-    height: 110rpx;
-    margin-right: 16rpx;
-    border-radius: 16rpx;
-    background: #f5f5f5;
+.notice-check.on { background: #1a5c3a; border-color: #1a5c3a;
 }
-.date-item.active {
-    background: #07c160;
-    color: #fff;
+.root { min-height: 100vh; background: #f3f1ec;
 }
-.week {
-    font-size: 22rpx;
-    margin-bottom: 6rpx;
+.page {
+  min-height: 100vh;
+  background: #f3f1ec;
+  padding-bottom: calc(240rpx + env(safe-area-inset-bottom));
+  box-sizing: border-box;
 }
-.day {
-    font-size: 30rpx;
-    font-weight: bold;
+.top { padding: 28rpx 28rpx 12rpx; display: flex; justify-content: space-between; align-items: flex-start;
 }
-/* 场地卡片 */
-.court-area {
-    padding: 20rpx;
+.hello { font-size: 36rpx; font-weight: 700; color: #1e4870;
 }
-.court-card {
-    background: #fff;
-    border-radius: 20rpx;
-    padding: 28rpx;
-    margin-bottom: 24rpx;
-    box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.03);
+.venue { font-size: 24rpx; color: #8a8680; margin-top: 6rpx;
 }
-.court-header {
-    margin-bottom: 24rpx;
+.sw { font-size: 24rpx; color: #1e4870; font-weight: 600;
 }
-.court-name {
-    font-size: 32rpx;
-    font-weight: bold;
-    color: #222;
-    margin-right: 16rpx;
+.tabs { margin: 12rpx 28rpx 8rpx; display: flex; background: #e8e4dc; border-radius: 12rpx; overflow: hidden;
 }
-.court-desc {
-    font-size: 24rpx;
-    color: #999;
+.tab { flex: 1; text-align: center; padding: 18rpx 0; font-size: 28rpx; color: #6b6760;
 }
-/* 时间格子 */
-.time-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16rpx;
+.tab.on { background: #fff; color: #1e4870; font-weight: 700;
 }
-.time-cell {
-    width: 140rpx;
-    height: 90rpx;
-    background: #f0f9f4;
-    border-radius: 12rpx;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border: 2rpx solid transparent;
+.dates { white-space: nowrap; padding: 8rpx 24rpx 18rpx;
 }
-.time-cell.full {
-    background: #f0f0f0;
-    color: #bbb;
+.date { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 112rpx; height: 120rpx; margin-right: 16rpx; background: transparent; border-radius: 18rpx; color: #222;
 }
-.time-cell.selected {
-    background: #07c160;
-    color: #fff;
-    border-color: #07c160;
+.date.on { background: #18a058; color: #fff;
 }
-.time-text {
-    font-size: 24rpx;
-    font-weight: 500;
+.d-md { font-size: 30rpx; font-weight: 700;
 }
-.status-text {
-    font-size: 20rpx;
-    margin-top: 4rpx;
+.d-wk { font-size: 22rpx; margin-top: 6rpx;
 }
-.time-cell.full .status-text {
-    color: #ff4d4f;
+.venue-tip { margin: 0 28rpx 18rpx; color: #b0b4b8; font-size: 24rpx;
 }
-/* 底部栏 */
-.bottom-bar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: #fff;
-    padding: 20rpx 30rpx;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 -6rpx 20rpx rgba(0, 0, 0, 0.06);
-    z-index: 100;
+.grid-wrap { white-space: nowrap; height: calc(100vh - 420rpx); padding-bottom: 40rpx;
 }
-.selected-info {
-    font-size: 28rpx;
-    color: #333;
+.grid { display: inline-flex; padding: 0 20rpx 24rpx;
 }
-.selected-time {
-    font-size: 24rpx;
-    color: #07c160;
-    margin-top: 4rpx;
+.col { width: 176rpx; margin-right: 16rpx;
 }
-.book-btn {
-    background: #07c160 !important;
-    color: #fff;
-    font-size: 30rpx;
-    border-radius: 50rpx;
-    padding: 0 50rpx;
-    margin: 0;
+.col-h { text-align: center; font-size: 30rpx; color: #222; font-weight: 600; margin-bottom: 16rpx;
 }
-.header {
-    padding: 30rpx 30rpx 10rpx;
-    background: #fff;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+.cell { background: #fff; border-radius: 18rpx; height: 148rpx; margin-bottom: 16rpx; box-sizing: border-box; border: 2rpx solid #eee; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: 0 4rpx 12rpx rgba(0,0,0,.03);
 }
-.my-link {
-    font-size: 28rpx;
-    color: #07c160;
+.cell.full, .cell.group { background: #f5f6f7; border-color: #f5f6f7; box-shadow: none;
 }
+.cell.pick { border-color: #18a058; background: #f3fbf6;
+}
+.yen { color: #222; font-size: 30rpx; font-weight: 700;
+}
+.sold { color: #9aa0a6; font-size: 26rpx;
+}
+.tm { color: #9aa0a6; font-size: 20rpx; margin-top: 10rpx;
+}
+.board {
+  display: flex;
+  height: calc(100vh - 520rpx);
+  margin: 0 16rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  overflow: hidden;
+}
+.left { width: 176rpx; background: #f7f5f1;
+}
+.left-lab { padding: 20rpx 16rpx 8rpx; font-size: 22rpx; color: #8a8680;
+}
+.l-item { padding: 26rpx 16rpx; font-size: 26rpx; color: #5c5852;
+}
+.l-item.on { background: #1e4870; color: #fff; font-weight: 700;
+}
+.right { flex: 1; height: 100%; padding: 12rpx; box-sizing: border-box;
+}
+.slot { display: flex; justify-content: space-between; align-items: center; background: #f3f1ec; padding: 22rpx 18rpx; margin-bottom: 10rpx; border-radius: 10rpx; font-size: 26rpx; color: #1e4870;
+}
+.slot.off { color: #b3aea6;
+}
+.slot.sel { background: #e8eef5; outline: 2rpx solid #1e4870;
+}
+.st { font-size: 22rpx; color: #b3aea6;
+}
+.st.pink { color: #b85c4a;
+}
+.price { font-size: 26rpx; color: #b87333; font-weight: 600;
+}
+.empty { text-align: center; color: #8a8680; padding: 60rpx 20rpx;
+}
+.bar {
+  position: fixed;
+  left: 0; right: 0;
+  bottom: calc(118rpx + env(safe-area-inset-bottom));
+  background: #fff;
+  padding: 16rpx 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 -8rpx 24rpx rgba(44,44,44,.06);
+  z-index: 80;
+}
+.sum { font-size: 34rpx; font-weight: 700; color: #1e4870;
+}
+.picked { font-size: 22rpx; color: #8a8680; margin-top: 4rpx;
+}
+.ok { margin: 0 0 0 auto; width: 280rpx; height: 84rpx; line-height: 84rpx; background: #18a058 !important; color: #fff !important; font-size: 32rpx; border-radius: 12rpx;
+}
+.ok[disabled] { background: #d8d4cc !important; color: #9a968f !important;
+}
+.mask { position: fixed; inset: 0; background: rgba(44,44,44,.4); z-index: 20000; display: flex; align-items: flex-end;
+}
+.sheet { width: 100%; background: #fff; border-radius: 24rpx 24rpx 0 0; padding: 32rpx 28rpx 48rpx; max-height: 75vh; overflow-y: auto;
+}
+.sheet-title { text-align: center; font-size: 32rpx; font-weight: 700;
+}
+.sheet-sub { text-align: center; color: #8a8680; font-size: 24rpx; margin: 10rpx 0 8rpx;
+}
+.sheet-price { text-align: center; color: #b87333; font-weight: 600; margin-bottom: 16rpx;
+}
+.card-option { border: 2rpx solid #ece8e1; border-radius: 12rpx; padding: 22rpx; margin-bottom: 12rpx;
+}
+.card-option.on { border-color: #1e4870; background: #e8eef5;
+}
+.card-option.off { opacity: 0.45;
+}
+.co-name { font-size: 28rpx; font-weight: 600;
+}
+.co-meta { font-size: 24rpx; color: #1e4870; margin-top: 6rpx;
+}
+.sheet-empty { text-align: center; color: #8a8680; padding: 16rpx 0;
+}
+.sheet-btn { margin-top: 8rpx; background: #1e4870 !important; color: #fff !important; border-radius: 12rpx;
+}
+.sheet-cancel { text-align: center; color: #8a8680; margin-top: 18rpx; padding: 10rpx;
+}
+.col-type{font-size:20rpx;font-weight:400;opacity:.75}
 

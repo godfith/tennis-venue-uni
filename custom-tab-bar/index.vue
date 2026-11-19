@@ -23,8 +23,7 @@ export default {
         { text: '首页', path: '/pages/index/index', icon: '/static/images/ui/bYMYQ.jpg' },
         { text: '商城', path: '/pages/shop/shop', icon: '/static/images/ui/gwm0c.jpg' },
         { text: '订场', path: '/pages/booking/booking', icon: '/static/images/ui/T8zdG.jpg' },
-        { text: '我的', path: '/pages/my/my', icon: '/static/images/ui/AOIXl.jpg' },
-        { text: '排名', path: '/pages/rank/rank', icon: '/static/images/ui/gwm0c.jpg' }
+        { text: '我的', path: '/pages/my/my', icon: '/static/images/ui/AOIXl.jpg' }
       ]
     }
   },
@@ -42,8 +41,7 @@ export default {
           'pages/index/index': 0,
           'pages/shop/shop': 1,
           'pages/booking/booking': 2,
-          'pages/my/my': 3,
-          'pages/rank/rank': 4
+          'pages/my/my': 3
         }
         if (map[route] !== undefined) this.selected = map[route]
       } catch (e) {}

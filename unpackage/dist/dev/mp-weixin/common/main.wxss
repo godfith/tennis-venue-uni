@@ -1,43 +1,25 @@
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/**app.wxss**/
 .container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
 }
 button {
-    background: initial;
+  background: initial;
 }
 button:focus {
-    outline: 0;
+  outline: 0;
 }
 button::after {
-    border: none;
+  border: none;
 }
 page {
-    background: #f6f6f6;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
+  background: #f6f6f6;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  font-size: 28rpx;
+  color: #333;
 }
 

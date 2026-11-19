@@ -1,6 +1,6 @@
 (global["webpackJsonp"] = global["webpackJsonp"] || []).push([["pages/mybooking/mybooking"],{
 
-/***/ 75:
+/***/ 118:
 /*!********************************************************************************!*\
   !*** D:/山羊goat项目/网球场馆小程序_uni/main.js?{"page":"pages%2Fmybooking%2Fmybooking"} ***!
   \********************************************************************************/
@@ -13,7 +13,7 @@
 var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
 __webpack_require__(/*! uni-pages */ 30);
 var _vue = _interopRequireDefault(__webpack_require__(/*! vue */ 25));
-var _mybooking = _interopRequireDefault(__webpack_require__(/*! ./pages/mybooking/mybooking.vue */ 76));
+var _mybooking = _interopRequireDefault(__webpack_require__(/*! ./pages/mybooking/mybooking.vue */ 119));
 // @ts-ignore
 wx.__webpack_require_UNI_MP_PLUGIN__ = __webpack_require__;
 createPage(_mybooking.default);
@@ -21,7 +21,7 @@ createPage(_mybooking.default);
 
 /***/ }),
 
-/***/ 76:
+/***/ 119:
 /*!*************************************************************!*\
   !*** D:/山羊goat项目/网球场馆小程序_uni/pages/mybooking/mybooking.vue ***!
   \*************************************************************/
@@ -30,11 +30,11 @@ createPage(_mybooking.default);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _mybooking_vue_vue_type_template_id_41caa662___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./mybooking.vue?vue&type=template&id=41caa662& */ 77);
-/* harmony import */ var _mybooking_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./mybooking.vue?vue&type=script&lang=js& */ 79);
+/* harmony import */ var _mybooking_vue_vue_type_template_id_41caa662___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./mybooking.vue?vue&type=template&id=41caa662& */ 120);
+/* harmony import */ var _mybooking_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./mybooking.vue?vue&type=script&lang=js& */ 122);
 /* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _mybooking_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(["default"].indexOf(__WEBPACK_IMPORT_KEY__) < 0) (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _mybooking_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var _mybooking_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./mybooking.vue?vue&type=style&index=0&lang=css& */ 81);
-/* harmony import */ var _HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib/runtime/componentNormalizer.js */ 36);
+/* harmony import */ var _mybooking_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./mybooking.vue?vue&type=style&index=0&lang=css& */ 124);
+/* harmony import */ var _HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib/runtime/componentNormalizer.js */ 37);
 
 var renderjs
 
@@ -62,7 +62,7 @@ component.options.__file = "pages/mybooking/mybooking.vue"
 
 /***/ }),
 
-/***/ 77:
+/***/ 120:
 /*!********************************************************************************************!*\
   !*** D:/山羊goat项目/网球场馆小程序_uni/pages/mybooking/mybooking.vue?vue&type=template&id=41caa662& ***!
   \********************************************************************************************/
@@ -71,7 +71,7 @@ component.options.__file = "pages/mybooking/mybooking.vue"
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_uni_app_loader_page_meta_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_index_js_vue_loader_options_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_style_js_mybooking_vue_vue_type_template_id_41caa662___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--17-0!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-uni-app-loader/page-meta.js!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib??vue-loader-options!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/style.js!./mybooking.vue?vue&type=template&id=41caa662& */ 78);
+/* harmony import */ var _HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_uni_app_loader_page_meta_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_index_js_vue_loader_options_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_style_js_mybooking_vue_vue_type_template_id_41caa662___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--17-0!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-uni-app-loader/page-meta.js!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib??vue-loader-options!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/style.js!./mybooking.vue?vue&type=template&id=41caa662& */ 121);
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_uni_app_loader_page_meta_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_index_js_vue_loader_options_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_style_js_mybooking_vue_vue_type_template_id_41caa662___WEBPACK_IMPORTED_MODULE_0__["render"]; });
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_17_0_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_template_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_uni_app_loader_page_meta_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_index_js_vue_loader_options_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_style_js_mybooking_vue_vue_type_template_id_41caa662___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
@@ -84,7 +84,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ 78:
+/***/ 121:
 /*!********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--17-0!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/template.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-uni-app-loader/page-meta.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib??vue-loader-options!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/style.js!D:/山羊goat项目/网球场馆小程序_uni/pages/mybooking/mybooking.vue?vue&type=template&id=41caa662& ***!
   \********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
@@ -102,20 +102,35 @@ var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  var g0 = _vm.list.length === 0 && !_vm.loading
+  var g0 = _vm.filtered.length === 0 && !_vm.loading
   var l0 = !g0
-    ? _vm.__map(_vm.list, function (item, index) {
+    ? _vm.__map(_vm.filtered, function (item, index) {
         var $orig = _vm.__get_orig(item)
-        var m0 =
-          item.venueName || item.venueId
-            ? item.venueName || _vm.venueText(item.venueId)
-            : null
+        var m0 = _vm.statusTagClass(item)
+        var m1 = _vm.statusText(item)
+        var m2 = _vm.fmtDate(item.date)
         return {
           $orig: $orig,
           m0: m0,
+          m1: m1,
+          m2: m2,
         }
       })
     : null
+  if (!_vm._isMounted) {
+    _vm.e0 = function ($event) {
+      _vm.tab = "all"
+    }
+    _vm.e1 = function ($event) {
+      _vm.tab = "booked"
+    }
+    _vm.e2 = function ($event) {
+      _vm.tab = "pending_pay"
+    }
+    _vm.e3 = function ($event) {
+      _vm.tab = "cancelled"
+    }
+  }
   _vm.$mp.data = Object.assign(
     {},
     {
@@ -134,7 +149,7 @@ render._withStripped = true
 
 /***/ }),
 
-/***/ 79:
+/***/ 122:
 /*!**************************************************************************************!*\
   !*** D:/山羊goat项目/网球场馆小程序_uni/pages/mybooking/mybooking.vue?vue&type=script&lang=js& ***!
   \**************************************************************************************/
@@ -143,14 +158,14 @@ render._withStripped = true
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _HBuilderX_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_13_1_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_index_js_vue_loader_options_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_style_js_mybooking_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../HBuilderX/plugins/uniapp-cli/node_modules/babel-loader/lib!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--13-1!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib??vue-loader-options!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/style.js!./mybooking.vue?vue&type=script&lang=js& */ 80);
+/* harmony import */ var _HBuilderX_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_13_1_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_index_js_vue_loader_options_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_style_js_mybooking_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../HBuilderX/plugins/uniapp-cli/node_modules/babel-loader/lib!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--13-1!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib??vue-loader-options!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/style.js!./mybooking.vue?vue&type=script&lang=js& */ 123);
 /* harmony import */ var _HBuilderX_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_13_1_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_index_js_vue_loader_options_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_style_js_mybooking_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_HBuilderX_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_13_1_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_index_js_vue_loader_options_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_style_js_mybooking_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__);
 /* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _HBuilderX_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_13_1_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_index_js_vue_loader_options_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_style_js_mybooking_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__) if(["default"].indexOf(__WEBPACK_IMPORT_KEY__) < 0) (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _HBuilderX_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_13_1_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_index_js_vue_loader_options_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_style_js_mybooking_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
  /* harmony default export */ __webpack_exports__["default"] = (_HBuilderX_plugins_uniapp_cli_node_modules_babel_loader_lib_index_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_13_1_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_script_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_index_js_vue_loader_options_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_style_js_mybooking_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0___default.a); 
 
 /***/ }),
 
-/***/ 80:
+/***/ 123:
 /*!*********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--13-1!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/script.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib??vue-loader-options!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/style.js!D:/山羊goat项目/网球场馆小程序_uni/pages/mybooking/mybooking.vue?vue&type=script&lang=js& ***!
   \*********************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
@@ -158,12 +173,20 @@ __webpack_require__.r(__webpack_exports__);
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(wx, uni) {
+/* WEBPACK VAR INJECTION */(function(uni, wx) {
 
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
+var _typeof2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/typeof */ 13));
+//
+//
+//
+//
+//
+//
 //
 //
 //
@@ -208,121 +231,116 @@ var _default = {
   data: function data() {
     return {
       list: [],
+      tab: 'all',
       page: 1,
-      pageSize: 5,
+      pageSize: 10,
       total: 0,
       totalPage: 1,
       loading: false,
-      openid: '',
-      venueMap: {}
+      cancellingId: ''
     };
+  },
+  computed: {
+    filtered: function filtered() {
+      var _this = this;
+      if (this.tab === 'all') return this.list;
+      if (this.tab === 'booked') {
+        return (this.list || []).filter(function (i) {
+          return i.status === 'booked' || i.status === 'pending_pay';
+        });
+      }
+      return (this.list || []).filter(function (i) {
+        return i.status === _this.tab;
+      });
+    }
   },
   onShow: function onShow() {
     this.page = 1;
-    this.getOpenidAndLoad();
+    this.loadMyBookings();
   },
   methods: {
-    // 先获取 openid，再加载数据
-    getOpenidAndLoad: function getOpenidAndLoad() {
-      var _this = this;
-      wx.cloud.callFunction({
-        name: 'login',
-        config: {
-          env: 'cloud1-d0gmljq45868f5766'
-        }
-      }).then(function (res) {
-        var openid = res.result.openid;
-        _this.openid = openid;
-        // 先映射场馆，再加载预约
-        return _this.loadVenueMap().then(function () {
-          _this.loadMyBookings(openid);
-        });
-      }).catch(function (err) {
-        console.error('获取 openid 失败', err);
+    fmtDate: function fmtDate(v) {
+      if (!v) return '';
+      var s = String(v).slice(0, 10);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+      var p = s.split('-');
+      return p[0] + '年' + Number(p[1]) + '月' + Number(p[2]) + '日';
+    },
+    loadMyBookings: function loadMyBookings() {
+      var openid = uni.getStorageSync('openid') || '';
+      var userDocId = uni.getStorageSync('userDocId') || '';
+      if (!openid && !userDocId) {
         uni.showToast({
-          title: '登录失败',
+          title: '请先登录',
           icon: 'none'
         });
-      });
-    },
-    // 加载当前用户的预约
-    loadMyBookings: function loadMyBookings(openid) {
-      var _this2 = this;
-      var page = this.page,
-        pageSize = this.pageSize;
-      var db = wx.cloud.database();
+        return;
+      }
       this.loading = true;
-      var whereCondition = {
-        _openid: openid
-      };
-      db.collection('bookings').where(whereCondition).count().then(function (countRes) {
-        var total = countRes.total;
-        var totalPage = Math.ceil(total / pageSize) || 1;
-        return db.collection('bookings').where(whereCondition).orderBy('createTime', 'desc').skip((page - 1) * pageSize).limit(pageSize).get().then(function (res) {
-          _this2.list = res.data;
-          _this2.total = total;
-          _this2.totalPage = totalPage;
-          _this2.loading = false;
-        });
+      var that = this;
+      wx.cloud.callFunction({
+        name: 'userApi',
+        data: {
+          action: 'getMyBookings',
+          openid: openid,
+          userId: userDocId,
+          page: that.page,
+          pageSize: that.pageSize
+        }
+      }).then(function (res) {
+        var result = res.result || {};
+        if (!result.ok) {
+          uni.showToast({
+            title: result.msg || '加载失败',
+            icon: 'none'
+          });
+          return;
+        }
+        that.list = result.list || [];
+        that.total = result.total || 0;
+        that.totalPage = Math.ceil(that.total / that.pageSize) || 1;
       }).catch(function (err) {
         console.error('加载失败', err);
-        _this2.loading = false;
         uni.showToast({
           title: '加载失败',
           icon: 'none'
         });
+      }).finally(function () {
+        that.loading = false;
       });
     },
-    // 加载场馆名称映射
-    loadVenueMap: function loadVenueMap() {
-      var _this3 = this;
-      var db = wx.cloud.database();
-      return db.collection('venues').get().then(function (res) {
-        var map = {};
-        (res.data || []).forEach(function (v) {
-          if (v.venueId) {
-            map[v.venueId] = v.name;
-          }
-        });
-        _this3.venueMap = map;
-      }).catch(function (err) {
-        console.error('加载场馆失败', err);
-      });
-    },
-    venueText: function venueText(id) {
-      if (!id) return '';
-      return this.venueMap[id] || id;
-    },
-    // 上一页
     prevPage: function prevPage() {
       if (this.page <= 1) return;
       this.page = this.page - 1;
-      this.loadMyBookings(this.openid);
+      this.loadMyBookings();
     },
     nextPage: function nextPage() {
       if (this.page >= this.totalPage) return;
       this.page = this.page + 1;
-      this.loadMyBookings(this.openid);
+      this.loadMyBookings();
     },
-    // 判断是否可以取消（提前6小时）
     canCancel: function canCancel(booking) {
-      var startTimeStr = booking.time.split('-')[0]; // "09:00"
-      var bookingDateTimeStr = "".concat(booking.date, " ").concat(startTimeStr, ":00");
-      var bookingTime = new Date(bookingDateTimeStr.replace(/-/g, '/'));
-      var now = new Date();
-      var diffMs = bookingTime.getTime() - now.getTime();
-      var diffHours = diffMs / 3600000;
-
-      // 已过期 或 不足6小时 → 不可取消
-      if (diffHours <= 0) return false;
-      if (diffHours < 6) return false;
-      return true;
+      var startTimeStr = (booking.time || '').split('-')[0];
+      var bookingTime = new Date((booking.date + ' ' + startTimeStr + ':00').replace(/-/g, '/'));
+      var diffHours = (bookingTime.getTime() - Date.now()) / 3600000;
+      return diffHours >= 6;
     },
-    // 取消预约
-    onCancel: function onCancel(id) {
-      var _this4 = this;
-      var booking = this.list.find(function (item) {
-        return item._id === id;
+    statusText: function statusText(item) {
+      if (!item) return '';
+      if (item.statusLabel) return item.statusLabel;
+      if (item.status === 'pending_pay') return '待支付确认';
+      if (item.status === 'booked') return '已预约';
+      if (item.status === 'cancelled') return '已取消';
+      return item.status || '';
+    },
+    statusTagClass: function statusTagClass(item) {
+      if (item && item.status === 'booked') return 'tag ok';
+      if (item && item.status === 'pending_pay') return 'tag pending';
+      return 'tag off';
+    },
+    onCancel: function onCancel(item) {
+      var booking = (0, _typeof2.default)(item) === 'object' ? item : this.list.find(function (x) {
+        return x._id === item;
       });
       if (!booking) return;
       if (!this.canCancel(booking)) {
@@ -333,30 +351,90 @@ var _default = {
         });
         return;
       }
+      var that = this;
       uni.showModal({
         title: '确认取消',
-        content: '确定要取消这个预约吗？',
+        content: booking.amount > 0 || booking.payOrderId ? '取消后将尝试原路退回微信支付，确定取消吗？' : '确定要取消这个预约吗？',
         success: function success(res) {
-          if (res.confirm) {
-            var db = wx.cloud.database();
-            db.collection('bookings').doc(id).update({
-              data: {
-                status: 'cancelled'
-              }
-            }).then(function () {
+          if (!res.confirm) return;
+          that.cancellingId = booking._id;
+          wx.cloud.callFunction({
+            name: 'userApi',
+            data: {
+              action: 'cancelBooking',
+              id: booking._id
+            }
+          }).then(function (r) {
+            var result = r.result || {};
+            if (!result.ok) {
               uni.showToast({
-                title: '已取消',
-                icon: 'success'
+                title: result.msg || '取消失败',
+                icon: 'none',
+                duration: 3000
               });
-              _this4.loadMyBookings(_this4.openid);
-            }).catch(function (err) {
-              console.error(err);
+              return;
+            }
+            uni.showToast({
+              title: '已取消',
+              icon: 'success'
+            });
+            that.loadMyBookings();
+          }).catch(function (err) {
+            console.error(err);
+            uni.showToast({
+              title: '取消失败',
+              icon: 'none'
+            });
+          }).finally(function () {
+            that.cancellingId = '';
+          });
+        }
+      });
+    },
+    onCancelPending: function onCancelPending(item) {
+      if (!item) return;
+      var that = this;
+      uni.showModal({
+        title: '取消占位',
+        content: '将释放该时段占位。若微信已扣款，系统稍后查单仍会确认预约；未扣款则直接取消。',
+        success: function success(res) {
+          if (!res.confirm) return;
+          if (!item.outTradeNo) {
+            uni.showToast({
+              title: '缺少支付单号',
+              icon: 'none'
+            });
+            return;
+          }
+          that.cancellingId = item._id;
+          wx.cloud.callFunction({
+            name: 'pay',
+            data: {
+              action: 'cancelCourtPay',
+              outTradeNo: item.outTradeNo
+            }
+          }).then(function (r) {
+            var result = r.result || {};
+            if (!result.ok) {
               uni.showToast({
-                title: '取消失败',
+                title: result.msg || '取消失败',
                 icon: 'none'
               });
+              return;
+            }
+            uni.showToast({
+              title: '已取消占位',
+              icon: 'success'
             });
-          }
+            that.loadMyBookings();
+          }).catch(function () {
+            uni.showToast({
+              title: '取消失败',
+              icon: 'none'
+            });
+          }).finally(function () {
+            that.cancellingId = '';
+          });
         }
       });
     },
@@ -364,20 +442,15 @@ var _default = {
       uni.switchTab({
         url: '/pages/booking/booking'
       });
-    },
-    goDetail: function goDetail(id) {
-      uni.navigateTo({
-        url: "/pages/booking-detail/booking-detail?id=".concat(id)
-      });
     }
   }
 };
 exports.default = _default;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/wx.js */ 1)["default"], __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"], __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/wx.js */ 1)["default"]))
 
 /***/ }),
 
-/***/ 81:
+/***/ 124:
 /*!**********************************************************************************************!*\
   !*** D:/山羊goat项目/网球场馆小程序_uni/pages/mybooking/mybooking.vue?vue&type=style&index=0&lang=css& ***!
   \**********************************************************************************************/
@@ -386,14 +459,14 @@ exports.default = _default;
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony import */ var _HBuilderX_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_HBuilderX_plugins_uniapp_cli_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_loaders_stylePostLoader_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_2_HBuilderX_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_index_js_vue_loader_options_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_style_js_mybooking_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../HBuilderX/plugins/uniapp-cli/node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!../../../../HBuilderX/plugins/uniapp-cli/node_modules/css-loader/dist/cjs.js??ref--6-oneOf-1-1!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib/loaders/stylePostLoader.js!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-2!../../../../HBuilderX/plugins/uniapp-cli/node_modules/postcss-loader/src??ref--6-oneOf-1-3!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib??vue-loader-options!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/style.js!./mybooking.vue?vue&type=style&index=0&lang=css& */ 82);
+/* harmony import */ var _HBuilderX_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_HBuilderX_plugins_uniapp_cli_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_loaders_stylePostLoader_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_2_HBuilderX_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_index_js_vue_loader_options_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_style_js_mybooking_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../../HBuilderX/plugins/uniapp-cli/node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!../../../../HBuilderX/plugins/uniapp-cli/node_modules/css-loader/dist/cjs.js??ref--6-oneOf-1-1!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib/loaders/stylePostLoader.js!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-2!../../../../HBuilderX/plugins/uniapp-cli/node_modules/postcss-loader/src??ref--6-oneOf-1-3!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib??vue-loader-options!../../../../HBuilderX/plugins/uniapp-cli/node_modules/@dcloudio/webpack-uni-mp-loader/lib/style.js!./mybooking.vue?vue&type=style&index=0&lang=css& */ 125);
 /* harmony import */ var _HBuilderX_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_HBuilderX_plugins_uniapp_cli_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_loaders_stylePostLoader_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_2_HBuilderX_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_index_js_vue_loader_options_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_style_js_mybooking_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(_HBuilderX_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_HBuilderX_plugins_uniapp_cli_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_loaders_stylePostLoader_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_2_HBuilderX_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_index_js_vue_loader_options_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_style_js_mybooking_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__);
 /* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _HBuilderX_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_HBuilderX_plugins_uniapp_cli_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_loaders_stylePostLoader_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_2_HBuilderX_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_index_js_vue_loader_options_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_style_js_mybooking_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__) if(["default"].indexOf(__WEBPACK_IMPORT_KEY__) < 0) (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _HBuilderX_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_HBuilderX_plugins_uniapp_cli_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_loaders_stylePostLoader_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_2_HBuilderX_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_index_js_vue_loader_options_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_style_js_mybooking_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0__[key]; }) }(__WEBPACK_IMPORT_KEY__));
  /* harmony default export */ __webpack_exports__["default"] = (_HBuilderX_plugins_uniapp_cli_node_modules_mini_css_extract_plugin_dist_loader_js_ref_6_oneOf_1_0_HBuilderX_plugins_uniapp_cli_node_modules_css_loader_dist_cjs_js_ref_6_oneOf_1_1_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_loaders_stylePostLoader_js_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_webpack_preprocess_loader_index_js_ref_6_oneOf_1_2_HBuilderX_plugins_uniapp_cli_node_modules_postcss_loader_src_index_js_ref_6_oneOf_1_3_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_vue_cli_plugin_uni_packages_vue_loader_lib_index_js_vue_loader_options_HBuilderX_plugins_uniapp_cli_node_modules_dcloudio_webpack_uni_mp_loader_lib_style_js_mybooking_vue_vue_type_style_index_0_lang_css___WEBPACK_IMPORTED_MODULE_0___default.a); 
 
 /***/ }),
 
-/***/ 82:
+/***/ 125:
 /*!**************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/mini-css-extract-plugin/dist/loader.js??ref--6-oneOf-1-0!./node_modules/css-loader/dist/cjs.js??ref--6-oneOf-1-1!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib/loaders/stylePostLoader.js!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/webpack-preprocess-loader??ref--6-oneOf-1-2!./node_modules/postcss-loader/src??ref--6-oneOf-1-3!./node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib??vue-loader-options!./node_modules/@dcloudio/webpack-uni-mp-loader/lib/style.js!D:/山羊goat项目/网球场馆小程序_uni/pages/mybooking/mybooking.vue?vue&type=style&index=0&lang=css& ***!
   \**************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************************/
@@ -406,5 +479,5 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ })
 
-},[[75,"common/runtime","common/vendor"]]]);
+},[[118,"common/runtime","common/vendor"]]]);
 //# sourceMappingURL=../../../.sourcemap/mp-weixin/pages/mybooking/mybooking.js.map

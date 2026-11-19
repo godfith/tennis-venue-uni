@@ -102,7 +102,7 @@ export default {
       allTimes: [
         '08:00-09:00', '09:00-10:00', '10:00-11:00', '11:00-12:00',
         '14:00-15:00', '15:00-16:00', '16:00-17:00', '17:00-18:00',
-        '18:00-19:00', '19:00-20:00', '20:00-21:00'
+        '18:00-19:00', '19:00-20:00', '20:00-21:00', '21:00-22:00'
       ]
     }
   },
@@ -122,6 +122,10 @@ export default {
     this.loadCourts()
   },
   methods: {
+    normCourt(c) {
+      return String(c || '').trim().replace(/^发球机/u, '').replace(/场$/u, '')
+    },
+
     goBook() { uni.switchTab({ url: '/pages/booking/booking' }) },
     venueId() { return uni.getStorageSync('venue_id') || '' },
     isCardUsable(card, dateStr) {
@@ -204,52 +208,92 @@ export default {
     loadTimeList(date, resetSelect) {
       var that = this
       var venueId = that.venueId()
-      var availableTimes = that.getAvailableTimes(date)
       if (resetSelect) that.currentTime = ''
-      if (!availableTimes.length) {
-        that.timeList = []
-        return
+      var applyList = function (baseTimes) {
+        var availableTimes = that.filterTimesByNow(date, baseTimes)
+        if (!availableTimes.length) {
+          that.timeList = []
+          return
+        }
+        if (!venueId) {
+          that.timeList = availableTimes.map(function (t) { return { time: t, status: 'available' } })
+          return
+        }
+        wx.cloud.callFunction({
+          name: 'userApi',
+          data: { action: 'getSchedule', venueId: venueId, date: date },
+          success: function (res) {
+            var result = res.result || {}
+            var bookings = result.bookings || []
+            var groups = result.groupClasses || []
+            that.bookingsCache = bookings
+            that.groupCache = groups
+            var coachBusy = {}
+            bookings.forEach(function (b) {
+              if ((b.status === 'booked' || b.status === 'locked') && b.coachId && String(b.coachId) === String(that.coachId)) {
+                coachBusy[b.time] = true
+              }
+            })
+            groups.forEach(function (g) {
+              if (g.status === 'open' && g.coachId && String(g.coachId) === String(that.coachId)) {
+                coachBusy[g.time] = true
+              }
+            })
+            that.timeList = availableTimes.map(function (time) {
+              var courtBusy = false
+              if (that.currentCourt) {
+                bookings.forEach(function (b) {
+                  if ((b.status === 'booked' || b.status === 'locked') && b.time === time && that.normCourt(b.court) === that.normCourt(that.currentCourt)) courtBusy = true
+                })
+                groups.forEach(function (g) {
+                  if (g.status === 'open' && g.time === time && that.normCourt(g.court) === that.normCourt(that.currentCourt)) courtBusy = true
+                })
+              }
+              return { time: time, status: (coachBusy[time] || courtBusy) ? 'full' : 'available' }
+            })
+          },
+          fail: function () {
+            that.timeList = availableTimes.map(function (t) { return { time: t, status: 'available' } })
+          }
+        })
       }
       if (!venueId) {
-        that.timeList = availableTimes.map(function (t) { return { time: t, status: 'available' } })
+        applyList(that.allTimes.slice())
         return
       }
+      var d = new Date(String(date).replace(/-/g, '/'))
+      var weekday = d.getDay()
+      if (weekday === 0) weekday = 7
       wx.cloud.callFunction({
         name: 'userApi',
-        data: { action: 'getSchedule', venueId: venueId, date: date },
-        success: function (res) {
-          var result = res.result || {}
-          var bookings = result.bookings || []
-          var groups = result.groupClasses || []
-          that.bookingsCache = bookings
-          that.groupCache = groups
-          var coachBusy = {}
-          bookings.forEach(function (b) {
-            if (b.status === 'booked' && b.coachId && String(b.coachId) === String(that.coachId)) {
-              coachBusy[b.time] = true
-            }
-          })
-          groups.forEach(function (g) {
-            if (g.status === 'open' && g.coachId && String(g.coachId) === String(that.coachId)) {
-              coachBusy[g.time] = true
-            }
-          })
-          that.timeList = availableTimes.map(function (time) {
-            var courtBusy = false
-            if (that.currentCourt) {
-              bookings.forEach(function (b) {
-                if (b.status === 'booked' && b.time === time && b.court === that.currentCourt) courtBusy = true
-              })
-              groups.forEach(function (g) {
-                if (g.status === 'open' && g.time === time && g.court === that.currentCourt) courtBusy = true
-              })
-            }
-            return { time: time, status: (coachBusy[time] || courtBusy) ? 'full' : 'available' }
-          })
+        data: { action: 'getVenueHours', venueId: venueId, weekday: weekday },
+        success: function (hr) {
+          var result = (hr && hr.result) || {}
+          var slots = (result.byWeekday && result.byWeekday[weekday]) || result.slots || []
+          applyList(slots.length ? slots.slice() : that.allTimes.slice())
         },
         fail: function () {
-          that.timeList = availableTimes.map(function (t) { return { time: t, status: 'available' } })
+          applyList(that.allTimes.slice())
         }
+      })
+    },
+    filterTimesByNow(dateStr, times) {
+      var list = (times || []).slice()
+      var now = new Date()
+      var y = now.getFullYear()
+      var m = now.getMonth() + 1
+      var day = now.getDate()
+      var mm = m < 10 ? '0' + m : '' + m
+      var dd = day < 10 ? '0' + day : '' + day
+      var todayStr = y + '-' + mm + '-' + dd
+      if (dateStr !== todayStr) return list
+      var currentHour = now.getHours()
+      var currentMinute = now.getMinutes()
+      return list.filter(function (time) {
+        var startHour = parseInt(String(time).split(':')[0], 10)
+        if (startHour < currentHour) return false
+        if (startHour === currentHour && currentMinute > 0) return false
+        return true
       })
     },
     onSelectDate(date) {

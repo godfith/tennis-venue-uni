@@ -1,6 +1,10 @@
 {
-  "navigationBarTitleText": "网球场馆",
+  "navigationBarTitleText": "山羊Goat",
+  "navigationBarBackgroundColor": "#1e4870",
+  "navigationBarTextStyle": "white",
+  "enableShareAppMessage": true,
+  "enableShareTimeline": true,
   "usingComponents": {
-    "cloud-tip-modal": "/components/cloudTipModal/index"
+    "app-tabbar": "/components/app-tabbar"
   }
 }

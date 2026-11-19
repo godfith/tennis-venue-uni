@@ -12,7 +12,7 @@
         class="card"
         :class="cardClass(item)"
         v-for="(item, index) in list"
-        :key="index"
+        :key="item._id || index"
       >
         <view class="card-top">
           <view class="card-name">{{ item.cardName }}</view>
@@ -20,10 +20,18 @@
         </view>
         <view class="card-body">
           <view v-if="isTimesLike(item.type)" class="times">
-            剩余 <text class="num">{{ item.remainingTimes }}</text> / {{ item.totalTimes }} 次
+            <view class="times-main">
+              <text class="num">{{ item.remainingTimes }}</text>
+              <text class="unit">次</text>
+            </view>
+            <view class="times-sub">剩余 / 共 {{ item.totalTimes }} 次</view>
           </view>
           <view v-else class="times">
-            剩余 <text class="num">{{ remainDays(item) }}</text> 天
+            <view class="times-main">
+              <text class="num">{{ remainDays(item) }}</text>
+              <text class="unit">天</text>
+            </view>
+            <view class="times-sub">剩余有效天数</view>
           </view>
           <view class="valid" v-if="item.validFrom || item.validTo">
             有效期：{{ item.validFrom || '不限' }} ~ {{ item.validTo || '不限' }}
@@ -48,13 +56,13 @@ export default {
   },
   methods: {
     typeLabel(t) {
-      return { times: '次卡', coach: '教练卡', group: '团课卡', time: '时间卡' }[t] || t
+      return { times: '次卡', coach: '教练卡', group: '团课卡', time: '时间卡', stored: '储值卡' }[t] || t
     },
     isTimesLike(t) {
       return t === 'times' || t === 'coach' || t === 'group'
     },
     statusLabel(s) {
-      return { active: '可用', used_up: '已用完', refunded: '已退卡', disabled: '停用' }[s] || s
+      return { active: '可用', used_up: '已用完', expired: '已过期', refunded: '已退卡', disabled: '停用' }[s] || s
     },
     remainDays(item) {
       if (!item || !item.validTo) return 0
@@ -66,30 +74,41 @@ export default {
       return d > 0 ? d : 0
     },
     cardClass(item) {
-      var st = item.status === 'active' ? '' : (item.status === 'refunded' ? ' refund' : ' off')
+      var st = ''
+      if (item.status === 'refunded') st = ' refund'
+      else if (item.status === 'expired' || item.status === 'used_up') st = ' muted'
+      else if (item.status && item.status !== 'active') st = ' off'
       var tp = {
         coach: 'c-coach',
         times: 'c-times',
         group: 'c-group',
-        time: 'c-time'
+        time: 'c-time',
+        stored: 'c-stored'
       }[item.type] || 'c-times'
       return tp + st
+    },
+    isVisibleCard(item) {
+      var s = item && item.status ? item.status : 'active'
+      return s !== 'disabled' && s !== 'refunded'
     },
     loadCards() {
       const userDocId = uni.getStorageSync('userDocId') || ''
       const openid = uni.getStorageSync('openid') || ''
-      if (!userDocId && !openid) {
+      const phone = uni.getStorageSync('phone') || ''
+      if (!userDocId && !openid && !phone) {
         uni.showToast({ title: '请先登录', icon: 'none' })
         return
       }
       this.loading = true
+      const that = this
       wx.cloud
         .callFunction({
           name: 'userApi',
           data: {
             action: 'getMyCards',
             userId: userDocId,
-            openid
+            openid,
+            phone
           }
         })
         .then((res) => {
@@ -98,7 +117,7 @@ export default {
             uni.showToast({ title: result.msg || '加载失败', icon: 'none' })
             return
           }
-          this.list = result.list || []
+          that.list = (result.list || []).filter(function (c) { return that.isVisibleCard(c) })
         })
         .catch((e) => {
           console.error(e)
@@ -150,13 +169,15 @@ export default {
 .card.c-times { background: linear-gradient(135deg, #2d6a4f, #52b788); }
 .card.c-group { background: linear-gradient(135deg, #7b2d3b, #c45c6a); }
 .card.c-time { background: linear-gradient(135deg, #8a5a12, #d4a017); }
+.card.c-stored { background: linear-gradient(135deg, #1a5c3a, #3d8b63); }
 .card.off { background: linear-gradient(135deg, #888, #aaa) !important; }
 .card.refund { background: linear-gradient(135deg, #999, #bbb) !important; }
+.card.muted { opacity: 0.82; }
 .card-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20rpx;
+  margin-bottom: 12rpx;
 }
 .card-name {
   font-size: 32rpx;
@@ -169,12 +190,27 @@ export default {
   border-radius: 20rpx;
 }
 .times {
-  font-size: 28rpx;
   margin-bottom: 10rpx;
 }
+.times-main {
+  display: flex;
+  align-items: baseline;
+  margin: 4rpx 0 6rpx;
+}
 .num {
-  font-size: 40rpx;
-  font-weight: 700;
+  font-size: 80rpx;
+  font-weight: 800;
+  line-height: 1;
+}
+.unit {
+  font-size: 28rpx;
+  margin-left: 8rpx;
+  opacity: 0.92;
+}
+.times-sub {
+  font-size: 24rpx;
+  opacity: 0.85;
+  margin-bottom: 8rpx;
 }
 .valid {
   font-size: 24rpx;

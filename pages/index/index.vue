@@ -67,12 +67,25 @@
       <view class="acts">
         <view class="acts-title">{{ selectedDate }} 的活动</view>
         <view v-if="dayActivities.length" class="act-list">
-          <view class="act" v-for="(a, i) in dayActivities" :key="i">
-            <view class="act-tag">{{ a.type }}</view>
+          <view
+            class="act"
+            :class="{ disabled: isActDisabled(a) }"
+            v-for="(a, i) in dayActivities"
+            :key="a.groupClassId || a.id || i"
+            :data-idx="i"
+            :data-gid="a.groupClassId || ''"
+            :data-type="a.type || ''"
+            :data-date="a.date || ''"
+            :data-status="a.status || ''"
+            @tap="onTapActivity"
+          >
+            <view class="act-tag">{{ a.classTypeLabel || a.type }}</view>
             <view class="act-body">
               <view class="act-name">{{ a.title }}</view>
-              <view class="act-meta">{{ a.time }} · {{ a.venue }}</view>
+              <view class="act-meta">{{ a.time }} · {{ a.venue }}<text v-if="a.theme"> · {{ a.theme }}</text></view>
             </view>
+            <view v-if="a.status === 'cancelled'" class="act-state">已取消</view>
+            <view v-else-if="a.type === '团课' || a.groupClassId" class="act-arrow">报名 ›</view>
           </view>
         </view>
         <view v-else class="acts-empty">这天没有活动或优惠</view>
@@ -90,10 +103,10 @@
       </view>
     </view>
 
-    <view class="mask" v-if="remindVisible" @tap="remindVisible = false">
+    <view class="mask" v-if="remindVisible" @tap="closeRemind">
       <view class="remind-pop" @tap.stop="">
         <view class="remind-title">预约提醒</view>
-        <view class="remind-sub">您近3天有以下预约</view>
+        <view class="remind-sub">您未来3天有以下预约</view>
         <view class="remind-list">
           <view class="remind-item" v-for="(b, i) in remindList" :key="i">
             <view class="remind-main">{{ b.date }} {{ b.time }}</view>
@@ -101,17 +114,17 @@
           </view>
         </view>
         <view class="remind-notice" v-if="remindNotice">{{ remindNotice }}</view>
-        <view class="remind-btn" @tap="remindVisible = false">我知道了</view>
+        <view class="remind-btn" @tap="closeRemind">我知道了</view>
       </view>
     </view>
 
-    <view class="mask" v-if="calOpen" @tap="calOpen = false">
+    <view class="mask" v-if="calOpen" @tap="closeCal">
       <view class="cal-pop" @tap.stop="">
         <view class="cal-head">
-          <view class="cal-nav" @tap="changeMonth(-1)">‹</view>
+          <view class="cal-nav" @tap="prevMonth">‹</view>
           <view class="cal-title">{{ calYear }}年{{ calMonth }}月</view>
-          <view class="cal-nav" @tap="changeMonth(1)">›</view>
-          <view class="cal-close" @tap="calOpen = false">✕</view>
+          <view class="cal-nav" @tap="nextMonth">›</view>
+          <view class="cal-close" @tap="closeCal">✕</view>
         </view>
         <view class="cal-weeks">
           <view class="cal-w" v-for="w in weekLabels" :key="w">{{ w }}</view>
@@ -121,7 +134,9 @@
             v-for="(d, i) in calDays"
             :key="i"
             :class="'cal-d ' + (d.date === selectedDate ? 'on' : '') + (d.inMonth ? '' : ' out')"
-            @tap="d.inMonth && (pickDate(d.date), calOpen = false)"
+            :data-date="d.date"
+            :data-ok="d.inMonth ? 1 : 0"
+            @tap="onCalDayTap"
           >
             <text>{{ d.day }}</text>
             <view class="cal-hol" v-if="d.holiday">{{ d.holiday }}</view>
@@ -184,17 +199,27 @@ export default {
       var that = this
       wx.cloud.callFunction({
         name: 'userApi',
-        data: { action: 'getMyBookings', userId: userId, phone: phone, pageSize: 20 }
+        data: { action: 'getMyBookings', userId: userId, phone: phone, pageSize: 30, upcomingOnly: true }
       }).then(function (res) {
         var list = ((res.result || {}).list) || []
-        var today = new Date()
-        today.setHours(0, 0, 0, 0)
-        var from = new Date(today.getTime() - 3 * 86400000)
-        var to = new Date(today.getTime() + 3 * 86400000)
+        var now = Date.now()
+        var to = now + 3 * 86400000
+        function bookingStartMs(b) {
+          if (!b || !b.date) return NaN
+          var start = String(b.time || '').split('-')[0].trim()
+          if (!start) start = '00:00'
+          if (start.length === 4) start = '0' + start
+          if (start.length === 5) start = start + ':00'
+          return new Date(String(b.date).replace(/-/g, '/') + ' ' + start).getTime()
+        }
         var recent = list.filter(function (b) {
-          if (!b.date || b.status === 'cancelled') return false
-          var d = new Date(String(b.date).replace(/-/g, '/'))
-          return d >= from && d <= to
+          if (!b.date || b.status === 'cancelled' || b.status === 'locked') return false
+          var startMs = bookingStartMs(b)
+          if (!isFinite(startMs)) return false
+          // 开场时间已过（中国本地时区 = 手机本地）不再提醒
+          return startMs >= now && startMs <= to
+        }).sort(function (a, b) {
+          return bookingStartMs(a) - bookingStartMs(b)
         })
         if (!recent.length) return
         that.remindList = recent.slice(0, 5)
@@ -321,6 +346,25 @@ export default {
       this.buildDays()
       this.calOpen = true
     },
+    closeCal() {
+      this.calOpen = false
+    },
+    closeRemind() {
+      this.remindVisible = false
+    },
+    prevMonth() {
+      this.changeMonth(-1)
+    },
+    nextMonth() {
+      this.changeMonth(1)
+    },
+    onCalDayTap(e) {
+      var ds = (e && e.currentTarget && e.currentTarget.dataset) || {}
+      if (String(ds.ok) === '1' && ds.date) {
+        this.pickDate(ds.date)
+        this.calOpen = false
+      }
+    },
     loadActivities() {
       var that = this
       var dates = that.dateRow.map(function (d) { return d.date })
@@ -357,6 +401,9 @@ export default {
           if (found) {
             that.venueId = found.venueId || found._id
             that.venueName = found.name
+          } else if (id) {
+            that.venueId = ''
+            that.venueName = '请选择场馆'
           }
         }
       })
@@ -377,6 +424,42 @@ export default {
     },
     goBooking() { uni.switchTab({ url: '/pages/booking/booking' }) },
     goGroup() { uni.navigateTo({ url: '/pages/group/group' }) },
+    isActDisabled(a) {
+      return !!(a && a.status === 'cancelled')
+    },
+    onTapActivity(e) {
+      var ds = (e && e.currentTarget && e.currentTarget.dataset) || {}
+      var list = this.dayActivities || []
+      var idx = ds.idx
+      var a = (idx !== '' && idx != null) ? list[Number(idx)] : null
+      var type = (a && a.type) || ds.type || ''
+      var gid = ''
+      if (a) gid = a.groupClassId || a.group_class_id || ''
+      if (!gid) gid = ds.gid || ''
+      var date = (a && a.date) || ds.date || this.selectedDate || ''
+      var status = (a && a.status) || ds.status || ''
+      var isGroup = type === '团课' || !!gid
+      if (!isGroup) return
+      if (status === 'cancelled') {
+        uni.showToast({ title: '该团课已取消', icon: 'none' })
+        return
+      }
+      if (status === 'closed') {
+        uni.showToast({ title: '该团课未开放', icon: 'none' })
+        return
+      }
+      var url = '/pages/group/group'
+      var q = []
+      if (date) q.push('date=' + encodeURIComponent(date))
+      if (gid) q.push('classId=' + encodeURIComponent(gid))
+      if (q.length) url += '?' + q.join('&')
+      uni.navigateTo({
+        url: url,
+        fail: function () {
+          uni.showToast({ title: '无法打开报名页', icon: 'none' })
+        }
+      })
+    },
     goMyCards() {
       if (!uni.getStorageSync('phone')) { uni.navigateTo({ url: '/pages/login/login' }); return }
       uni.navigateTo({ url: '/pages/mycards/mycards' })
@@ -433,7 +516,7 @@ export default {
 .remind-notice { background: #fff8e6; border-radius: 8rpx; padding: 16rpx; margin-top: 16rpx; font-size: 24rpx; color: #666; white-space: pre-wrap; }
 .remind-btn { margin-top: 24rpx; background: #1a5c3a; color: #fff; text-align: center; border-radius: 8rpx; padding: 20rpx; font-size: 28rpx; }
 
-.page { min-height: 100vh; background: #f4f2ee; padding-top: calc(100rpx + env(safe-area-inset-top)); }
+.page { min-height: 100vh; background: #f4f2ee; padding-top: 0; }
 .venue-fixed {
   position: fixed;
   top: 0;
@@ -452,11 +535,11 @@ export default {
 .hero-wrap { position: relative; height: 66vh; }
 .hero { height: 66vh; }
 .hero-img { width: 100%; height: 100%; }
-.hero-mask { position: absolute; left: 0; right: 0; bottom: 0; height: 200rpx; background: linear-gradient(transparent, rgba(0,0,0,.45)); }
-.hero-txt { position: absolute; left: 40rpx; bottom: 48rpx; color: #fff; }
+.hero-mask { position: absolute; left: 0; right: 0; bottom: 0; height: 200rpx; background: linear-gradient(transparent, rgba(0,0,0,.45)); pointer-events: none; }
+.hero-txt { position: absolute; left: 40rpx; right: 40rpx; bottom: 48rpx; color: #fff; z-index: 2; }
 .hero-brand { font-size: 24rpx; letter-spacing: 4rpx; opacity: .85; }
 .hero-title { font-size: 44rpx; font-weight: 700; margin-top: 8rpx; }
-.sheet { background: #f4f2ee; border-radius: 32rpx 32rpx 0 0; margin-top: -32rpx; position: relative; padding: 32rpx 28rpx 180rpx; }
+.sheet { background: #f4f2ee; border-radius: 32rpx 32rpx 0 0; margin-top: 0; position: relative; z-index: 3; padding: 32rpx 28rpx 180rpx; }
 .d-hol { font-size: 18rpx; color: #e85d4c; margin-top: 2rpx; }
 .date.on .d-hol { color: #ffd; }
 .date-block { margin-bottom: 24rpx; }
@@ -466,7 +549,7 @@ export default {
 .date-zoom { display: flex; align-items: center; background: #1a5c3a; border-radius: 24rpx; padding: 8rpx 20rpx; }
 .zoom-icon { font-size: 28rpx; margin-right: 6rpx; }
 .zoom-txt { font-size: 24rpx; color: #fff; font-weight: 600; }
-.hello-row { display: flex; align-items: center; background: #fff; border-radius: 16rpx; padding: 20rpx 24rpx; margin-bottom: 24rpx; }
+.hello-row { display: flex; align-items: center; background: #fff; border-radius: 20rpx; padding: 20rpx 24rpx; margin-bottom: 24rpx; box-shadow: 0 8rpx 28rpx rgba(0,0,0,.06); }
 .avatar { width: 72rpx; height: 72rpx; border-radius: 50%; margin-right: 16rpx; flex-shrink: 0; }
 .hello-txt { flex: 1; min-width: 0; }
 .hi { font-size: 28rpx; font-weight: 600; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -504,9 +587,13 @@ export default {
 .acts-title { font-size: 28rpx; font-weight: 600; color: #333; margin-bottom: 16rpx; }
 .acts-empty { text-align: center; color: #999; padding: 32rpx 0; font-size: 26rpx; }
 .act { display: flex; align-items: center; padding: 16rpx 0; border-top: 1rpx solid #f0f0f0; }
+.act.disabled { opacity: 0.55; }
 .act-tag { background: #e8f5e9; color: #1a5c3a; font-size: 22rpx; padding: 6rpx 14rpx; border-radius: 8rpx; margin-right: 16rpx; }
 .act-name { font-size: 28rpx; color: #333; }
 .act-meta { font-size: 22rpx; color: #999; margin-top: 4rpx; }
+.act-body { flex: 1; min-width: 0; }
+.act-arrow { font-size: 22rpx; color: #1a5c3a; margin-left: 12rpx; flex-shrink: 0; }
+.act-state { font-size: 22rpx; color: #999; margin-left: 12rpx; flex-shrink: 0; }
 .action-row { display: flex; gap: 16rpx; }
 .action { flex: 1; background: linear-gradient(135deg, #1a5c3a, #2d8a5e); color: #fff; border-radius: 16rpx; padding: 32rpx 24rpx; box-shadow: 0 4rpx 12rpx rgba(26,92,58,.25); }
 .action-title { font-size: 32rpx; font-weight: 700; }

@@ -1,27 +1,38 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/login/login",
+    "pages/venue-select/venue-select",
+    "pages/shop/shop",
     "pages/booking/booking",
     "pages/my/my",
+    "pages/rank/rank",
+    "pages/group/group",
     "pages/mybooking/mybooking",
+    "pages/mycards/mycards",
     "pages/coach/coach",
     "pages/coach-detail/coach-detail",
     "pages/coach-workbench/coach-workbench",
     "pages/coach-edit/coach-edit",
-    "pages/booking-detail/booking-detail"
+    "pages/booking-detail/booking-detail",
+    "pages/wallet/wallet",
+    "pages/my-eval/my-eval"
   ],
   "subPackages": [],
   "window": {
-    "navigationBarTitleText": "网球场馆",
-    "navigationBarBackgroundColor": "#ffffff",
-    "navigationBarTextStyle": "black",
-    "backgroundColor": "#f7f8fa"
+    "navigationBarTitleText": "山羊Goat网球馆",
+    "navigationBarBackgroundColor": "#1e4870",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#f4f2ee",
+    "enableShareAppMessage": true,
+    "enableShareTimeline": true
   },
   "tabBar": {
-    "color": "#999999",
-    "selectedColor": "#07c160",
+    "custom": true,
+    "color": "#8a8680",
+    "selectedColor": "#1e4870",
     "backgroundColor": "#ffffff",
-    "borderStyle": "black",
+    "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/index/index",
@@ -29,18 +40,13 @@
       },
       {
         "pagePath": "pages/booking/booking",
-        "text": "预约"
+        "text": "订场"
       },
       {
         "pagePath": "pages/my/my",
         "text": "我的"
       }
     ]
-  },
-  "permission": {
-    "scope.userLocation": {
-      "desc": "你的位置信息将用于小程序位置接口的效果展示"
-    }
   },
   "plugins": {},
   "usingComponents": {}
