@@ -123,7 +123,8 @@
           v-for="(p, i) in buyableProducts"
           :key="'m' + (p.id || i)"
           class="card-opt buy-opt"
-          @tap="buyMallProduct(p)"
+          :data-id="p.id"
+          @tap="onBuyMallTap"
         >
           <view class="buy-main">
             <view>{{ p.name }}</view>
@@ -307,6 +308,24 @@ export default {
       }).catch(function () {
         that.mallProducts = []
       })
+    },
+    onBuyMallTap(e) {
+      var ds = (e && e.currentTarget && e.currentTarget.dataset) || (e && e.target && e.target.dataset) || {}
+      var ev = unwrapEvent(e) || {}
+      var id = String(ev.id || ev.templateId || ds.id || ds.templateId || '')
+      var p = (this.buyableProducts || []).filter(function (item) {
+        return String((item && (item.id || item.templateId)) || '') === id
+      })[0]
+      if (!p) {
+        p = (this.mallProducts || []).filter(function (item) {
+          return String((item && (item.id || item.templateId)) || '') === id
+        })[0]
+      }
+      if (!p) {
+        uni.showToast({ title: '未找到该卡', icon: 'none' })
+        return
+      }
+      this.buyMallProduct(p)
     },
     buyMallProduct(p) {
       var that = this
