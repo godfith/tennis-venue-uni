@@ -431,7 +431,6 @@ export default {
       this.calOpen = true
     },
     onCalPick(date) {
-      this.calOpen = false
       this.currentDate = date
       this.buildDateList(date)
       this.nameFilter = ''

@@ -166,10 +166,39 @@ export function findVenue(venues, venueId) {
   return null
 }
 
+export function classesOnDate(calendarDays, date) {
+  const venues = decorateVenues((calendarDays && date && calendarDays[date]) || [])
+  const out = []
+  for (let i = 0; i < venues.length; i++) {
+    const v = venues[i]
+    const classes = v.classes || []
+    for (let j = 0; j < classes.length; j++) {
+      const c = classes[j] || {}
+      out.push(Object.assign({}, c, {
+        venueId: c.venueId || v.venueId,
+        venueName: c.venueName || v.venueName,
+        venueShort: c.venueShort || v.venueShort,
+        hint: classHint(c)
+      }))
+    }
+  }
+  return out
+}
+
 export function unwrapEvent(e) {
   if (e == null) return e
   if (typeof e === 'string' || typeof e === 'number') return e
+  if (e.detail && Array.isArray(e.detail.__args__) && e.detail.__args__.length) {
+    return unwrapEvent(e.detail.__args__[0])
+  }
+  if (Array.isArray(e.__args__) && e.__args__.length) {
+    return unwrapEvent(e.__args__[0])
+  }
   if (e.detail != null && (typeof e.detail === 'string' || typeof e.detail === 'number')) return e.detail
-  if (e.detail && typeof e.detail === 'object' && (e.detail.id || e.detail.date || e.detail.days)) return e.detail
+  if (e.detail && typeof e.detail === 'object' && (
+    e.detail.id || e.detail.date || e.detail.days || e.detail.venueId ||
+    e.detail.hasUpcomingGroupClass != null
+  )) return e.detail
+  if (e.id || e.date || e.days || e.venueId) return e
   return e
 }

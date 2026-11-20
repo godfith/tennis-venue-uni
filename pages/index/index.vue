@@ -100,6 +100,10 @@
           <view class="action-title">团课报名</view>
           <view class="action-en">GROUP CLASS</view>
         </view>
+        <view class="action" @tap="goShop">
+          <view class="action-title">商城</view>
+          <view class="action-en">CLASS PASS</view>
+        </view>
       </view>
     </view>
 
@@ -392,6 +396,12 @@ holidayName(date) {
       })
     },
     goBooking() { uni.switchTab({ url: '/pages/booking/booking' }) },
+    goShop() {
+      uni.switchTab({
+        url: '/pages/shop/shop',
+        fail: function () { uni.navigateTo({ url: '/pages/shop/shop' }) }
+      })
+    },
     venuesOf(date) {
       var days = this.calendarDays || {}
       return days[date] || []
@@ -403,10 +413,7 @@ holidayName(date) {
     },
     onCalPickDate(date) {
       var ds = unwrapEvent(date)
-      if (ds) {
-        this.pickDate(ds)
-        this.calOpen = false
-      }
+      if (ds) this.pickDate(ds)
     },
     onCalOpenClass(payload) {
       var p = unwrapEvent(payload) || {}
@@ -429,9 +436,12 @@ holidayName(date) {
       if (!link) return
       if (link.indexOf('/') !== 0) link = '/' + link
       var mode = b.navMode || b.navType || ''
-      var tab = ['/pages/index/index', '/pages/shop/shop', '/pages/booking/booking', '/pages/mine/mine']
+      var tab = ['/pages/index/index', '/pages/shop/shop', '/pages/booking/booking', '/pages/my/my']
       if (mode === 'switchTab' || tab.indexOf(link) >= 0) {
-        uni.switchTab({ url: link })
+        uni.switchTab({
+          url: link,
+          fail: function () { uni.navigateTo({ url: link }) }
+        })
         return
       }
       uni.navigateTo({ url: link })
