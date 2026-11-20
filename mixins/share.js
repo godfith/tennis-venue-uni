@@ -1,13 +1,19 @@
+import { indexSharePayload } from '@/utils/shareVenue.js'
+
+function currentVenue() {
+  return {
+    venueId: uni.getStorageSync('venue_id') || '',
+    venueName: uni.getStorageSync('venue_name') || ''
+  }
+}
+
 export default {
   onShareAppMessage() {
-    return {
-      title: '山羊Goat网球馆',
-      path: '/pages/index/index'
-    }
+    var v = currentVenue()
+    return indexSharePayload(v.venueId, v.venueName)
   },
   onShareTimeline() {
-    return {
-      title: '山羊Goat网球馆'
-    }
+    var v = currentVenue()
+    return { title: indexSharePayload(v.venueId, v.venueName).title }
   }
 }
