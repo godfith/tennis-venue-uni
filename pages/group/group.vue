@@ -75,7 +75,7 @@
         </view>
         <view class="mid">
           <view class="name">{{ item.name }}</view>
-          <view v-if="item.theme" class="theme">{{ item.theme }}</view>
+          <view v-if="item.courseContentName || item.theme" class="theme">{{ item.courseContentName || item.theme }}</view>
           <view class="time">{{ item.time }}</view>
           <view class="tags">
             <text class="tag">{{ classTypeLabel(item) }}</text>
@@ -101,11 +101,17 @@
       <view class="sheet" @tap.stop="stopBubble">
         <view class="sheet-title">确认报名</view>
         <view class="row">{{ current.name }} · {{ current.time }}</view>
-        <view class="row">{{ classTypeLabel(current) }}<text v-if="current.theme"> · {{ current.theme }}</text></view>
-        <view class="row">{{ current.venueName || '' }} {{ current.court }} · 教练 {{ current.coachName || '-' }}</view>
+        <view class="row">{{ classTypeLabel(current) }}<text v-if="current.courseContentName || current.theme"> · {{ current.courseContentName || current.theme }}</text></view>
+        <view class="row">{{ current.venueName || '' }} {{ current.court }} · 教练 {{ current.coachName || '-' }} · {{ current.enrolled || 0 }}/{{ current.capacity || 0 }}</view>
 
         <view class="label">选择团课卡</view>
-        <view v-if="cards.length === 0" class="err">没有可用团课卡，请联系前台</view>
+        <view v-if="!boundTemplateIds(current).length && (current.courseContentId || current.courseContentName)" class="err">该课程内容尚未绑定可用团课卡，暂时不能报名</view>
+        <view v-else-if="cards.length === 0" class="err">
+          没有可用于本节课的团课卡
+          <view class="buy-row">
+            <button class="buy" @tap="goBuyCard">去商城买卡后报名</button>
+          </view>
+        </view>
         <view
           v-for="(c, i) in cards"
           :key="c._id || i"
@@ -257,6 +263,25 @@ export default {
     classTypeLabel(item) {
       if (item && item.classTypeLabel) return item.classTypeLabel
       return this.normClassType(item) === 'self' ? '自组团课' : '固定团课'
+    },
+    boundTemplateIds(item) {
+      var raw = (item && (item.boundTemplateIds || item.templateIds)) || []
+      return (raw || []).map(function (id) { return String(id) }).filter(Boolean)
+    },
+    goBuyCard() {
+      var q = []
+      if (this.currentDate) q.push('date=' + encodeURIComponent(this.currentDate))
+      if (this.current && this.current._id) q.push('classId=' + encodeURIComponent(this.current._id))
+      var url = '/pages/shop/shop' + (q.length ? '?' + q.join('&') : '')
+      uni.switchTab({
+        url: '/pages/shop/shop',
+        fail: function () { uni.navigateTo({ url: url }) }
+      })
+      // persist resume because switchTab drops query
+      if (this.current && this.current._id) {
+        uni.setStorageSync('mall_resume_class_id', this.current._id)
+        uni.setStorageSync('mall_resume_date', this.currentDate || this.current.date || '')
+      }
     },
     canEnroll(item) {
       if (!item) return false
@@ -538,12 +563,14 @@ export default {
         success: function (res) {
           var result = res.result || {}
           var arr = result.list || []
+          var allowed = that.boundTemplateIds(that.current)
           that.cards = arr.filter(function (c) {
-            return c.type === 'group' && c.status === 'active' && Number(c.remainingTimes || 0) > 0
+            if (!(c.type === 'group' && c.status === 'active' && Number(c.remainingTimes || 0) > 0)) return false
+            if (!allowed.length) return false
+            var tid = String(c.templateId || c.template_id || '')
+            return allowed.indexOf(tid) >= 0
           })
-          if (that.cards.length === 1) {
-            that.selectedCardId = that.cards[0]._id
-          }
+          that.selectedCardId = that.cards.length === 1 ? that.cards[0]._id : ''
         },
         fail: function () {
           that.cards = []
@@ -807,4 +834,7 @@ export default {
 .cal-d { height: 80rpx; color: #333; padding-top: 20rpx; }
 .cal-d.out { color: #ccc; }
 .cal-d.on { background: #1a5c3a; color: #fff; border-radius: 8rpx; }
+.buy-row { margin-top: 16rpx; }
+.buy { background: #1a5c3a !important; color: #fff !important; font-size: 26rpx; border-radius: 10rpx; }
 </style>
+

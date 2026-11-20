@@ -4,7 +4,7 @@
 
     <view class="empty" v-if="!loading && list.length === 0">
       <view class="empty-text">暂无会员卡</view>
-      <view class="empty-tip">请联系场馆前台办理</view>
+      <view class="empty-tip">可在商城购买团课卡，或联系场馆前台办理</view>
     </view>
 
     <view class="list" v-else>
@@ -38,6 +38,11 @@
           </view>
         </view>
         <view class="card-status">{{ statusLabel(item.status) }}</view>
+        <view class="refund-row" v-if="item.canRequestRefund">
+          <view v-if="item.refundStatus === 'pending' || item.refundStatus === 'refunding'" class="refund-wait">已申请退款，待管理员确认</view>
+          <view v-else-if="item.refundStatus === 'confirmed'" class="refund-wait">退款已确认</view>
+          <button v-else class="refund-btn" :loading="refundingId === item._id" @tap="requestRefund(item)">申请退款</button>
+        </view>
       </view>
     </view>
   </view>
@@ -48,7 +53,8 @@ export default {
   data() {
     return {
       list: [],
-      loading: false
+      loading: false,
+      refundingId: ''
     }
   },
   onShow() {
@@ -126,6 +132,41 @@ export default {
         .finally(() => {
           this.loading = false
         })
+    },
+    requestRefund(item) {
+      const that = this
+      if (!item || !item._id) return
+      uni.showModal({
+        title: '申请退款',
+        content: '提交后不会立刻退款。前台在群里报备后，由管理员在后台确认才会原路退回微信。已用次数不退。',
+        confirmText: '提交申请',
+        success: function (r) {
+          if (!r.confirm) return
+          that.refundingId = item._id
+          wx.cloud.callFunction({
+            name: 'userApi',
+            data: {
+              action: 'requestCardRefund',
+              cardId: item._id,
+              userId: uni.getStorageSync('userDocId') || '',
+              openid: uni.getStorageSync('openid') || '',
+              phone: uni.getStorageSync('phone') || ''
+            }
+          }).then(function (res) {
+            var result = res.result || {}
+            if (!result.ok) {
+              uni.showToast({ title: result.msg || '提交失败', icon: 'none' })
+              return
+            }
+            item.refundStatus = 'pending'
+            uni.showToast({ title: result.msg || '已提交申请', icon: 'none' })
+          }).catch(function () {
+            uni.showToast({ title: '提交失败', icon: 'none' })
+          }).finally(function () {
+            that.refundingId = ''
+          })
+        }
+      })
     }
   }
 }
@@ -223,4 +264,7 @@ export default {
   font-size: 22rpx;
   opacity: 0.9;
 }
+.refund-row { margin-top: 16rpx; }
+.refund-btn { background: transparent; color: #c45c26; border: 1rpx solid #c45c26; font-size: 24rpx; line-height: 56rpx; height: 56rpx; border-radius: 8rpx; padding: 0 20rpx; }
+.refund-wait { font-size: 24rpx; color: #888; }
 </style>

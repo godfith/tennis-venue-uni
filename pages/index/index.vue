@@ -6,7 +6,7 @@
     </view>
     <view class="hero-wrap">
       <swiper class="hero" indicator-dots autoplay circular indicator-color="rgba(255,255,255,.4)" indicator-active-color="#fff">
-        <swiper-item v-for="(b, i) in banners" :key="i">
+        <swiper-item v-for="(b, i) in banners" :key="i" :data-i="i" @tap="onBannerTap">
           <image class="hero-img" :src="b.image" mode="aspectFill"></image>
           <view class="hero-mask"></view>
           <view class="hero-txt">
@@ -82,7 +82,7 @@
             <view class="act-tag">{{ a.classTypeLabel || a.type }}</view>
             <view class="act-body">
               <view class="act-name">{{ a.title }}</view>
-              <view class="act-meta">{{ a.time }} · {{ a.venue }}<text v-if="a.theme"> · {{ a.theme }}</text></view>
+              <view class="act-meta">{{ a.time }} · {{ a.venue }}<text v-if="a.courseContentName || a.theme"> · {{ a.courseContentName || a.theme }}</text><text v-if="a.coachName"> · {{ a.coachName }}</text><text v-if="a.capacity"> · {{ a.enrolled || 0 }}/{{ a.capacity }}</text></view>
             </view>
             <view v-if="a.status === 'cancelled'" class="act-state">已取消</view>
             <view v-else-if="a.type === '团课' || a.groupClassId" class="act-arrow">报名 ›</view>
@@ -96,7 +96,7 @@
           <view class="action-title">立即订场</view>
           <view class="action-en">BOOK A COURT</view>
         </view>
-        <view class="action" @tap="goGroup">
+        <view class="action" v-if="hasUpcomingGroupClass" @tap="goGroup">
           <view class="action-title">团课报名</view>
           <view class="action-en">GROUP CLASS</view>
         </view>
@@ -140,9 +140,29 @@
           >
             <text>{{ d.day }}</text>
             <view class="cal-hol" v-if="d.holiday">{{ d.holiday }}</view>
-            <view class="cal-dot" v-if="hasActivity(d.date)"></view>
+            <view class="cal-venues" v-if="d.inMonth">
+              <view
+                class="cal-v"
+                v-for="v in venuesOf(d.date)"
+                :key="v.venueId"
+                :data-date="d.date"
+                :data-vid="v.venueId"
+                @tap.stop="onCalVenueTap"
+              >{{ v.venueShort }}</view>
+            </view>
+            <view class="cal-dot" v-else-if="hasActivity(d.date)"></view>
           </view>
         </view>
+      </view>
+    </view>
+    <view class="mask" v-if="calDetail" @tap="calDetail = null">
+      <view class="cal-detail" @tap.stop="">
+        <view class="cal-detail-title">{{ calDetail.date }} · {{ calDetail.venueName }}</view>
+        <view class="cal-detail-item" v-for="c in calDetail.classes" :key="c._id" :data-id="c._id" :data-date="calDetail.date" @tap="openClassFromCal">
+          <view class="cd-name">{{ c.courseContentName || c.theme || c.name }}</view>
+          <view class="cd-meta">{{ c.time }} · {{ c.coachName || '教练待定' }} · {{ c.enrolled || 0 }}/{{ c.capacity || 0 }}</view>
+        </view>
+        <view class="cal-detail-close" @tap="calDetail = null">关闭</view>
       </view>
     </view>
     <app-tabbar :current="0" />
@@ -168,7 +188,10 @@ export default {
       balance: 0, points: 0, cardCount: 0,
       nickName: '', phone: '', avatarUrl: '',
       coachCount: 0, timesCount: 0, groupCount: 0, timeCount: 0,
-      remindVisible: false, remindList: [], remindNotice: '', remindChecked: false
+      remindVisible: false, remindList: [], remindNotice: '', remindChecked: false,
+      hasUpcomingGroupClass: true,
+      calendarDays: {},
+      calDetail: null
     }
   },
   computed: {
@@ -315,6 +338,7 @@ export default {
       this.calYear = y
       this.calMonth = m
       this.buildDays()
+      this.loadMonthCalendar()
     },
     holidayName(date) {
       var map = {
@@ -368,6 +392,7 @@ export default {
       this.calMonth = d.getMonth() + 1
       this.buildDays()
       this.calOpen = true
+      this.loadMonthCalendar()
     },
     closeCal() {
       this.calOpen = false
@@ -396,7 +421,12 @@ export default {
         name: 'userApi',
         data: { action: 'getActivities', startDate: dates[0], endDate: dates[dates.length - 1] },
         success: function (res) {
-          that.activities = (res.result || {}).list || []
+          var r = res.result || {}
+          that.activities = r.list || []
+          if (typeof r.hasUpcomingGroupClass === 'boolean') that.hasUpcomingGroupClass = r.hasUpcomingGroupClass
+          if (r.calendar && r.calendar.days) {
+            that.calendarDays = Object.assign({}, that.calendarDays, r.calendar.days)
+          }
         }
       })
     },
@@ -451,7 +481,84 @@ export default {
       })
     },
     goBooking() { uni.switchTab({ url: '/pages/booking/booking' }) },
-    goGroup() { uni.navigateTo({ url: '/pages/group/group' }) },
+    venuesOf(date) {
+      var days = this.calendarDays || {}
+      return days[date] || []
+    },
+    loadMonthCalendar() {
+      var that = this
+      var y = this.calYear
+      var m = this.calMonth
+      var start = this.fmtDate(new Date(y, m - 1, 1))
+      var end = this.fmtDate(new Date(y, m, 0))
+      wx.cloud.callFunction({
+        name: 'userApi',
+        data: { action: 'getGroupClassCalendar', startDate: start, endDate: end },
+        success: function (res) {
+          var r = res.result || {}
+          if (r.calendar && r.calendar.days) {
+            that.calendarDays = Object.assign({}, that.calendarDays, r.calendar.days)
+          }
+          if (typeof r.hasUpcomingGroupClass === 'boolean') that.hasUpcomingGroupClass = r.hasUpcomingGroupClass
+        }
+      })
+    },
+    onCalVenueTap(e) {
+      var ds = (e && e.currentTarget && e.currentTarget.dataset) || {}
+      var date = ds.date
+      var vid = String(ds.vid || '')
+      var list = this.venuesOf(date) || []
+      var hit = list.find(function (v) { return String(v.venueId) === vid })
+      if (!hit || !hit.classes || !hit.classes.length) return
+      this.calDetail = {
+        date: date,
+        venueId: hit.venueId,
+        venueName: hit.venueName || hit.venueShort,
+        classes: hit.classes
+      }
+    },
+    openClassFromCal(e) {
+      var ds = (e && e.currentTarget && e.currentTarget.dataset) || {}
+      var id = ds.id
+      var date = ds.date || (this.calDetail && this.calDetail.date) || ''
+      var q = []
+      if (date) q.push('date=' + encodeURIComponent(date))
+      if (id) q.push('classId=' + encodeURIComponent(id))
+      if (this.calDetail && this.calDetail.venueId) q.push('venueId=' + encodeURIComponent(this.calDetail.venueId))
+      this.calDetail = null
+      this.calOpen = false
+      uni.navigateTo({ url: '/pages/group/group' + (q.length ? '?' + q.join('&') : '') })
+    },
+    onBannerTap(e) {
+      var ds = (e && e.currentTarget && e.currentTarget.dataset) || {}
+      var i = Number(ds.i)
+      var b = this.banners[i]
+      if (!b) return
+      var link = b.link || b.url || ''
+      if (!link) return
+      if (link.indexOf('/') !== 0) link = '/' + link
+      var mode = b.navMode || b.navType || ''
+      var tab = ['/pages/index/index', '/pages/shop/shop', '/pages/booking/booking', '/pages/mine/mine']
+      if (mode === 'switchTab' || tab.indexOf(link) >= 0) {
+        uni.switchTab({ url: link })
+        return
+      }
+      uni.navigateTo({ url: link })
+    },
+    goGroup() {
+      if (!this.hasUpcomingGroupClass) {
+        uni.showToast({ title: '当前没有可报名的团课', icon: 'none' })
+        return
+      }
+      var date = this.selectedDate
+      var venues = this.venuesOf(date)
+      var hasToday = (venues && venues.length) || (this.dayActivities || []).some(function (a) {
+        return a.type === '团课' || a.groupClassId
+      })
+      var url = '/pages/group/group'
+      if (hasToday && date) url += '?date=' + encodeURIComponent(date)
+      uni.navigateTo({ url: url })
+    },
     isActDisabled(a) {
       return !!(a && a.status === 'cancelled')
     },
@@ -598,13 +705,22 @@ export default {
 .cal-weeks, .cal-grid { display: flex; flex-wrap: wrap; }
 .cal-w, .cal-d { width: 14.28%; text-align: center; font-size: 24rpx; }
 .cal-w { color: #999; padding: 8rpx 0; }
-.cal-d { height: 80rpx; position: relative; color: #333; padding-top: 12rpx; }
+.cal-d { min-height: 108rpx; position: relative; color: #333; padding: 8rpx 2rpx 6rpx; box-sizing: border-box; }
 .cal-d.out { color: #ccc; }
 .cal-d.on { background: #1a5c3a; color: #fff; border-radius: 8rpx; }
 .cal-hol { font-size: 16rpx; color: #e85d4c; }
 .cal-d.on .cal-hol { color: #ffd; }
+.cal-venues { margin-top: 2rpx; }
+.cal-v { font-size: 16rpx; line-height: 1.2; color: #1a5c3a; background: #e8f5e9; border-radius: 6rpx; margin: 2rpx 2rpx 0; padding: 0 2rpx; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cal-d.on .cal-v { background: rgba(255,255,255,.2); color: #fff; }
 .cal-dot { position: absolute; bottom: 4rpx; left: 50%; transform: translateX(-50%); width: 8rpx; height: 8rpx; background: #e85d4c; border-radius: 50%; }
 .cal-d.on .cal-dot { background: #fff; }
+.cal-detail { width: 640rpx; background: #fff; border-radius: 16rpx; padding: 28rpx 24rpx 16rpx; }
+.cal-detail-title { font-size: 30rpx; font-weight: 700; color: #1a5c3a; margin-bottom: 12rpx; }
+.cal-detail-item { padding: 16rpx 0; border-top: 1rpx solid #f0f0f0; }
+.cd-name { font-size: 28rpx; color: #222; }
+.cd-meta { font-size: 24rpx; color: #888; margin-top: 4rpx; }
+.cal-detail-close { text-align: center; color: #888; padding: 16rpx 0 4rpx; }
 .date { display: inline-flex; flex-direction: column; align-items: center; width: 100rpx; padding: 16rpx 0; margin-right: 12rpx; background: #fff; border-radius: 12rpx; position: relative; }
 .date.on { background: #1a5c3a; color: #fff; }
 .d-wk { font-size: 22rpx; opacity: .7; }
