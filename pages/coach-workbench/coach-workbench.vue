@@ -72,6 +72,10 @@
         </picker>
         <view class="hint" v-if="nextFixedHint">{{ nextFixedHint }}</view>
         <view class="field">名称：<input v-model="pub.name" placeholder="如：周三晚提高班" /></view>
+        <picker v-if="courseContentNames.length" :range="courseContentNames" @change="onPubContent">
+          <view class="field">课程内容：{{ pub.courseContentName || '请选择' }}</view>
+        </picker>
+        <view class="hint">教练只能开固定团课</view>
         <view class="field">日期：<input v-model="pub.date" placeholder="YYYY-MM-DD" /></view>
         <picker :range="timeSlots" @change="onPubTime">
           <view class="field">时段：{{ pub.time || '请选择' }}</view>
@@ -135,10 +139,11 @@ export default {
       courts: [],
       publishOpen: false,
       lockOpen: false,
-      pub: { venueId: '', venueName: '', name: '固定团课', date: '', time: '', court: '', capacity: 4 },
+      pub: { venueId: '', venueName: '', name: '固定团课', date: '', time: '', court: '', capacity: 4, courseContentId: '', courseContentName: '', classType: 'fixed' },
       lock: { venueId: '', venueName: '', date: '', time: '' },
       nextFixedVenue: null,
-      rotationVenues: []
+      rotationVenues: [],
+      courseContents: []
     }
   },
   computed: {
@@ -220,6 +225,7 @@ export default {
           that.list = result.list || []
           that.nextFixedVenue = result.nextFixedVenue || null
           that.rotationVenues = ((result.settings || {}).rotationVenues) || []
+          that.courseContents = ((result.settings || {}).courseContents) || []
         },
         fail: function () {
           uni.showToast({ title: '加载失败', icon: 'none' })
@@ -293,7 +299,10 @@ export default {
         date: todayYmd(),
         time: '',
         court: '',
-        capacity: this.venueCapacity(venueId)
+        capacity: this.venueCapacity(venueId),
+        courseContentId: '',
+        courseContentName: '',
+        classType: 'fixed'
       }
       this.publishOpen = true
       this.loadHoursAndCourts(venueId)
@@ -314,6 +323,13 @@ export default {
       this.loadHoursAndCourts(v.venueId)
     },
     onPubTime(e) { this.pub.time = this.timeSlots[e.detail.value] || '' },
+    onPubContent(e) {
+      var c = this.courseContents[e.detail.value]
+      if (!c) return
+      this.pub.courseContentId = c.id || ''
+      this.pub.courseContentName = c.name || ''
+      if (c.name) this.pub.name = c.name
+    },
     onPubCourt(e) { this.pub.court = this.courtNames[e.detail.value] || '' },
     onLockVenue(e) {
       var v = this.venueList[e.detail.value]
@@ -340,7 +356,10 @@ export default {
           date: p.date,
           time: p.time,
           court: p.court,
-          capacity: Number(p.capacity) || 4
+          capacity: Number(p.capacity) || 4,
+          classType: 'fixed',
+          courseContentId: p.courseContentId || '',
+          theme: p.courseContentName || ''
         }, this.authPayload()),
         success: function (res) {
           var result = res.result || {}
