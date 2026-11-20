@@ -128,37 +128,22 @@
       </view>
     </view>
 
-    <view class="mask mask-center" v-if="calOpen" @tap="closeCal">
-      <view class="cal-pop" @tap.stop="stopBubble">
-        <view class="cal-head">
-          <view class="cal-nav" @tap="prevMonth">‹</view>
-          <view class="cal-title">{{ calYear }}年{{ calMonth }}月</view>
-          <view class="cal-nav" @tap="nextMonth">›</view>
-          <view class="cal-close" @tap="closeCal">×</view>
-        </view>
-        <view class="cal-weeks">
-          <view class="cal-w" v-for="w in weekLabels" :key="w">{{ w }}</view>
-        </view>
-        <view class="cal-grid">
-          <view
-            v-for="(d, i) in calDays"
-            :key="i"
-            :class="'cal-d ' + (d.date === currentDate ? 'on' : '') + (d.inMonth ? '' : ' out')"
-            :data-date="d.date"
-            :data-ok="d.inMonth ? 1 : 0"
-            @tap="onCalDayTap"
-          >
-            <text>{{ d.day }}</text>
-          </view>
-        </view>
-      </view>
-    </view>
+    <group-month-cal
+      :show="calOpen"
+      :selected-date="currentDate"
+      @close="closeCal"
+      @pickdate="onCalPickDate"
+      @openclass="onCalOpenClass"
+    />
   </view>
 </template>
 
 <script>
+import GroupMonthCal from '@/components/group-month-cal.vue'
 import { applyIncomingVenue, groupSharePayload, pickVenueFromList } from '@/utils/shareVenue.js'
+import { unwrapEvent } from '@/utils/groupMonthCal.js'
 export default {
+  components: { GroupMonthCal },
   data() {
     return {
       dateList: [],
@@ -177,9 +162,6 @@ export default {
       timeFilter: '',
       typeFilter: '',
       calOpen: false,
-      calYear: 2026,
-      calMonth: 1,
-      calDays: [],
       weekLabels: ['日', '一', '二', '三', '四', '五', '六'],
       pendingClassId: '',
       pendingOpen: false
@@ -345,15 +327,28 @@ export default {
     closeCal() {
       this.calOpen = false
     },
-    prevMonth() {
-      this.changeMonth(-1)
+    onCalPickDate(date) {
+      var ds = unwrapEvent(date)
+      if (ds) this.onCalPick(ds)
     },
-    nextMonth() {
-      this.changeMonth(1)
-    },
-    onCalDayTap(e) {
-      var ds = (e && e.currentTarget && e.currentTarget.dataset) || {}
-      if (String(ds.ok) === '1' && ds.date) this.onCalPick(ds.date)
+    onCalOpenClass(payload) {
+      var p = unwrapEvent(payload) || {}
+      var date = p.date || ''
+      var id = p.id || ''
+      this.calOpen = false
+      if (date) {
+        this.currentDate = date
+        this.buildDateList(date)
+        this.nameFilter = ''
+        this.$nextTick(function () {
+          this.scrollTo = 'd' + date
+        }.bind(this))
+      }
+      if (id) {
+        this.pendingClassId = id
+        this.pendingOpen = true
+      }
+      this.loadList()
     },
     closeSheet() {
       this.show = false
@@ -433,37 +428,7 @@ export default {
       this.timeFilter = this.timeFilter === t ? '' : t
     },
     openCal() {
-      var d = this.currentDate ? new Date(this.currentDate.replace(/-/g, '/')) : new Date()
-      this.calYear = d.getFullYear()
-      this.calMonth = d.getMonth() + 1
-      this.buildDays()
       this.calOpen = true
-    },
-    changeMonth(delta) {
-      var m = this.calMonth + delta
-      var y = this.calYear
-      if (m < 1) { m = 12; y -= 1 }
-      if (m > 12) { m = 1; y += 1 }
-      this.calMonth = m
-      this.calYear = y
-      this.buildDays()
-    },
-    buildDays() {
-      var y = this.calYear
-      var m = this.calMonth
-      var first = new Date(y, m - 1, 1)
-      var startWeek = first.getDay()
-      var daysIn = new Date(y, m, 0).getDate()
-      var arr = []
-      for (var i = 0; i < startWeek; i++) {
-        arr.push({ day: '', date: '', inMonth: false })
-      }
-      for (var d = 1; d <= daysIn; d++) {
-        var mm = m < 10 ? '0' + m : '' + m
-        var dd = d < 10 ? '0' + d : '' + d
-        arr.push({ day: d, date: y + '-' + mm + '-' + dd, inMonth: true })
-      }
-      this.calDays = arr
     },
     onCalPick(date) {
       this.calOpen = false
@@ -820,26 +785,6 @@ export default {
   color: #666 !important;
   border-radius: 12rpx;
 }
-.mask-center { align-items: center; }
-.cal-pop {
-  background: #fff;
-  border-radius: 20rpx;
-  padding: 24rpx;
-  width: 640rpx;
-}
-.cal-head { display: flex; align-items: center; margin-bottom: 16rpx; }
-.cal-title { flex: 1; text-align: center; font-size: 32rpx; font-weight: 600; }
-.cal-nav, .cal-close {
-  width: 56rpx; height: 56rpx;
-  text-align: center; line-height: 56rpx;
-  font-size: 36rpx; color: #1a5c3a;
-}
-.cal-weeks, .cal-grid { display: flex; flex-wrap: wrap; }
-.cal-w, .cal-d { width: 14.28%; text-align: center; font-size: 24rpx; }
-.cal-w { color: #999; padding: 8rpx 0; }
-.cal-d { height: 80rpx; color: #333; padding-top: 20rpx; }
-.cal-d.out { color: #ccc; }
-.cal-d.on { background: #1a5c3a; color: #fff; border-radius: 8rpx; }
 .buy-row { margin-top: 16rpx; }
 .buy { background: #1a5c3a !important; color: #fff !important; font-size: 26rpx; border-radius: 10rpx; }
 </style>

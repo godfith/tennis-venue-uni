@@ -118,61 +118,24 @@
       </view>
     </view>
 
-    <view class="mask" v-if="calOpen" @tap="closeCal">
-      <view class="cal-pop" @tap.stop="">
-        <view class="cal-head">
-          <view class="cal-nav" @tap="prevMonth">‹</view>
-          <view class="cal-title">{{ calYear }}年{{ calMonth }}月</view>
-          <view class="cal-nav" @tap="nextMonth">›</view>
-          <view class="cal-close" @tap="closeCal">✕</view>
-        </view>
-        <view class="cal-weeks">
-          <view class="cal-w" v-for="w in weekLabels" :key="w">{{ w }}</view>
-        </view>
-        <view class="cal-grid">
-          <view
-            v-for="(d, i) in calDays"
-            :key="i"
-            :class="'cal-d ' + (d.date === selectedDate ? 'on' : '') + (d.inMonth ? '' : ' out')"
-            :data-date="d.date"
-            :data-ok="d.inMonth ? 1 : 0"
-            @tap="onCalDayTap"
-          >
-            <text>{{ d.day }}</text>
-            <view class="cal-hol" v-if="d.holiday">{{ d.holiday }}</view>
-            <view class="cal-venues" v-if="d.inMonth">
-              <view
-                class="cal-v"
-                v-for="v in venuesOf(d.date)"
-                :key="v.venueId"
-                :data-date="d.date"
-                :data-vid="v.venueId"
-                @tap.stop="onCalVenueTap"
-              >{{ v.venueShort }}</view>
-            </view>
-            <view class="cal-dot" v-else-if="hasActivity(d.date)"></view>
-          </view>
-        </view>
-      </view>
-    </view>
-    <view class="mask" v-if="calDetail" @tap="calDetail = null">
-      <view class="cal-detail" @tap.stop="">
-        <view class="cal-detail-title">{{ calDetail.date }} · {{ calDetail.venueName }}</view>
-        <view class="cal-detail-item" v-for="c in calDetail.classes" :key="c._id" :data-id="c._id" :data-date="calDetail.date" @tap="openClassFromCal">
-          <view class="cd-name">{{ c.courseContentName || c.theme || c.name }}</view>
-          <view class="cd-meta">{{ c.time }} · {{ c.coachName || '教练待定' }} · {{ c.enrolled || 0 }}/{{ c.capacity || 0 }}</view>
-        </view>
-        <view class="cal-detail-close" @tap="calDetail = null">关闭</view>
-      </view>
-    </view>
+    <group-month-cal
+      :show="calOpen"
+      :selected-date="selectedDate"
+      @close="closeCal"
+      @pickdate="onCalPickDate"
+      @openclass="onCalOpenClass"
+      @loaded="onCalLoaded"
+    />
     <app-tabbar :current="0" />
   </view>
 </template>
 <script>
 import AppTabbar from '@/components/app-tabbar.vue'
+import GroupMonthCal from '@/components/group-month-cal.vue'
 import { applyIncomingVenue, pickVenueFromList, indexSharePayload } from '@/utils/shareVenue.js'
+import { unwrapEvent } from '@/utils/groupMonthCal.js'
 export default {
-  components: { AppTabbar },
+  components: { AppTabbar, GroupMonthCal },
   data() {
     return {
       venueList: [], venueId: '', venueName: '请选择场馆',
@@ -181,17 +144,14 @@ export default {
         { image: '/static/images/index/banner.jpg', title: '山羊Goat网球馆' },
         { image: '/static/images/index/banner.jpg', title: '订场 · 团课 · 私教' }
       ],
-      weekLabels: ['日', '一', '二', '三', '四', '五', '六'],
       dateRow: [], selectedDate: '', scrollTo: '', calOpen: false,
-      calYear: 2026, calMonth: 10, calDays: [],
       activities: [],
       balance: 0, points: 0, cardCount: 0,
       nickName: '', phone: '', avatarUrl: '',
       coachCount: 0, timesCount: 0, groupCount: 0, timeCount: 0,
       remindVisible: false, remindList: [], remindNotice: '', remindChecked: false,
       hasUpcomingGroupClass: true,
-      calendarDays: {},
-      calDetail: null
+      calendarDays: {}
     }
   },
   computed: {
@@ -309,38 +269,7 @@ export default {
       var day = d.getDate()
       return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (day < 10 ? '0' : '') + day
     },
-    buildDays() {
-      var y = this.calYear
-      var m = this.calMonth
-      var first = new Date(y, m - 1, 1)
-      var start = first.getDay()
-      var days = new Date(y, m, 0).getDate()
-      var list = []
-      for (var i = 0; i < start; i++) {
-        var prev = new Date(y, m - 1, -start + i + 1)
-        list.push({ day: prev.getDate(), date: this.fmtDate(prev), inMonth: false })
-      }
-      for (var d = 1; d <= days; d++) {
-        var cur = new Date(y, m - 1, d)
-        list.push({ day: d, date: this.fmtDate(cur), inMonth: true, holiday: this.holidayName(this.fmtDate(cur)) })
-      }
-      while (list.length % 7) {
-        var next = new Date(y, m, list.length - start - days + 1)
-        list.push({ day: next.getDate(), date: this.fmtDate(next), inMonth: false })
-      }
-      this.calDays = list
-    },
-    changeMonth(delta) {
-      var m = this.calMonth + delta
-      var y = this.calYear
-      if (m < 1) { m = 12; y-- }
-      if (m > 12) { m = 1; y++ }
-      this.calYear = y
-      this.calMonth = m
-      this.buildDays()
-      this.loadMonthCalendar()
-    },
-    holidayName(date) {
+holidayName(date) {
       var map = {
         '2026-01-01': '元旦', '2026-01-02': '元旦', '2026-01-03': '元旦',
         '2026-02-15': '除夕', '2026-02-16': '春节', '2026-02-17': '春节',
@@ -387,31 +316,13 @@ export default {
       this.dateRow = list
     },
     openCal() {
-      var d = this.selectedDate ? new Date(this.selectedDate.replace(/-/g, '/')) : new Date()
-      this.calYear = d.getFullYear()
-      this.calMonth = d.getMonth() + 1
-      this.buildDays()
       this.calOpen = true
-      this.loadMonthCalendar()
     },
     closeCal() {
       this.calOpen = false
     },
     closeRemind() {
       this.remindVisible = false
-    },
-    prevMonth() {
-      this.changeMonth(-1)
-    },
-    nextMonth() {
-      this.changeMonth(1)
-    },
-    onCalDayTap(e) {
-      var ds = (e && e.currentTarget && e.currentTarget.dataset) || {}
-      if (String(ds.ok) === '1' && ds.date) {
-        this.pickDate(ds.date)
-        this.calOpen = false
-      }
     },
     loadActivities() {
       var that = this
@@ -485,47 +396,27 @@ export default {
       var days = this.calendarDays || {}
       return days[date] || []
     },
-    loadMonthCalendar() {
-      var that = this
-      var y = this.calYear
-      var m = this.calMonth
-      var start = this.fmtDate(new Date(y, m - 1, 1))
-      var end = this.fmtDate(new Date(y, m, 0))
-      wx.cloud.callFunction({
-        name: 'userApi',
-        data: { action: 'getGroupClassCalendar', startDate: start, endDate: end },
-        success: function (res) {
-          var r = res.result || {}
-          if (r.calendar && r.calendar.days) {
-            that.calendarDays = Object.assign({}, that.calendarDays, r.calendar.days)
-          }
-          if (typeof r.hasUpcomingGroupClass === 'boolean') that.hasUpcomingGroupClass = r.hasUpcomingGroupClass
-        }
-      })
+    onCalLoaded(payload) {
+      var r = unwrapEvent(payload) || {}
+      if (r.days) this.calendarDays = Object.assign({}, this.calendarDays, r.days)
+      if (typeof r.hasUpcomingGroupClass === 'boolean') this.hasUpcomingGroupClass = r.hasUpcomingGroupClass
     },
-    onCalVenueTap(e) {
-      var ds = (e && e.currentTarget && e.currentTarget.dataset) || {}
-      var date = ds.date
-      var vid = String(ds.vid || '')
-      var list = this.venuesOf(date) || []
-      var hit = list.find(function (v) { return String(v.venueId) === vid })
-      if (!hit || !hit.classes || !hit.classes.length) return
-      this.calDetail = {
-        date: date,
-        venueId: hit.venueId,
-        venueName: hit.venueName || hit.venueShort,
-        classes: hit.classes
+    onCalPickDate(date) {
+      var ds = unwrapEvent(date)
+      if (ds) {
+        this.pickDate(ds)
+        this.calOpen = false
       }
     },
-    openClassFromCal(e) {
-      var ds = (e && e.currentTarget && e.currentTarget.dataset) || {}
-      var id = ds.id
-      var date = ds.date || (this.calDetail && this.calDetail.date) || ''
+    onCalOpenClass(payload) {
+      var p = unwrapEvent(payload) || {}
+      var id = p.id || ''
+      var date = p.date || ''
+      var venueId = p.venueId || ''
       var q = []
       if (date) q.push('date=' + encodeURIComponent(date))
       if (id) q.push('classId=' + encodeURIComponent(id))
-      if (this.calDetail && this.calDetail.venueId) q.push('venueId=' + encodeURIComponent(this.calDetail.venueId))
-      this.calDetail = null
+      if (venueId) q.push('venueId=' + encodeURIComponent(venueId))
       this.calOpen = false
       uni.navigateTo({ url: '/pages/group/group' + (q.length ? '?' + q.join('&') : '') })
     },
@@ -698,29 +589,6 @@ export default {
 .stat-n { font-size: 40rpx; font-weight: 700; color: #1a5c3a; }
 .stat-l { font-size: 22rpx; color: #888; margin-top: 6rpx; }
 .mask { position: fixed; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,.45); z-index: 100; display: flex; align-items: center; justify-content: center; }
-.cal-pop { background: #fff; border-radius: 20rpx; padding: 24rpx; width: 640rpx; }
-.cal-head { display: flex; align-items: center; margin-bottom: 16rpx; }
-.cal-title { flex: 1; text-align: center; font-size: 32rpx; font-weight: 600; }
-.cal-nav, .cal-close { width: 56rpx; height: 56rpx; text-align: center; line-height: 56rpx; font-size: 36rpx; color: #1a5c3a; }
-.cal-weeks, .cal-grid { display: flex; flex-wrap: wrap; }
-.cal-w, .cal-d { width: 14.28%; text-align: center; font-size: 24rpx; }
-.cal-w { color: #999; padding: 8rpx 0; }
-.cal-d { min-height: 108rpx; position: relative; color: #333; padding: 8rpx 2rpx 6rpx; box-sizing: border-box; }
-.cal-d.out { color: #ccc; }
-.cal-d.on { background: #1a5c3a; color: #fff; border-radius: 8rpx; }
-.cal-hol { font-size: 16rpx; color: #e85d4c; }
-.cal-d.on .cal-hol { color: #ffd; }
-.cal-venues { margin-top: 2rpx; }
-.cal-v { font-size: 16rpx; line-height: 1.2; color: #1a5c3a; background: #e8f5e9; border-radius: 6rpx; margin: 2rpx 2rpx 0; padding: 0 2rpx; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.cal-d.on .cal-v { background: rgba(255,255,255,.2); color: #fff; }
-.cal-dot { position: absolute; bottom: 4rpx; left: 50%; transform: translateX(-50%); width: 8rpx; height: 8rpx; background: #e85d4c; border-radius: 50%; }
-.cal-d.on .cal-dot { background: #fff; }
-.cal-detail { width: 640rpx; background: #fff; border-radius: 16rpx; padding: 28rpx 24rpx 16rpx; }
-.cal-detail-title { font-size: 30rpx; font-weight: 700; color: #1a5c3a; margin-bottom: 12rpx; }
-.cal-detail-item { padding: 16rpx 0; border-top: 1rpx solid #f0f0f0; }
-.cd-name { font-size: 28rpx; color: #222; }
-.cd-meta { font-size: 24rpx; color: #888; margin-top: 4rpx; }
-.cal-detail-close { text-align: center; color: #888; padding: 16rpx 0 4rpx; }
 .date { display: inline-flex; flex-direction: column; align-items: center; width: 100rpx; padding: 16rpx 0; margin-right: 12rpx; background: #fff; border-radius: 12rpx; position: relative; }
 .date.on { background: #1a5c3a; color: #fff; }
 .d-wk { font-size: 22rpx; opacity: .7; }
