@@ -106,12 +106,7 @@
 
         <view class="label">选择团课卡</view>
         <view v-if="!boundTemplateIds(current).length && (current.courseContentId || current.courseContentName)" class="err">该课程内容尚未绑定可用团课卡，暂时不能报名</view>
-        <view v-else-if="cards.length === 0" class="err">
-          没有可用于本节课的团课卡
-          <view class="buy-row">
-            <button class="buy" @tap="goBuyCard">去商城买卡后报名</button>
-          </view>
-        </view>
+        <view v-else-if="cards.length === 0 && !buyableProducts.length" class="err">没有可用于本节课的团课卡</view>
         <view
           v-for="(c, i) in cards"
           :key="c._id || i"
@@ -121,6 +116,23 @@
         >
           <view>{{ c.cardName }}（剩{{ c.remainingTimes }}次）</view>
           <view v-if="c.venueName" class="card-store">发卡门店：{{ c.venueName }}</view>
+        </view>
+
+        <view v-if="buyableProducts.length" class="label">买卡报名</view>
+        <view
+          v-for="(p, i) in buyableProducts"
+          :key="'m' + (p.id || i)"
+          class="card-opt buy-opt"
+          @tap="buyMallProduct(p)"
+        >
+          <view class="buy-main">
+            <view>{{ p.name }}</view>
+            <view class="buy-meta">{{ p.totalTimes ? ('共' + p.totalTimes + '次') : (p.desc || '') }}</view>
+          </view>
+          <view class="buy-side">
+            <view class="buy-price">¥{{ formatPrice(p.price) }}</view>
+            <view class="buy-go">{{ buying ? '下单中' : '购买' }}</view>
+          </view>
         </view>
 
         <button class="confirm" :loading="saving" @tap="submit">确认报名并扣次</button>
@@ -165,10 +177,20 @@ export default {
       weekLabels: ['日', '一', '二', '三', '四', '五', '六'],
       pendingClassId: '',
       pendingOpen: false,
-      loadSeq: 0
+      loadSeq: 0,
+      mallProducts: [],
+      buying: false
     }
   },
   computed: {
+    buyableProducts() {
+      var allowed = this.boundTemplateIds(this.current)
+      if (!allowed.length) return []
+      return (this.mallProducts || []).filter(function (p) {
+        var tid = String((p && (p.templateId || p.id)) || '')
+        return tid && allowed.indexOf(tid) >= 0
+      })
+    },
     classNames() {
       var map = {}
       var arr = []
@@ -268,6 +290,107 @@ export default {
         uni.setStorageSync('mall_resume_class_id', this.current._id)
         uni.setStorageSync('mall_resume_date', this.currentDate || this.current.date || '')
       }
+    },
+    formatPrice(v) {
+      var n = Number(v)
+      if (!isFinite(n)) return '0'
+      return (Math.round(n * 100) / 100).toFixed(n % 1 ? 2 : 0)
+    },
+    loadMallProducts() {
+      var that = this
+      wx.cloud.callFunction({
+        name: 'userApi',
+        data: { action: 'getMallProducts' }
+      }).then(function (res) {
+        var r = res.result || {}
+        that.mallProducts = r.ok ? (r.list || []) : []
+      }).catch(function () {
+        that.mallProducts = []
+      })
+    },
+    buyMallProduct(p) {
+      var that = this
+      if (!p || that.buying) return
+      if (!uni.getStorageSync('phone') && !uni.getStorageSync('openid') && !uni.getStorageSync('userDocId')) {
+        uni.showToast({ title: '请先登录', icon: 'none' })
+        uni.navigateTo({ url: '/pages/login/login' })
+        return
+      }
+      that.buying = true
+      var prevIds = (that.cards || []).map(function (c) { return String(c._id) })
+      wx.cloud.callFunction({
+        name: 'pay',
+        data: {
+          action: 'createCardPay',
+          templateId: p.templateId || p.id,
+          amount: p.price,
+          venueId: uni.getStorageSync('venue_id') || '',
+          venueName: uni.getStorageSync('venue_name') || '',
+          openid: uni.getStorageSync('openid') || '',
+          userId: uni.getStorageSync('userDocId') || '',
+          userName: uni.getStorageSync('nickName') || '',
+          phone: uni.getStorageSync('phone') || ''
+        }
+      }).then(function (r) {
+        var result = r.result || {}
+        if (!result.ok || !result.payParams) {
+          uni.showToast({ title: result.msg || '下单失败', icon: 'none' })
+          that.buying = false
+          return
+        }
+        var pay = result.payParams
+        var tradeNo = result.outTradeNo || ''
+        uni.requestPayment({
+          timeStamp: pay.timeStamp,
+          nonceStr: pay.nonceStr,
+          package: pay.package,
+          signType: pay.signType,
+          paySign: pay.paySign,
+          success: function () {
+            function pollConfirm(left) {
+              wx.cloud.callFunction({
+                name: 'pay',
+                data: { action: 'confirmCourtPay', outTradeNo: tradeNo }
+              }).then(function (cr) {
+                var c = (cr && cr.result) || {}
+                if (c.ok || (c.waiting && left <= 0) || !c.waiting) {
+                  if (c.ok) uni.showToast({ title: '购买成功，请选择新卡报名', icon: 'none' })
+                  else uni.showToast({ title: '支付成功，发卡确认中', icon: 'none' })
+                  that.buying = false
+                  that.loadGroupCards(function () {
+                    var next = (that.cards || []).filter(function (card) {
+                      return prevIds.indexOf(String(card._id)) < 0
+                    })[0]
+                    if (next) that.selectedCardId = next._id
+                  })
+                  return
+                }
+                if (c.waiting && left > 0) {
+                  setTimeout(function () { pollConfirm(left - 1) }, 1000)
+                  return
+                }
+              }).catch(function () {
+                if (left > 0) setTimeout(function () { pollConfirm(left - 1) }, 1000)
+                else {
+                  uni.showToast({ title: '支付成功，请稍后重新打开报名', icon: 'none' })
+                  that.buying = false
+                }
+              })
+            }
+            pollConfirm(8)
+          },
+          fail: function (err) {
+            var raw = (err && (err.errMsg || err.message)) || ''
+            var cancelled = raw.indexOf('cancel') >= 0 || raw.indexOf('取消') >= 0
+            var title = cancelled ? '已取消支付' : ((raw.replace('requestPayment:fail ', '') || '支付失败'))
+            uni.showToast({ title: title, icon: 'none' })
+            that.buying = false
+          }
+        })
+      }).catch(function () {
+        uni.showToast({ title: '下单失败', icon: 'none' })
+        that.buying = false
+      })
     },
     canEnroll(item) {
       if (!item) return false
@@ -580,9 +703,10 @@ export default {
       this.current = item
       this.selectedCardId = ''
       this.show = true
+      this.loadMallProducts()
       this.loadGroupCards()
     },
-    loadGroupCards() {
+    loadGroupCards(done) {
       var that = this
       var userDocId = uni.getStorageSync('userDocId') || ''
       var openid = uni.getStorageSync('openid') || ''
@@ -603,10 +727,14 @@ export default {
             var tid = String(c.templateId || c.template_id || '')
             return allowed.indexOf(tid) >= 0
           })
-          that.selectedCardId = that.cards.length === 1 ? that.cards[0]._id : ''
+          if (!that.selectedCardId) {
+            that.selectedCardId = that.cards.length === 1 ? that.cards[0]._id : ''
+          }
+          if (typeof done === 'function') done()
         },
         fail: function () {
           that.cards = []
+          if (typeof done === 'function') done()
         }
       })
     },
@@ -849,5 +977,22 @@ export default {
 }
 .buy-row { margin-top: 16rpx; }
 .buy { background: #1a5c3a !important; color: #fff !important; font-size: 26rpx; border-radius: 10rpx; }
+.buy-opt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.buy-main { flex: 1; min-width: 0; padding-right: 16rpx; }
+.buy-meta { font-size: 22rpx; color: #888; margin-top: 6rpx; }
+.buy-side { text-align: right; flex-shrink: 0; }
+.buy-price { font-size: 30rpx; font-weight: 700; color: #1a5c3a; }
+.buy-go {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: #fff;
+  background: #1a5c3a;
+  border-radius: 8rpx;
+  padding: 4rpx 14rpx;
+}
 </style>
 
