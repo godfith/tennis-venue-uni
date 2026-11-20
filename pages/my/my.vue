@@ -55,6 +55,12 @@
       </view>
 
       <view class="menu">
+        <view class="menu-row" @tap="goShop">
+          <image class="m-ico" src="/static/images/tab/shop-on.png"></image>
+          <text class="m-name">团课卡商城</text>
+          <text class="en">CLASS PASS</text>
+          <text class="arrow">›</text>
+        </view>
         <view class="menu-row" @tap="goMyBooking">
           <image class="m-ico" src="/static/images/tab/rank-on.png"></image>
           <text class="m-name">订单中心</text>
@@ -68,7 +74,7 @@
           <text class="arrow">›</text>
         </view>
         <view class="menu-row" @tap="goMyCards">
-          <image class="m-ico" src="/static/images/tab/shop-on.png"></image>
+          <image class="m-ico" src="/static/images/ui/ico-member.png"></image>
           <text class="m-name">我的会员卡</text>
           <text class="en">MY CARDS</text>
           <text class="arrow">›</text>
@@ -94,7 +100,7 @@
       </view>
       <view class="logout" @tap="logout">退出登录</view>
     </block>
-    <app-tabbar :current="2" />
+    <app-tabbar :current="3" />
   </view>
 </template>
 
@@ -159,6 +165,12 @@ export default {
       })
     },
     goLogin() { uni.navigateTo({ url: '/pages/login/login' }) },
+    goShop() {
+      uni.switchTab({
+        url: '/pages/shop/shop',
+        fail: function () { uni.navigateTo({ url: '/pages/shop/shop' }) }
+      })
+    },
     goMyBooking() { uni.navigateTo({ url: '/pages/mybooking/mybooking' }) },
     goMyEval() { uni.navigateTo({ url: '/pages/my-eval/my-eval' }) },
     goMyCards() { uni.navigateTo({ url: '/pages/mycards/mycards' }) },
