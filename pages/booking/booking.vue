@@ -125,6 +125,7 @@
   </view>
 </template>
 <script>
+import { applyIncomingVenue, bookingSharePath, shareTitle } from '@/utils/shareVenue.js'
 import AppTabbar from '@/components/app-tabbar.vue'
 export default {
   components: { AppTabbar },
@@ -216,8 +217,18 @@ export default {
       return (this.activeCourt && this.activeCourt.times) || []
     }
   },
-  onLoad() {
+  onLoad(options) {
     this.nickName = uni.getStorageSync('nickName') || ''
+    var applied = applyIncomingVenue(options || {}, {
+      venueId: uni.getStorageSync('venue_id') || '',
+      venueName: uni.getStorageSync('venue_name') || ''
+    })
+    if (applied.fromShare && applied.venueId) {
+      uni.setStorageSync('venue_id', applied.venueId)
+      if (applied.venueName) uni.setStorageSync('venue_name', applied.venueName)
+      this.venueId = applied.venueId
+      this.venueName = applied.venueName || this.venueName
+    }
     this.loadCourts()
     this.initDateList()
   },
@@ -225,8 +236,14 @@ export default {
     try { uni.hideTabBar({ animation: false }) } catch (e) {}
     this.nickName = uni.getStorageSync('nickName') || ''
     this.venueName = uni.getStorageSync('venue_name') || ''
-    this.venueId = uni.getStorageSync('venue_id') || ''
+    this.venueId = uni.getStorageSync('venue_id') || this.venueId || ''
     this.ensureBookableVenue()
+  },
+  onShareAppMessage() {
+    return { title: shareTitle(this.venueName), path: bookingSharePath(this.venueId) }
+  },
+  onShareTimeline() {
+    return { title: shareTitle(this.venueName) }
   },
   methods: {
     normCourt(c) {

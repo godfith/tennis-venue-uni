@@ -150,11 +150,13 @@
 </template>
 <script>
 import AppTabbar from '@/components/app-tabbar.vue'
+import { applyIncomingVenue, pickVenueFromList, indexSharePayload } from '@/utils/shareVenue.js'
 export default {
   components: { AppTabbar },
   data() {
     return {
       venueList: [], venueId: '', venueName: '请选择场馆',
+      pendingVenueId: '', pendingVenueName: '',
       banners: [
         { image: '/static/images/index/banner.jpg', title: '山羊Goat网球馆' },
         { image: '/static/images/index/banner.jpg', title: '订场 · 团课 · 私教' }
@@ -175,6 +177,9 @@ export default {
       return this.activities.filter(function (a) { return a.date === d })
     }
   },
+  onLoad(options) {
+    this.applyShareVenue(options || {})
+  },
   onShow() {
     try { uni.hideTabBar({ animation: false }) } catch (e) {}
     this.nickName = uni.getStorageSync('nickName') || ''
@@ -187,9 +192,27 @@ export default {
     this.loadWallet()
     this.checkRecentBookings()
   },
-  onShareAppMessage() { return { title: '山羊Goat网球馆', path: '/pages/index/index' } },
-  onShareTimeline() { return { title: '山羊Goat网球馆' } },
+  onShareAppMessage() {
+    return indexSharePayload(this.venueId, this.venueName)
+  },
+  onShareTimeline() {
+    return { title: indexSharePayload(this.venueId, this.venueName).title }
+  },
   methods: {
+    applyShareVenue(options) {
+      var applied = applyIncomingVenue(options, {
+        venueId: uni.getStorageSync('venue_id') || '',
+        venueName: uni.getStorageSync('venue_name') || ''
+      })
+      if (applied.fromShare && applied.venueId) {
+        this.pendingVenueId = applied.venueId
+        this.pendingVenueName = applied.venueName || ''
+        this.venueId = applied.venueId
+        if (applied.venueName) this.venueName = applied.venueName
+        uni.setStorageSync('venue_id', applied.venueId)
+        if (applied.venueName) uni.setStorageSync('venue_name', applied.venueName)
+      }
+    },
     checkRecentBookings() {
       if (this.remindChecked) return
       var phone = uni.getStorageSync('phone') || ''
@@ -396,11 +419,16 @@ export default {
         success: function (res) {
           var list = (res.result || {}).list || []
           that.venueList = list
-          var id = uni.getStorageSync('venue_id')
-          var found = list.find(function (v) { return v.venueId === id || v._id === id })
+          var id = that.pendingVenueId || uni.getStorageSync('venue_id')
+          var found = pickVenueFromList(list, id)
           if (found) {
             that.venueId = found.venueId || found._id
             that.venueName = found.name
+            uni.setStorageSync('venue_id', that.venueId)
+            uni.setStorageSync('venue_name', found.name)
+          } else if (that.pendingVenueId) {
+            that.venueId = that.pendingVenueId
+            if (that.pendingVenueName) that.venueName = that.pendingVenueName
           } else if (id) {
             that.venueId = ''
             that.venueName = '请选择场馆'

@@ -150,6 +150,7 @@
 </template>
 
 <script>
+import { applyIncomingVenue, groupSharePayload, pickVenueFromList } from '@/utils/shareVenue.js'
 export default {
   data() {
     return {
@@ -217,6 +218,23 @@ export default {
       this.currentDate = String(options.date).slice(0, 10)
     }
     if (this.pendingClassId) this.pendingOpen = true
+    var applied = applyIncomingVenue(options, {})
+    if (applied.venueId) {
+      this.venueFilter = String(applied.venueId)
+    }
+  },
+  onShareAppMessage() {
+    var v = (this.venueList || []).find(function (x) { return String(x.venueId) === String(this.venueFilter) }.bind(this))
+    return groupSharePayload({
+      venueId: this.venueFilter || '',
+      venueName: v ? v.name : '',
+      classId: '',
+      date: this.currentDate || ''
+    })
+  },
+  onShareTimeline() {
+    var msg = this.onShareAppMessage()
+    return { title: msg.title }
   },
   onShow() {
     this.loadVenues()
