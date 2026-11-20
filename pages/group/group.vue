@@ -90,7 +90,8 @@
             class="btn"
             :class="{ full: !canEnroll(item) }"
             :disabled="!canEnroll(item)"
-            @tap="openEnroll(item)"
+            :data-id="item._id"
+            @tap="onEnrollTap"
           >{{ enrollLabel(item) }}</button>
         </view>
       </view>
@@ -233,9 +234,11 @@ export default {
   },
   methods: {
     isFull(item) {
+      if (!item) return false
       return Number(item.enrolled || 0) >= Number(item.capacity || 0)
     },
     isTemp(item) {
+      if (!item) return false
       return Number(item.enrolled || 0) > Number(item.capacity || 0)
     },
     normClassType(item) {
@@ -275,8 +278,9 @@ export default {
       return true
     },
     enrollLabel(item) {
-      if (item && item.status === 'cancelled') return '已取消'
-      if (item && item.past) return '已结束'
+      if (!item) return '预约'
+      if (item.status === 'cancelled') return '已取消'
+      if (item.past) return '已结束'
       if (this.isFull(item)) return '已满'
       if (item && item.enrollOpen === false) {
         var reason = item.enrollClosedReason || ''
@@ -527,7 +531,41 @@ export default {
         }
       })
     },
+    findClassById(id) {
+      var want = String(id || '')
+      if (!want) return null
+      var lists = [this.filteredList || [], this.list || []]
+      for (var i = 0; i < lists.length; i++) {
+        var hit = lists[i].filter(function (g) {
+          return String((g && (g._id || g.id)) || '') === want
+        })[0]
+        if (hit) return hit
+      }
+      return null
+    },
+    resolveClassItem(input) {
+      if (!input) return null
+      if (input.enrolled != null || input.capacity != null || input.name || input._id || input.id) {
+        if (!(input.type === 'tap' || input.currentTarget || input.target || input.mp || input.detail)) {
+          return input
+        }
+      }
+      var ev = unwrapEvent(input) || {}
+      var ds = (input.currentTarget && input.currentTarget.dataset) || (input.target && input.target.dataset) || {}
+      var id = ev._id || ev.id || ev.classId || ds.id || ds.classId || ''
+      if (id) return this.findClassById(id)
+      if (ev && (ev.enrolled != null || ev.capacity != null || ev.name || ev._id || ev.id)) return ev
+      return null
+    },
+    onEnrollTap(e) {
+      this.openEnroll(this.resolveClassItem(e))
+    },
     openEnroll(item) {
+      item = this.resolveClassItem(item) || item
+      if (!item) {
+        uni.showToast({ title: '未找到该团课', icon: 'none' })
+        return
+      }
       if (!this.canEnroll(item)) {
         uni.showToast({ title: '该课程' + this.enrollLabel(item), icon: 'none' })
         return
