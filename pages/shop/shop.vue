@@ -28,7 +28,7 @@
         <view class="cancel" @tap="current = null">返回</view>
       </view>
     </view>
-    <app-tabbar :current="1" />
+    <app-tabbar v-if="!current" :current="1" />
   </view>
 </template>
 <script>
@@ -143,8 +143,16 @@ export default {
             }
             pollConfirm(8)
           },
-          fail: function () {
-            uni.showToast({ title: '已取消支付', icon: 'none' })
+          fail: function (err) {
+            var raw = (err && (err.errMsg || err.message)) || ''
+            var cancelled = raw.indexOf('cancel') >= 0 || raw.indexOf('取消') >= 0
+            var title = '支付失败'
+            if (cancelled) {
+              title = '已取消支付'
+            } else if (raw) {
+              title = raw.replace('requestPayment:fail ', '') || '支付失败'
+            }
+            uni.showToast({ title: title, icon: 'none' })
             that.paying = false
           }
         })
@@ -182,8 +190,8 @@ export default {
 .price { font-size: 30rpx; color: #c45c26; font-weight: 700; margin-top: 8rpx; }
 .go { color: #1a5c3a; font-size: 26rpx; }
 .empty { text-align: center; color: #888; padding: 80rpx 0; }
-.mask { position: fixed; left: 0; right: 0; top: 0; bottom: 0; background: rgba(0,0,0,.45); z-index: 20; display: flex; align-items: flex-end; }
-.sheet { width: 100%; background: #fff; border-radius: 24rpx 24rpx 0 0; padding: 40rpx 32rpx 48rpx; }
+.mask { position: fixed; left: 0; right: 0; top: 0; bottom: 0; background: rgba(0,0,0,.45); z-index: 20000; display: flex; align-items: flex-end; }
+.sheet { width: 100%; background: #fff; border-radius: 24rpx 24rpx 0 0; padding: 40rpx 32rpx calc(48rpx + env(safe-area-inset-bottom)); box-sizing: border-box; }
 .s-ico { font-size: 64rpx; }
 .s-name { font-size: 36rpx; font-weight: 700; margin-top: 12rpx; }
 .s-price { font-size: 32rpx; color: #c45c26; font-weight: 700; margin: 8rpx 0 16rpx; }

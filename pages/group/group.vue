@@ -17,8 +17,7 @@
         :id="'d' + item.date"
         class="date-item"
         :class="{ active: currentDate === item.date }"
-        :data-date="item.date"
-        @tap="onDateTap"
+        @tap="onSelectDate(item.date)"
       >
         <view class="day">{{ item.dayNum }}</view>
         <view class="week">{{ item.week }}</view>
@@ -164,7 +163,8 @@ export default {
       calOpen: false,
       weekLabels: ['日', '一', '二', '三', '四', '五', '六'],
       pendingClassId: '',
-      pendingOpen: false
+      pendingOpen: false,
+      loadSeq: 0
     }
   },
   computed: {
@@ -196,6 +196,7 @@ export default {
           var typ = that.normClassType(g)
           if (typ !== that.typeFilter) return false
         }
+        if (that.currentDate && that.normDay(g.date) !== that.normDay(that.currentDate)) return false
         return true
       })
     }
@@ -356,6 +357,10 @@ export default {
     selectCard(id) {
       this.selectedCardId = id
     },
+    normDay(v) {
+      if (!v) return ''
+      return String(v).slice(0, 10)
+    },
     fmtDate(d) {
       var m = d.getMonth() + 1
       var day = d.getDate()
@@ -414,8 +419,11 @@ export default {
       })
     },
     onSelectDate(date) {
+      if (!date) return
       this.currentDate = date
       this.nameFilter = ''
+      this.pendingClassId = ''
+      this.pendingOpen = false
       this.loadList()
     },
     setNameFilter(n) {
@@ -434,6 +442,8 @@ export default {
       this.currentDate = date
       this.buildDateList(date)
       this.nameFilter = ''
+      this.pendingClassId = ''
+      this.pendingOpen = false
       this.$nextTick(() => {
         this.scrollTo = 'd' + date
       })
@@ -454,32 +464,45 @@ export default {
     },
     loadList() {
       var that = this
+      var wantDate = that.normDay(that.currentDate)
+      var wantOpen = that.pendingOpen && that.pendingClassId
+      var wantId = wantOpen ? that.pendingClassId : ''
+      var seq = that.loadSeq + 1
+      that.loadSeq = seq
       that.loading = true
       var data = {
         action: 'getGroupClasses',
-        date: that.currentDate,
+        date: wantDate,
         hidePast: true
       }
-      if (that.pendingClassId) data.classId = that.pendingClassId
+      if (wantId) data.classId = wantId
       wx.cloud.callFunction({
         name: 'userApi',
         data: data,
         success: function (res) {
+          if (seq !== that.loadSeq) return
           var result = res.result || {}
           var arr = result.list || []
+          var day = that.normDay(that.currentDate)
+          arr = arr.filter(function (g) {
+            var gd = that.normDay(g.date)
+            if (!day || gd === day) return true
+            return !!(wantId && String(g._id) === String(wantId))
+          })
           that.list = arr
-          if (that.pendingOpen && that.pendingClassId) {
+          if (wantOpen && wantId) {
             var found = arr.filter(function (g) {
-              return String(g._id) === String(that.pendingClassId)
+              return String(g._id) === String(wantId)
             })[0]
             that.pendingOpen = false
+            that.pendingClassId = ''
             if (found) {
-              if (found.date && found.date !== that.currentDate) {
-                that.currentDate = found.date
-                that.buildDateList(found.date)
+              if (found.date && that.normDay(found.date) !== that.normDay(that.currentDate)) {
+                that.currentDate = that.normDay(found.date)
+                that.buildDateList(that.currentDate)
               }
               that.$nextTick(function () {
-                that.scrollTo = 'd' + (found.date || that.currentDate)
+                that.scrollTo = 'd' + that.currentDate
               })
               if (that.canEnroll(found)) {
                 that.openEnroll(found)
@@ -493,11 +516,13 @@ export default {
           }
         },
         fail: function (err) {
+          if (seq !== that.loadSeq) return
           console.error(err)
           uni.showToast({ title: '加载失败', icon: 'none' })
           that.list = []
         },
         complete: function () {
+          if (seq !== that.loadSeq) return
           that.loading = false
         }
       })
