@@ -62,6 +62,7 @@
       <view class="chip" :class="{ on: typeFilter === 'fixed' }" data-val="fixed" @tap="onTypeChip">固定团课</view>
       <view class="chip" :class="{ on: typeFilter === 'self' }" data-val="self" @tap="onTypeChip">自组团课</view>
     </view>
+    <view class="type-note">固定团课是门店轮流开课，时间不固定；自组团课是灵活开课</view>
 
     <view v-if="loading" class="tip">加载中...</view>
     <view v-else-if="filteredList.length === 0" class="tip">当天暂无团课</view>
@@ -673,6 +674,12 @@ export default {
   background: #1a5c3a;
   color: #fff;
   font-weight: 600;
+}
+.type-note {
+  padding: 8rpx 24rpx 0;
+  color: #888;
+  font-size: 22rpx;
+  line-height: 1.5;
 }
 .tip {
   text-align: center;

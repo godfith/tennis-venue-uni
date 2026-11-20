@@ -70,6 +70,7 @@
         <picker :range="venueNames" @change="onPubVenue">
           <view class="field">门店：{{ pub.venueName || '请选择' }}</view>
         </picker>
+        <view class="hint" v-if="nextFixedHint">{{ nextFixedHint }}</view>
         <view class="field">名称：<input v-model="pub.name" placeholder="如：周三晚提高班" /></view>
         <view class="field">日期：<input v-model="pub.date" placeholder="YYYY-MM-DD" /></view>
         <picker :range="timeSlots" @change="onPubTime">
@@ -135,7 +136,9 @@ export default {
       publishOpen: false,
       lockOpen: false,
       pub: { venueId: '', venueName: '', name: '固定团课', date: '', time: '', court: '', capacity: 4 },
-      lock: { venueId: '', venueName: '', date: '', time: '' }
+      lock: { venueId: '', venueName: '', date: '', time: '' },
+      nextFixedVenue: null,
+      rotationVenues: []
     }
   },
   computed: {
@@ -155,6 +158,12 @@ export default {
       if (!id) return '全部门店'
       var v = (this.venueList || []).find(function (x) { return String(x.venueId) === String(id) })
       return v ? v.name : '所选门店'
+    },
+    nextFixedHint() {
+      var nxt = this.nextFixedVenue || {}
+      if (!nxt.venueId) return ''
+      var name = nxt.venueName || nxt.venueId
+      return '下一站：' + name + '（可改）'
     }
   },
   onShow() {
@@ -209,6 +218,8 @@ export default {
           }
           that.coachInfo = result.coach || null
           that.list = result.list || []
+          that.nextFixedVenue = result.nextFixedVenue || null
+          that.rotationVenues = ((result.settings || {}).rotationVenues) || []
         },
         fail: function () {
           uni.showToast({ title: '加载失败', icon: 'none' })
@@ -260,11 +271,32 @@ export default {
         }
       })
     },
+    venueCapacity(venueId) {
+      var list = this.rotationVenues || []
+      var hit = list.find(function (x) { return String(x.venueId || x.venue_id) === String(venueId) })
+      var cap = hit ? Number(hit.capacity) : 0
+      return cap >= 1 ? cap : 4
+    },
     openPublish() {
+      var nxt = this.nextFixedVenue || {}
       var v = this.defaultVenue()
-      this.pub = { venueId: v.venueId, venueName: v.venueName, name: '固定团课', date: todayYmd(), time: '', court: '', capacity: 4 }
+      var venueId = nxt.venueId ? String(nxt.venueId) : v.venueId
+      var venueName = nxt.venueId ? (nxt.venueName || v.venueName) : v.venueName
+      if (nxt.venueId && !nxt.venueName) {
+        var found = (this.venueList || []).find(function (x) { return String(x.venueId) === String(nxt.venueId) })
+        if (found) venueName = found.name
+      }
+      this.pub = {
+        venueId: venueId,
+        venueName: venueName,
+        name: '固定团课',
+        date: todayYmd(),
+        time: '',
+        court: '',
+        capacity: this.venueCapacity(venueId)
+      }
       this.publishOpen = true
-      this.loadHoursAndCourts(v.venueId)
+      this.loadHoursAndCourts(venueId)
     },
     openLock() {
       var v = this.defaultVenue()
@@ -278,6 +310,7 @@ export default {
       this.pub.venueId = v.venueId
       this.pub.venueName = v.name
       this.pub.court = ''
+      this.pub.capacity = this.venueCapacity(v.venueId)
       this.loadHoursAndCourts(v.venueId)
     },
     onPubTime(e) { this.pub.time = this.timeSlots[e.detail.value] || '' },
