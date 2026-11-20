@@ -26,7 +26,7 @@
     </scroll-view>
 
     <view class="filters">
-      <view class="chip" :class="{ on: !nameFilter }" data-val="" @tap="onNameChip">课程</view>
+      <view class="chip" :class="{ on: !nameFilter }" @tap="clearNameFilter">课程</view>
       <scroll-view class="chip-scroll" scroll-x="true">
         <view
           class="chip"
@@ -39,7 +39,7 @@
       </scroll-view>
     </view>
     <view class="filters">
-      <view class="chip" :class="{ on: !venueFilter }" data-val="" @tap="onVenueChip">全部</view>
+      <view class="chip" :class="{ on: !venueFilter }" @tap="clearVenueFilter">全部</view>
       <scroll-view class="chip-scroll" scroll-x="true">
         <view
           class="chip"
@@ -52,13 +52,13 @@
       </scroll-view>
     </view>
     <view class="filters">
-      <view class="chip" :class="{ on: timeFilter === '' }" data-val="" @tap="onTimeChip">时间</view>
+      <view class="chip" :class="{ on: timeFilter === '' }" @tap="clearTimeFilter">时间</view>
       <view class="chip" :class="{ on: timeFilter === 'morning' }" data-val="morning" @tap="onTimeChip">上午</view>
       <view class="chip" :class="{ on: timeFilter === 'afternoon' }" data-val="afternoon" @tap="onTimeChip">下午</view>
       <view class="chip" :class="{ on: timeFilter === 'evening' }" data-val="evening" @tap="onTimeChip">晚上</view>
     </view>
     <view class="filters">
-      <view class="chip" :class="{ on: typeFilter === '' }" data-val="" @tap="onTypeChip">全部类型</view>
+      <view class="chip" :class="{ on: typeFilter === '' }" @tap="clearTypeFilter">全部类型</view>
       <view class="chip" :class="{ on: typeFilter === 'fixed' }" data-val="fixed" @tap="onTypeChip">固定团课</view>
       <view class="chip" :class="{ on: typeFilter === 'self' }" data-val="self" @tap="onTypeChip">自组团课</view>
     </view>
@@ -315,8 +315,14 @@ export default {
     stopBubble() {},
     datasetVal(e) {
       var ds = (e && e.currentTarget && e.currentTarget.dataset) || {}
-      return ds.val == null ? '' : String(ds.val)
+      // WeChat may turn empty data-val into true/"true", which previously emptied the list
+      if (ds.val == null || ds.val === true || ds.val === 'true' || ds.val === 'all') return ''
+      return String(ds.val)
     },
+    clearNameFilter() { this.nameFilter = '' },
+    clearVenueFilter() { this.venueFilter = '' },
+    clearTimeFilter() { this.timeFilter = '' },
+    clearTypeFilter() { this.typeFilter = '' },
     onDateTap(e) {
       var date = ((e && e.currentTarget && e.currentTarget.dataset) || {}).date
       if (date) this.onSelectDate(date)
