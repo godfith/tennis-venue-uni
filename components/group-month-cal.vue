@@ -41,20 +41,23 @@
       </view>
       <scroll-view class="gmc-agenda" scroll-y>
         <view class="gmc-agenda-head">{{ agendaTitle }}</view>
-        <view v-if="!agendaItems.length" class="gmc-agenda-empty">这一天暂无团课</view>
-        <view
-          class="gmc-agenda-item"
-          v-for="item in agendaItems"
-          :key="item._id"
-          @tap="onClassTap(item)"
-        >
-          <view class="gmc-ag-top">
-            <text class="gmc-ag-venue">{{ item.venueShort || item.venueName }}</text>
-            <text class="gmc-ag-type" :class="item.hint && item.hint.kind">{{ item.hint && item.hint.text }}</text>
+        <view v-if="!agendaGroups.length" class="gmc-agenda-empty">这一天暂无团课</view>
+        <view class="gmc-group" v-for="g in agendaGroups" :key="g.key">
+          <view class="gmc-group-title" :class="g.kind">{{ g.title }}</view>
+          <view v-if="!g.items.length" class="gmc-agenda-empty">暂无时段，教练或店长开课后会出现在这里</view>
+          <view
+            class="gmc-agenda-item"
+            v-for="item in g.items"
+            :key="item._id"
+            @tap="onClassTap(item)"
+          >
+            <view class="gmc-ag-top">
+              <text class="gmc-ag-name">{{ item.courseContentName || item.theme || item.name }}</text>
+              <text class="gmc-ag-type" :class="item.hint && item.hint.kind">{{ item.time || (item.hint && item.hint.text) }}</text>
+            </view>
+            <view class="gmc-ag-meta">{{ classMeta(item) }}</view>
+            <view class="gmc-ag-go">报名 ›</view>
           </view>
-          <view class="gmc-ag-name">{{ item.courseContentName || item.theme || item.name }}</view>
-          <view class="gmc-ag-meta">{{ classMeta(item) }}</view>
-          <view class="gmc-ag-go">报名 ›</view>
         </view>
       </scroll-view>
       <view class="gmc-legend">
@@ -109,6 +112,27 @@ export default {
     },
     agendaItems: function () {
       return classesOnDate(this.calendarDays, this.selectedDate)
+    },
+    agendaGroups: function () {
+      var items = this.agendaItems || []
+      var map = {}
+      var order = []
+      items.forEach(function (item) {
+        var kind = (item.hint && item.hint.kind) || (String(item.classType || item.class_type || '').toLowerCase() === 'self' ? 'self' : 'fixed')
+        var venue = item.venueShort || item.venueName || '门店'
+        var key = kind + '|' + venue
+        if (!map[key]) {
+          map[key] = {
+            key: key,
+            kind: kind,
+            title: (kind === 'self' ? '自组团课' : '固定团课') + ' · ' + venue,
+            items: []
+          }
+          order.push(key)
+        }
+        map[key].items.push(item)
+      })
+      return order.map(function (k) { return map[k] })
     }
   },
   watch: {
@@ -356,6 +380,9 @@ export default {
   color: #1a5c3a;
   padding: 12rpx 0 8rpx;
 }
+.gmc-group { margin-bottom: 12px; }
+.gmc-group-title { font-size: 15px; font-weight: 600; color: #1a5c3a; margin: 8px 0; }
+.gmc-group-title.self { color: #6a7c4c; }
 .gmc-agenda-empty {
   font-size: 26rpx;
   color: #999;
