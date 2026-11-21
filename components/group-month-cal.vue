@@ -32,8 +32,8 @@
             <view
               class="gmc-vname"
               :class="v.kind === 'self' ? 'self' : ''"
-              v-for="(v, vi) in shortVenues(d)"
-              :key="'v' + vi"
+              v-for="(v, vi) in d.shortNames"
+              :key="vi"
             >{{ v.name }}</view>
             <view class="gmc-more" v-if="d.venueCount > 2">+{{ d.venueCount - 2 }}</view>
           </view>
@@ -42,28 +42,28 @@
       <view class="gmc-agenda">
         <view class="gmc-agenda-head">{{ agendaTitle }}</view>
         <view v-if="!dayVenues.length" class="gmc-agenda-empty">这一天没有场地开课</view>
-        <view class="gmc-venue-wrap" v-for="(v, vi) in dayVenues" :key="venueKey(v) || ('d' + vi)">
-          <view class="gmc-venue" :class="{ open: isVenueOpen(v) }" @tap="onVenueTap(v)">
+        <view class="gmc-venue-wrap" v-for="(v, vi) in dayVenues" :key="vi">
+          <view class="gmc-venue" :class="{ open: v.open }" @tap="onVenueTap(v)">
             <view class="gmc-dot"></view>
             <view class="gmc-venue-main">
-              <text class="gmc-venue-name">{{ (v && (v.venueShort || v.venueName)) || '场地' }}</text>
-              <text class="gmc-venue-sub">{{ venueSub(v) }}</text>
+              <text class="gmc-venue-name">{{ v.venueShort }}</text>
+              <text class="gmc-venue-sub">{{ v.subText }}</text>
             </view>
-            <text class="gmc-venue-go">{{ isVenueOpen(v) ? '收起' : '查看' }}</text>
+            <text class="gmc-venue-go">{{ v.open ? '收起' : '查看' }}</text>
           </view>
-          <view v-if="isVenueOpen(v)" class="gmc-classes">
+          <view v-if="v.open" class="gmc-classes">
             <view
               class="gmc-class"
-              v-for="item in v.classes"
-              :key="item._id"
+              v-for="(item, ci) in v.classes"
+              :key="ci"
               @tap.stop="onClassTap(item)"
             >
               <view class="gmc-class-time">{{ item.time }}</view>
               <view class="gmc-class-main">
-                <view class="gmc-class-name">{{ item.courseContentName || item.theme || item.name }}</view>
-                <view class="gmc-class-meta">{{ classMeta(item) }}</view>
+                <view class="gmc-class-name">{{ item.title }}</view>
+                <view class="gmc-class-meta">{{ item.meta }}</view>
               </view>
-              <text class="gmc-class-tag" :class="classKind(item)">{{ classKind(item) === 'self' ? '自组' : '固定' }}</text>
+              <text class="gmc-class-tag" :class="item.kind">{{ item.kindLabel }}</text>
             </view>
           </view>
         </view>
@@ -132,6 +132,8 @@ export default {
         }
       }
       var venues = (cell && cell.venues) || []
+      var openId = this.openedVenueId
+      var that = this
       return venues.filter(function (v) { return !!v }).map(function (v) {
         var fixedCount = 0
         var selfCount = 0
@@ -139,10 +141,25 @@ export default {
           if (h && h.kind === 'self') selfCount += 1
           else fixedCount += 1
         })
+        var key = String(v.venueId || v.venueShort || '')
+        var parts = []
+        if (fixedCount) parts.push('固定 ' + fixedCount)
+        if (selfCount) parts.push('自组 ' + selfCount)
+        parts.push(((v.classes && v.classes.length) || 0) + '节')
+        var classes = (v.classes || []).map(function (item) {
+          var kind = String((item && (item.classType || item.class_type)) || '').toLowerCase() === 'self' ? 'self' : 'fixed'
+          return Object.assign({}, item, {
+            title: (item && (item.courseContentName || item.theme || item.name)) || '团课',
+            meta: that.classMeta(item),
+            kind: kind,
+            kindLabel: kind === 'self' ? '自组' : '固定'
+          })
+        })
         return Object.assign({}, v, {
           venueShort: v.venueShort || v.venueName || '场地',
-          fixedCount: fixedCount,
-          selfCount: selfCount
+          subText: parts.join(' · '),
+          open: openId === key,
+          classes: classes
         })
       })
     },
@@ -196,12 +213,26 @@ export default {
       return fmtDate(new Date())
     },
     rebuild: function () {
-      this.cells = buildMonthCells({
+      var cells = buildMonthCells({
         year: this.year,
         month: this.month,
         calendarDays: this.calendarDays,
         selectedDate: this.selectedDate,
         today: this.todayStr()
+      })
+      this.cells = cells.map(function (d) {
+        var list = (d && d.venues) || []
+        var shortNames = []
+        for (var i = 0; i < list.length && shortNames.length < 2; i++) {
+          var v = list[i]
+          if (!v) continue
+          var hint = (v.hints && v.hints[0]) || {}
+          shortNames.push({
+            name: v.venueShort || v.venueName || '',
+            kind: hint.kind || 'fixed'
+          })
+        }
+        return Object.assign({}, d, { shortNames: shortNames })
       })
     },
     syncMonthFromSelected: function () {
