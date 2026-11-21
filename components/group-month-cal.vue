@@ -39,47 +39,35 @@
           </view>
         </view>
       </view>
-      <scroll-view class="gmc-agenda" scroll-y>
+      <view class="gmc-agenda">
         <view class="gmc-agenda-head">{{ agendaTitle }}</view>
-        <view v-if="!dayVenues.length" class="gmc-agenda-empty">这一天暂无场地有课</view>
-        <view
-          class="gmc-venue"
-          v-for="v in dayVenues"
-          :key="v.venueId || v.venueShort"
-          @tap="onVenueTap(v)"
-        >
-          <view class="gmc-venue-main">
-            <view class="gmc-venue-name">{{ v.venueShort || v.venueName }}</view>
-            <view class="gmc-venue-sub">
-              <text v-if="v.fixedCount">固定团课 {{ v.fixedCount }}</text>
-              <text v-if="v.selfCount">自组团课 {{ v.selfCount }}</text>
+        <view v-if="!dayVenues.length" class="gmc-agenda-empty">这一天没有场地开课</view>
+        <view class="gmc-venue-wrap" v-for="v in dayVenues" :key="v.venueId || v.venueShort">
+          <view class="gmc-venue" :class="{ open: isVenueOpen(v) }" @tap="onVenueTap(v)">
+            <view class="gmc-dot"></view>
+            <view class="gmc-venue-main">
+              <text class="gmc-venue-name">{{ v.venueShort || v.venueName }}</text>
+              <text class="gmc-venue-sub">{{ venueSub(v) }}</text>
             </view>
+            <text class="gmc-venue-go">{{ isVenueOpen(v) ? '收起' : '查看' }}</text>
           </view>
-          <view class="gmc-venue-side">
-            <text class="gmc-venue-count">{{ v.classes.length }} 节课</text>
-            <text class="gmc-venue-go">查看 ›</text>
-          </view>
-        </view>
-        <view v-if="openedVenue" class="gmc-venue-detail">
-          <view class="gmc-group-title">{{ openedVenue.venueShort || openedVenue.venueName }}</view>
-          <view class="gmc-group" v-for="g in openedGroups" :key="g.key">
-            <view class="gmc-group-title" :class="g.kind">{{ g.title }}</view>
+          <view v-if="isVenueOpen(v)" class="gmc-classes">
             <view
-              class="gmc-agenda-item"
-              v-for="item in g.items"
+              class="gmc-class"
+              v-for="item in v.classes"
               :key="item._id"
               @tap.stop="onClassTap(item)"
             >
-              <view class="gmc-ag-top">
-                <text class="gmc-ag-name">{{ item.courseContentName || item.theme || item.name }}</text>
-                <text class="gmc-ag-type">{{ item.time }}</text>
+              <view class="gmc-class-time">{{ item.time }}</view>
+              <view class="gmc-class-main">
+                <view class="gmc-class-name">{{ item.courseContentName || item.theme || item.name }}</view>
+                <view class="gmc-class-meta">{{ classMeta(item) }}</view>
               </view>
-              <view class="gmc-ag-meta">{{ classMeta(item) }}</view>
-              <view class="gmc-ag-go">报名 ›</view>
+              <text class="gmc-class-tag" :class="classKind(item)">{{ classKind(item) === 'self' ? '自组' : '固定' }}</text>
             </view>
           </view>
         </view>
-      </scroll-view>
+      </view>
       <view class="gmc-legend">
         <view class="gmc-leg-item">
           <view class="gmc-leg-dot fixed"></view>
@@ -243,9 +231,25 @@ export default {
       this.openedVenueId = ''
       this.$emit('pickdate', d.date)
     },
+    venueKey: function (v) {
+      return String((v && (v.venueId || v.venueShort)) || '')
+    },
+    isVenueOpen: function (v) {
+      return this.openedVenueId === this.venueKey(v)
+    },
+    classKind: function (item) {
+      return String((item && (item.classType || item.class_type)) || '').toLowerCase() === 'self' ? 'self' : 'fixed'
+    },
+    venueSub: function (v) {
+      var parts = []
+      if (v.fixedCount) parts.push('固定 ' + v.fixedCount)
+      if (v.selfCount) parts.push('自组 ' + v.selfCount)
+      parts.push((v.classes && v.classes.length || 0) + '节')
+      return parts.join(' · ')
+    },
     onVenueTap: function (v) {
       if (!v) return
-      var id = String(v.venueId || v.venueShort || '')
+      var id = this.venueKey(v)
       this.openedVenueId = this.openedVenueId === id ? '' : id
     },
     onClassTap: function (item) {
@@ -302,17 +306,18 @@ export default {
 }
 .gmc-pop {
   position: absolute;
-  left: 16rpx;
-  right: 16rpx;
-  top: calc(12rpx + env(safe-area-inset-top));
-  bottom: calc(16rpx + env(safe-area-inset-bottom));
-  background: #f4f2ee;
-  border-radius: 24rpx;
-  padding: 16rpx 12rpx 12rpx;
+  left: 20rpx;
+  right: 20rpx;
+  top: calc(80rpx + env(safe-area-inset-top));
+  max-height: calc(100% - 120rpx - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  background: #fff;
+  border-radius: 28rpx;
+  padding: 12rpx 16rpx 18rpx;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-shadow: 0 12rpx 40rpx rgba(0,0,0,.18);
 }
 .gmc-head {
   display: flex;
@@ -367,9 +372,9 @@ export default {
   padding: 3rpx;
 }
 .gmc-card {
-  min-height: 92rpx;
-  border-radius: 12rpx;
-  padding: 6rpx 2rpx 8rpx;
+  min-height: 78rpx;
+  border-radius: 14rpx;
+  padding: 4rpx 2rpx 6rpx;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -414,13 +419,10 @@ export default {
   line-height: 1.2;
 }
 .gmc-agenda {
-  flex: 1;
-  min-height: 200rpx;
-  margin-top: 12rpx;
-  background: #fff;
-  border-radius: 16rpx;
-  padding: 8rpx 20rpx 16rpx;
-  box-sizing: border-box;
+  margin-top: 8rpx;
+  padding: 4rpx 4rpx 0;
+  max-height: 420rpx;
+  overflow: auto;
 }
 .gmc-agenda-head {
   font-size: 30rpx;
@@ -428,18 +430,22 @@ export default {
   color: #1a5c3a;
   padding: 12rpx 0 8rpx;
 }
-.gmc-venue { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #fff; border: 1px solid #e6eee8; border-radius: 10px; padding: 12px; margin-bottom: 8px; }
-.gmc-venue-main { flex: 1; min-width: 0; }
-.gmc-venue-name { font-size: 16px; font-weight: 600; color: #1a5c3a; line-height: 1.3; }
-.gmc-venue-sub { margin-top: 4px; color: #666; font-size: 12px; line-height: 1.4; }
-.gmc-venue-sub text { margin-right: 10px; }
-.gmc-venue-side { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
-.gmc-venue-count { font-size: 12px; color: #909399; line-height: 1.2; }
-.gmc-venue-go { font-size: 13px; color: #1a5c3a; font-weight: 600; line-height: 1.2; }
-.gmc-venue-detail { margin-top: 4px; }
-.gmc-group { margin-bottom: 12px; }
-.gmc-group-title { font-size: 15px; font-weight: 600; color: #1a5c3a; margin: 8px 0; }
-.gmc-group-title.self { color: #6a7c4c; }
+.gmc-venue-wrap { margin-bottom: 8rpx; }
+.gmc-venue { display: flex; align-items: center; gap: 12rpx; background: #f7f8f6; border-radius: 14rpx; padding: 16rpx 18rpx; }
+.gmc-venue.open { background: #eef6f0; }
+.gmc-dot { width: 12rpx; height: 12rpx; border-radius: 50%; background: #1a5c3a; flex-shrink: 0; }
+.gmc-venue-main { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 12rpx; }
+.gmc-venue-name { font-size: 28rpx; font-weight: 700; color: #1a5c3a; }
+.gmc-venue-sub { font-size: 22rpx; color: #7a847c; }
+.gmc-venue-go { font-size: 24rpx; color: #1a5c3a; font-weight: 600; flex-shrink: 0; }
+.gmc-classes { background: #fff; border: 1rpx solid #e6eee8; border-top: 0; border-radius: 0 0 14rpx 14rpx; margin-top: -8rpx; padding: 8rpx 8rpx 4rpx; }
+.gmc-class { display: flex; align-items: center; gap: 12rpx; padding: 14rpx 10rpx; border-top: 1rpx solid #f2f2f2; }
+.gmc-class-time { width: 150rpx; font-size: 24rpx; font-weight: 600; color: #1a5c3a; flex-shrink: 0; }
+.gmc-class-main { flex: 1; min-width: 0; }
+.gmc-class-name { font-size: 26rpx; color: #222; }
+.gmc-class-meta { font-size: 22rpx; color: #999; margin-top: 2rpx; }
+.gmc-class-tag { font-size: 20rpx; color: #1a5c3a; background: #e8f5e9; border-radius: 8rpx; padding: 2rpx 10rpx; }
+.gmc-class-tag.self { color: #6a7c4c; background: #eef3e4; }
 .gmc-agenda-empty {
   font-size: 26rpx;
   color: #999;
