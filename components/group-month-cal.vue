@@ -31,10 +31,10 @@
             <view class="gmc-hol" v-if="d.holiday">{{ d.holiday }}</view>
             <view
               class="gmc-vname"
-              :class="v.hints[0] && v.hints[0].kind === 'self' ? 'self' : ''"
-              v-for="(v, vi) in d.venues.slice(0, 2)"
-              :key="vi"
-            >{{ v.venueShort }}</view>
+              :class="v.kind === 'self' ? 'self' : ''"
+              v-for="(v, vi) in shortVenues(d)"
+              :key="'v' + vi"
+            >{{ v.name }}</view>
             <view class="gmc-more" v-if="d.venueCount > 2">+{{ d.venueCount - 2 }}</view>
           </view>
         </view>
@@ -42,11 +42,11 @@
       <view class="gmc-agenda">
         <view class="gmc-agenda-head">{{ agendaTitle }}</view>
         <view v-if="!dayVenues.length" class="gmc-agenda-empty">这一天没有场地开课</view>
-        <view class="gmc-venue-wrap" v-for="v in dayVenues" :key="v.venueId || v.venueShort">
+        <view class="gmc-venue-wrap" v-for="(v, vi) in dayVenues" :key="venueKey(v) || ('d' + vi)">
           <view class="gmc-venue" :class="{ open: isVenueOpen(v) }" @tap="onVenueTap(v)">
             <view class="gmc-dot"></view>
             <view class="gmc-venue-main">
-              <text class="gmc-venue-name">{{ v.venueShort || v.venueName }}</text>
+              <text class="gmc-venue-name">{{ (v && (v.venueShort || v.venueName)) || '场地' }}</text>
               <text class="gmc-venue-sub">{{ venueSub(v) }}</text>
             </view>
             <text class="gmc-venue-go">{{ isVenueOpen(v) ? '收起' : '查看' }}</text>
@@ -132,14 +132,18 @@ export default {
         }
       }
       var venues = (cell && cell.venues) || []
-      return venues.map(function (v) {
+      return venues.filter(function (v) { return !!v }).map(function (v) {
         var fixedCount = 0
         var selfCount = 0
         ;(v.hints || []).forEach(function (h) {
           if (h && h.kind === 'self') selfCount += 1
           else fixedCount += 1
         })
-        return Object.assign({}, v, { fixedCount: fixedCount, selfCount: selfCount })
+        return Object.assign({}, v, {
+          venueShort: v.venueShort || v.venueName || '场地',
+          fixedCount: fixedCount,
+          selfCount: selfCount
+        })
       })
     },
     openedVenue: function () {
@@ -225,6 +229,20 @@ export default {
     },
     onClose: function () {
       this.$emit('close')
+    },
+    shortVenues: function (d) {
+      var list = (d && d.venues) || []
+      var out = []
+      for (var i = 0; i < list.length && out.length < 2; i++) {
+        var v = list[i]
+        if (!v) continue
+        var hint = (v.hints && v.hints[0]) || {}
+        out.push({
+          name: v.venueShort || v.venueName || '',
+          kind: hint.kind || 'fixed'
+        })
+      }
+      return out
     },
     onDayTap: function (d) {
       if (!d || !d.inMonth || !d.date) return

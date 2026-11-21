@@ -97,6 +97,7 @@ export function decorateVenues(list) {
   const out = []
   for (let i = 0; i < src.length; i++) {
     const v = src[i] || {}
+    if (!v || typeof v !== 'object') continue
     const classes = (v.classes || []).filter(isVisibleCalendarClass)
     if (!classes.length) continue
     out.push({
@@ -171,6 +172,7 @@ export function classesOnDate(calendarDays, date) {
   const out = []
   for (let i = 0; i < venues.length; i++) {
     const v = venues[i]
+    if (!v) continue
     const classes = v.classes || []
     for (let j = 0; j < classes.length; j++) {
       const c = classes[j] || {}
