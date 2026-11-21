@@ -48,15 +48,17 @@
           :key="v.venueId || v.venueShort"
           @tap="onVenueTap(v)"
         >
-          <view class="gmc-venue-top">
-            <text class="gmc-venue-name">{{ v.venueShort || v.venueName }}</text>
+          <view class="gmc-venue-main">
+            <view class="gmc-venue-name">{{ v.venueShort || v.venueName }}</view>
+            <view class="gmc-venue-sub">
+              <text v-if="v.fixedCount">固定团课 {{ v.fixedCount }}</text>
+              <text v-if="v.selfCount">自组团课 {{ v.selfCount }}</text>
+            </view>
+          </view>
+          <view class="gmc-venue-side">
             <text class="gmc-venue-count">{{ v.classes.length }} 节课</text>
+            <text class="gmc-venue-go">查看 ›</text>
           </view>
-          <view class="gmc-venue-sub">
-            <text v-if="v.fixedCount">固定团课 {{ v.fixedCount }}</text>
-            <text v-if="v.selfCount">自组团课 {{ v.selfCount }}</text>
-          </view>
-          <view class="gmc-ag-go">查看 ›</view>
         </view>
         <view v-if="openedVenue" class="gmc-venue-detail">
           <view class="gmc-group-title">{{ openedVenue.venueShort || openedVenue.venueName }}</view>
@@ -426,12 +428,14 @@ export default {
   color: #1a5c3a;
   padding: 12rpx 0 8rpx;
 }
-.gmc-venue { position: relative; background: #fff; border: 1px solid #e6eee8; border-radius: 10px; padding: 12px 12px 10px; margin-bottom: 8px; }
-.gmc-venue-top { display: flex; justify-content: space-between; align-items: center; }
-.gmc-venue-name { font-size: 16px; font-weight: 600; color: #1a5c3a; }
-.gmc-venue-count { font-size: 12px; color: #909399; }
-.gmc-venue-sub { margin-top: 4px; color: #666; font-size: 12px; }
+.gmc-venue { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #fff; border: 1px solid #e6eee8; border-radius: 10px; padding: 12px; margin-bottom: 8px; }
+.gmc-venue-main { flex: 1; min-width: 0; }
+.gmc-venue-name { font-size: 16px; font-weight: 600; color: #1a5c3a; line-height: 1.3; }
+.gmc-venue-sub { margin-top: 4px; color: #666; font-size: 12px; line-height: 1.4; }
 .gmc-venue-sub text { margin-right: 10px; }
+.gmc-venue-side { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+.gmc-venue-count { font-size: 12px; color: #909399; line-height: 1.2; }
+.gmc-venue-go { font-size: 13px; color: #1a5c3a; font-weight: 600; line-height: 1.2; }
 .gmc-venue-detail { margin-top: 4px; }
 .gmc-group { margin-bottom: 12px; }
 .gmc-group-title { font-size: 15px; font-weight: 600; color: #1a5c3a; margin: 8px 0; }
@@ -478,9 +482,10 @@ export default {
   color: #888;
   margin-top: 4rpx;
 }
+.gmc-agenda-item { position: relative; }
 .gmc-ag-go {
   position: absolute;
-  right: 0;
+  right: 8px;
   top: 50%;
   transform: translateY(-50%);
   font-size: 26rpx;
