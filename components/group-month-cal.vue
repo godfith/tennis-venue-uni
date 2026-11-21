@@ -41,22 +41,40 @@
       </view>
       <scroll-view class="gmc-agenda" scroll-y>
         <view class="gmc-agenda-head">{{ agendaTitle }}</view>
-        <view v-if="!agendaGroups.length" class="gmc-agenda-empty">这一天暂无团课</view>
-        <view class="gmc-group" v-for="g in agendaGroups" :key="g.key">
-          <view class="gmc-group-title" :class="g.kind">{{ g.title }}</view>
-          <view v-if="!g.items.length" class="gmc-agenda-empty">暂无时段，教练或店长开课后会出现在这里</view>
-          <view
-            class="gmc-agenda-item"
-            v-for="item in g.items"
-            :key="item._id"
-            @tap="onClassTap(item)"
-          >
-            <view class="gmc-ag-top">
-              <text class="gmc-ag-name">{{ item.courseContentName || item.theme || item.name }}</text>
-              <text class="gmc-ag-type" :class="item.hint && item.hint.kind">{{ item.time || (item.hint && item.hint.text) }}</text>
+        <view v-if="!dayVenues.length" class="gmc-agenda-empty">这一天暂无场地有课</view>
+        <view
+          class="gmc-venue"
+          v-for="v in dayVenues"
+          :key="v.venueId || v.venueShort"
+          @tap="onVenueTap(v)"
+        >
+          <view class="gmc-venue-top">
+            <text class="gmc-venue-name">{{ v.venueShort || v.venueName }}</text>
+            <text class="gmc-venue-count">{{ v.classes.length }} 节课</text>
+          </view>
+          <view class="gmc-venue-sub">
+            <text v-if="v.fixedCount">固定团课 {{ v.fixedCount }}</text>
+            <text v-if="v.selfCount">自组团课 {{ v.selfCount }}</text>
+          </view>
+          <view class="gmc-ag-go">查看 ›</view>
+        </view>
+        <view v-if="openedVenue" class="gmc-venue-detail">
+          <view class="gmc-group-title">{{ openedVenue.venueShort || openedVenue.venueName }}</view>
+          <view class="gmc-group" v-for="g in openedGroups" :key="g.key">
+            <view class="gmc-group-title" :class="g.kind">{{ g.title }}</view>
+            <view
+              class="gmc-agenda-item"
+              v-for="item in g.items"
+              :key="item._id"
+              @tap.stop="onClassTap(item)"
+            >
+              <view class="gmc-ag-top">
+                <text class="gmc-ag-name">{{ item.courseContentName || item.theme || item.name }}</text>
+                <text class="gmc-ag-type">{{ item.time }}</text>
+              </view>
+              <view class="gmc-ag-meta">{{ classMeta(item) }}</view>
+              <view class="gmc-ag-go">报名 ›</view>
             </view>
-            <view class="gmc-ag-meta">{{ classMeta(item) }}</view>
-            <view class="gmc-ag-go">报名 ›</view>
           </view>
         </view>
       </scroll-view>
@@ -69,7 +87,7 @@
           <view class="gmc-leg-dot self"></view>
           <text>自组</text>
         </view>
-        <text class="gmc-leg-tip">点格子看当天课程，点课程报名</text>
+        <text class="gmc-leg-tip">点日期看有课的场地，点场地看课程</text>
       </view>
     </view>
   </view>
@@ -97,7 +115,8 @@ export default {
       weekLabels: WEEK_LABELS,
       calendarDays: {},
       cells: [],
-      loading: false
+      loading: false,
+      openedVenueId: ''
     }
   },
   computed: {
@@ -113,26 +132,47 @@ export default {
     agendaItems: function () {
       return classesOnDate(this.calendarDays, this.selectedDate)
     },
-    agendaGroups: function () {
-      var items = this.agendaItems || []
-      var map = {}
-      var order = []
-      items.forEach(function (item) {
-        var kind = (item.hint && item.hint.kind) || (String(item.classType || item.class_type || '').toLowerCase() === 'self' ? 'self' : 'fixed')
-        var venue = item.venueShort || item.venueName || '门店'
-        var key = kind + '|' + venue
-        if (!map[key]) {
-          map[key] = {
-            key: key,
-            kind: kind,
-            title: (kind === 'self' ? '自组团课' : '固定团课') + ' · ' + venue,
-            items: []
-          }
-          order.push(key)
+    dayVenues: function () {
+      var cell = null
+      var list = this.cells || []
+      for (var i = 0; i < list.length; i++) {
+        if (list[i] && list[i].date === this.selectedDate && list[i].inMonth) {
+          cell = list[i]
+          break
         }
-        map[key].items.push(item)
+      }
+      var venues = (cell && cell.venues) || []
+      return venues.map(function (v) {
+        var fixedCount = 0
+        var selfCount = 0
+        ;(v.hints || []).forEach(function (h) {
+          if (h && h.kind === 'self') selfCount += 1
+          else fixedCount += 1
+        })
+        return Object.assign({}, v, { fixedCount: fixedCount, selfCount: selfCount })
       })
-      return order.map(function (k) { return map[k] })
+    },
+    openedVenue: function () {
+      var id = this.openedVenueId
+      if (!id) return null
+      var venues = this.dayVenues || []
+      for (var i = 0; i < venues.length; i++) {
+        if (String(venues[i].venueId || venues[i].venueShort) === String(id)) return venues[i]
+      }
+      return null
+    },
+    openedGroups: function () {
+      var v = this.openedVenue
+      if (!v) return []
+      var map = { fixed: [], self: [] }
+      ;(v.classes || []).forEach(function (item) {
+        var kind = String(item.classType || item.class_type || '').toLowerCase() === 'self' ? 'self' : 'fixed'
+        map[kind].push(item)
+      })
+      var out = []
+      if (map.fixed.length) out.push({ key: 'fixed', kind: 'fixed', title: '固定团课', items: map.fixed })
+      if (map.self.length) out.push({ key: 'self', kind: 'self', title: '自组团课', items: map.self })
+      return out
     }
   },
   watch: {
@@ -198,7 +238,13 @@ export default {
     },
     onDayTap: function (d) {
       if (!d || !d.inMonth || !d.date) return
+      this.openedVenueId = ''
       this.$emit('pickdate', d.date)
+    },
+    onVenueTap: function (v) {
+      if (!v) return
+      var id = String(v.venueId || v.venueShort || '')
+      this.openedVenueId = this.openedVenueId === id ? '' : id
     },
     onClassTap: function (item) {
       if (!item || !item._id) return
@@ -380,6 +426,13 @@ export default {
   color: #1a5c3a;
   padding: 12rpx 0 8rpx;
 }
+.gmc-venue { position: relative; background: #fff; border: 1px solid #e6eee8; border-radius: 10px; padding: 12px 12px 10px; margin-bottom: 8px; }
+.gmc-venue-top { display: flex; justify-content: space-between; align-items: center; }
+.gmc-venue-name { font-size: 16px; font-weight: 600; color: #1a5c3a; }
+.gmc-venue-count { font-size: 12px; color: #909399; }
+.gmc-venue-sub { margin-top: 4px; color: #666; font-size: 12px; }
+.gmc-venue-sub text { margin-right: 10px; }
+.gmc-venue-detail { margin-top: 4px; }
 .gmc-group { margin-bottom: 12px; }
 .gmc-group-title { font-size: 15px; font-weight: 600; color: #1a5c3a; margin: 8px 0; }
 .gmc-group-title.self { color: #6a7c4c; }
