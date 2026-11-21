@@ -117,12 +117,16 @@ export default {
       var startTimeStr = (booking.time || '').split('-')[0]
       var bookingTime = new Date((booking.date + ' ' + startTimeStr + ':00').replace(/-/g, '/'))
       var diffHours = (bookingTime.getTime() - Date.now()) / 3600000
+      var hasMoney = Number(booking.amount) > 0 || !!(booking.payOrderId || booking.pay_order_id)
       if (diffHours <= 0) {
         this.canCancel = false
         this.tipText = '场次已开始或已结束，无法取消'
       } else if (diffHours < 6) {
         this.canCancel = false
-        this.tipText = '开始前6小时内不可取消'
+        this.tipText = '开始前6小时内不可取消。如需退款，请到前台办理。'
+      } else if (hasMoney && diffHours < 24) {
+        this.canCancel = false
+        this.tipText = '未提前1天取消，不能在小程序退款。请到前台办理退款。'
       } else {
         this.canCancel = true
         this.tipText = ''
@@ -141,9 +145,13 @@ export default {
     },
     onCancel() {
       var that = this
+      var booking = that.booking || {}
+      var hasMoney = Number(booking.amount) > 0 || !!(booking.payOrderId || booking.pay_order_id)
       uni.showModal({
         title: '确认取消',
-        content: '如需退款，会先提交退款申请，管理员确认后才会退款并取消预约。确定继续吗？',
+        content: hasMoney
+          ? '如需退款，会先提交退款申请，管理员确认后才会退款并取消预约。确定继续吗？'
+          : '确定要取消这个预约吗？',
         success: function (res) {
           if (!res.confirm) return
           that.cancelling = true

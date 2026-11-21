@@ -123,11 +123,18 @@ export default {
       this.page = this.page + 1
       this.loadMyBookings()
     },
-    canCancel(booking) {
+    hoursUntilStart(booking) {
+      if (!booking) return 0
       var startTimeStr = (booking.time || '').split('-')[0]
       var bookingTime = new Date((booking.date + ' ' + startTimeStr + ':00').replace(/-/g, '/'))
-      var diffHours = (bookingTime.getTime() - Date.now()) / 3600000
-      return diffHours >= 6
+      if (isNaN(bookingTime.getTime())) return 0
+      return (bookingTime.getTime() - Date.now()) / 3600000
+    },
+    bookingHasMoney(booking) {
+      return Number(booking && booking.amount) > 0 || !!(booking && (booking.payOrderId || booking.pay_order_id))
+    },
+    canCancel(booking) {
+      return this.hoursUntilStart(booking) >= 6
     },
     statusText(item) {
       if (!item) return ''
@@ -145,10 +152,20 @@ export default {
     onCancel(item) {
       var booking = typeof item === 'object' ? item : this.list.find(function (x) { return x._id === item })
       if (!booking) return
-      if (!this.canCancel(booking)) {
+      var hours = this.hoursUntilStart(booking)
+      var hasMoney = this.bookingHasMoney(booking)
+      if (hours < 6) {
         uni.showModal({
           title: '无法取消',
-          content: '预约开始前6小时内不可取消，请提前安排。',
+          content: '预约开始前6小时内不可取消。如需退款，请到前台办理。',
+          showCancel: false
+        })
+        return
+      }
+      if (hasMoney && hours < 24) {
+        uni.showModal({
+          title: '请到前台办理退款',
+          content: '未提前1天取消，不能在小程序退款。请到前台办理退款。',
           showCancel: false
         })
         return
@@ -156,7 +173,7 @@ export default {
       var that = this
       uni.showModal({
         title: '确认取消',
-        content: booking.amount > 0 || booking.payOrderId
+        content: hasMoney
           ? '如需退款，会先提交退款申请，管理员确认后才会退款并取消预约。确定提交吗？'
           : '确定要取消这个预约吗？',
         success: function (res) {
