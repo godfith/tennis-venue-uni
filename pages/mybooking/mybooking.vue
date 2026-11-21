@@ -157,7 +157,7 @@ export default {
       uni.showModal({
         title: '确认取消',
         content: booking.amount > 0 || booking.payOrderId
-          ? '取消后将尝试原路退回微信支付，确定取消吗？'
+          ? '如需退款，会先提交退款申请，管理员确认后才会退款并取消预约。确定提交吗？'
           : '确定要取消这个预约吗？',
         success: function (res) {
           if (!res.confirm) return
@@ -171,7 +171,15 @@ export default {
               uni.showToast({ title: result.msg || '取消失败', icon: 'none', duration: 3000 })
               return
             }
-            uni.showToast({ title: '已取消', icon: 'success' })
+            if (result.pending) {
+              uni.showModal({
+                title: '已提交申请',
+                content: result.msg || '已提交退款申请，请等待管理员确认后才会退款并取消预约',
+                showCancel: false
+              })
+            } else {
+              uni.showToast({ title: '已取消', icon: 'success' })
+            }
             that.loadMyBookings()
           }).catch(function (err) {
             console.error(err)
